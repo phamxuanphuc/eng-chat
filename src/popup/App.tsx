@@ -8,7 +8,7 @@ import { Textarea } from '../components/ui/Textarea';
 import { ToneCard } from '../components/ui/ToneCard';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
-import { Settings, Sparkles, Copy, Check } from 'lucide-react';
+import { Settings, Sparkles, Copy, Check, ExternalLink } from 'lucide-react';
 
 const POPUP_TONES: Array<{ id: ToneType; title: string; icon: string }> = [
   { id: 'polite', title: 'Lịch sự', icon: '🎩' },
@@ -91,12 +91,27 @@ export const App: React.FC = () => {
       </div>
 
       {keyCount === 0 && (
-        <Alert
-          variant="warning"
-          message="Chưa cấu hình API Key"
-          description="Vui lòng bấm vào icon Cài đặt ở trên để thêm Gemini API Key."
-        />
+        <div className="flex flex-col gap-2">
+          <Alert
+            variant="warning"
+            message="Chưa cấu hình API Key"
+            description="Vui lòng bấm vào icon Cài đặt ở trên để thêm Gemini API Key."
+          />
+          <div className="flex items-center justify-between px-1 text-[11px] text-slate-400">
+            <span>Chưa có Google AI Token?</span>
+            <a
+              href="https://aistudio.google.com/app/apikey"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+            >
+              <span>Lấy token miễn phí</span>
+              <ExternalLink size={11} />
+            </a>
+          </div>
+        </div>
       )}
+
 
       <Textarea
         label="Nhập nội dung cần xử lý"

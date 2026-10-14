@@ -150,4 +150,33 @@ describe('E2E Multi-Key Management & Failover', () => {
       expect(stored.apiKeys?.[0].label).toBe('Khóa Beta');
     });
   });
+
+  it('E2E-MK-04: Options and Popup display Google AI Studio token hint link', async () => {
+    const queryClient = createTestQueryClient();
+    const { unmount } = render(
+      <QueryClientProvider client={queryClient}>
+        <OptionsApp />
+      </QueryClientProvider>
+    );
+
+    const optionsLink = screen.getByRole('link', { name: /Google AI Studio/i });
+    expect(optionsLink.getAttribute('href')).toBe('https://aistudio.google.com/app/apikey');
+    expect(optionsLink.getAttribute('target')).toBe('_blank');
+
+    unmount();
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <PopupApp />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      const popupLink = screen.getByRole('link', { name: /Lấy token/i });
+      expect(popupLink.getAttribute('href')).toBe('https://aistudio.google.com/app/apikey');
+      expect(popupLink.getAttribute('target')).toBe('_blank');
+    });
+  });
 });
+
+

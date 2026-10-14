@@ -7,7 +7,7 @@ import { Switch } from '../components/ui/Switch';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
 import { callGeminiApi } from '../services/gemini';
-import { KeyRound, Sparkles, Plus, Trash2, Star } from 'lucide-react';
+import { KeyRound, Sparkles, Plus, Trash2, Star, ExternalLink } from 'lucide-react';
 
 interface ApiKeyManagerProps {
   apiKeys: ApiKeyItem[];
@@ -96,6 +96,20 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
         value={primaryKey}
         onChange={(e) => handlePrimaryChange(e.target.value)}
       />
+
+      <div className="flex items-center justify-between text-xs px-0.5 text-slate-400">
+        <span>Chưa có Google AI Token?</span>
+        <a
+          href="https://aistudio.google.com/app/apikey"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+        >
+          <span>Lấy token miễn phí tại Google AI Studio</span>
+          <ExternalLink size={12} />
+        </a>
+      </div>
+
 
       {apiKeys.length > 1 && (
         <div className="flex flex-col gap-2 pt-1">
