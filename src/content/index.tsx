@@ -14,6 +14,7 @@ let currentEditableEl: HTMLElement | null = null;
 let toolbarState = { visible: false, x: 0, y: 0, isLoading: false };
 let tooltipState = {
   visible: false,
+  mode: 'translate' as 'translate' | 'rewrite',
   originalText: '',
   result: null as any,
   isLoading: false,
@@ -54,7 +55,9 @@ const renderApp = () => {
     <ContentOverlay
       toolbar={toolbarState}
       tooltip={tooltipState}
-      onSelectTone={(tone) => handleTriggerOptimize(tone)}
+      onSelectTone={(tone, mode) => {
+        handleTriggerOptimize(tone, undefined, undefined, mode);
+      }}
       onCloseToolbar={() => {
         toolbarState = { ...toolbarState, visible: false };
         renderApp();
@@ -64,6 +67,7 @@ const renderApp = () => {
         renderApp();
       }}
       onLanguageChange={(lang) => handleLanguageChange(lang)}
+      onModeChange={(newMode) => handleModeChange(newMode)}
       onFollowUp={(query) => handleFollowUp(query)}
       onRegenerate={() => handleRegenerate()}
       onInsertText={(text) => {
@@ -81,7 +85,12 @@ const renderApp = () => {
   );
 };
 
-const handleTriggerOptimize = async (tone: ToneType, settings?: any, customText?: string) => {
+const handleTriggerOptimize = async (
+  tone: ToneType,
+  settings?: any,
+  customText?: string,
+  forcedMode?: 'translate' | 'rewrite'
+) => {
   const activeEl = getActiveEditableElement() || currentEditableEl;
   currentEditableEl = activeEl;
   const targetText = customText || getSelectedText();
@@ -92,9 +101,11 @@ const handleTriggerOptimize = async (tone: ToneType, settings?: any, customText?
     return;
   }
 
-  const isTranslate = tone === 'translate_explain';
-  if (isTranslate) {
-    tooltipState = { ...tooltipState, visible: true, originalText: targetText, isLoading: true, error: null, hasEditableTarget: !!activeEl };
+  const isModalMode = forcedMode === 'rewrite' || forcedMode === 'translate' || tone === 'translate_explain';
+  const mode: 'translate' | 'rewrite' = forcedMode || (tone === 'translate_explain' ? 'translate' : 'rewrite');
+
+  if (isModalMode) {
+    tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: true, error: null, hasEditableTarget: !!activeEl };
     toolbarState = { ...toolbarState, visible: false };
   } else {
     toolbarState = { ...toolbarState, isLoading: true };
@@ -112,21 +123,27 @@ const handleTriggerOptimize = async (tone: ToneType, settings?: any, customText?
     toolbarState = { ...toolbarState, isLoading: false, visible: false };
 
     if (response.success && response.data) {
-      if (!isTranslate && activeEl) {
+      if (!isModalMode && activeEl) {
         const textToReplace = typeof response.data === 'string' ? response.data : response.data.translation;
         replaceTextInElement(activeEl, textToReplace);
       } else {
-        tooltipState = { ...tooltipState, visible: true, originalText: targetText, isLoading: false, result: response.data, error: null, hasEditableTarget: !!activeEl };
+        tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, result: response.data, error: null, hasEditableTarget: !!activeEl };
       }
     } else {
-      tooltipState = { ...tooltipState, visible: true, isLoading: false, error: response.error || 'Có lỗi xảy ra khi gọi AI.', result: null, hasEditableTarget: !!activeEl };
+      tooltipState = { ...tooltipState, visible: true, mode, isLoading: false, error: response.error || 'Có lỗi xảy ra khi gọi AI.', result: null, hasEditableTarget: !!activeEl };
     }
     renderApp();
   } catch (err: any) {
     toolbarState = { ...toolbarState, isLoading: false, visible: false };
-    tooltipState = { ...tooltipState, visible: true, isLoading: false, error: err?.message || 'Lỗi kết nối extension.', result: null, hasEditableTarget: !!activeEl };
+    tooltipState = { ...tooltipState, visible: true, mode, isLoading: false, error: err?.message || 'Lỗi kết nối extension.', result: null, hasEditableTarget: !!activeEl };
     renderApp();
   }
+};
+
+const handleModeChange = (newMode: 'translate' | 'rewrite') => {
+  if (!tooltipState.originalText) return;
+  const tone: ToneType = newMode === 'translate' ? 'translate_explain' : 'professional';
+  handleTriggerOptimize(tone, undefined, tooltipState.originalText, newMode);
 };
 
 const handleFollowUp = async (query: string) => {
@@ -136,9 +153,10 @@ const handleFollowUp = async (query: string) => {
 
   try {
     const prompt = `Văn bản gốc: "${tooltipState.originalText}"\n\nYêu cầu xử lý tiếp theo: ${query}`;
+    const tone: ToneType = tooltipState.mode === 'rewrite' ? 'professional' : 'translate_explain';
     const response: OptimizeResponse = await chrome.runtime.sendMessage({
       action: 'EXECUTE_GEMINI',
-      payload: { text: prompt, tone: 'translate_explain' },
+      payload: { text: prompt, tone },
     });
     tooltipState = { ...tooltipState, isLoading: false, result: response.success ? response.data : null, error: response.success ? null : (response.error || 'Lỗi xử lý') };
     renderApp();
@@ -150,7 +168,8 @@ const handleFollowUp = async (query: string) => {
 
 const handleRegenerate = () => {
   if (tooltipState.originalText) {
-    handleTriggerOptimize('translate_explain', undefined, tooltipState.originalText);
+    const tone: ToneType = tooltipState.mode === 'rewrite' ? 'professional' : 'translate_explain';
+    handleTriggerOptimize(tone, undefined, tooltipState.originalText, tooltipState.mode);
   }
 };
 

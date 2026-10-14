@@ -12,6 +12,7 @@ export interface ContentOverlayProps {
   };
   tooltip: {
     visible: boolean;
+    mode?: 'translate' | 'rewrite';
     isLoading: boolean;
     originalText: string;
     result?: any;
@@ -20,10 +21,11 @@ export interface ContentOverlayProps {
     isPinned?: boolean;
     hasEditableTarget: boolean;
   };
-  onSelectTone: (tone: ToneType) => void;
+  onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite') => void;
   onCloseToolbar: () => void;
   onTogglePin?: () => void;
   onLanguageChange?: (lang: string) => void;
+  onModeChange?: (mode: 'translate' | 'rewrite') => void;
   onFollowUp?: (query: string) => void;
   onRegenerate?: () => void;
   onInsertText: (text: string) => void;
@@ -37,6 +39,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
   onCloseToolbar,
   onTogglePin,
   onLanguageChange,
+  onModeChange,
   onFollowUp,
   onRegenerate,
   onInsertText,
@@ -55,6 +58,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
 
       {tooltip.visible && (
         <TranslatePopup
+          mode={tooltip.mode}
           originalText={tooltip.originalText}
           result={tooltip.result}
           isLoading={tooltip.isLoading}
@@ -64,6 +68,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
           hasEditableTarget={tooltip.hasEditableTarget}
           onTogglePin={onTogglePin}
           onLanguageChange={onLanguageChange}
+          onModeChange={onModeChange}
           onFollowUp={onFollowUp}
           onRegenerate={onRegenerate}
           onInsert={onInsertText}

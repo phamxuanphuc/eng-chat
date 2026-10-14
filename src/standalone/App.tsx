@@ -22,13 +22,19 @@ export const StandaloneApp: React.FC = () => {
   }>({ visible: false, x: 0, y: 0, isLoading: false });
   const [tooltipState, setTooltipState] = useState<{
     isOpen: boolean;
+    mode?: 'translate' | 'rewrite';
     isLoading: boolean;
     result?: any;
     error?: string | null;
-  }>({ isOpen: false, isLoading: false });
+  }>({ isOpen: false, mode: 'translate', isLoading: false });
 
-  const runOptimize = async (tone: ToneType) => {
-    setTooltipState({ isOpen: true, isLoading: true });
+  const runOptimize = async (tone: ToneType, forcedMode?: 'translate' | 'rewrite') => {
+    const isModal = forcedMode === 'rewrite' || forcedMode === 'translate' || tone === 'translate_explain';
+    const mode = forcedMode || (tone === 'translate_explain' ? 'translate' : 'rewrite');
+
+    if (isModal) {
+      setTooltipState({ isOpen: true, mode, isLoading: true });
+    }
     try {
       const inputEl = document.getElementById('standalone-chat-input') as HTMLElement;
       const context = extractChatContext(inputEl, 4);
@@ -40,20 +46,20 @@ export const StandaloneApp: React.FC = () => {
       );
 
       if (response.success && response.data) {
-        if (tone !== 'translate_explain' && inputEl) {
+        if (!isModal && inputEl) {
           const textToInsert =
             typeof response.data === 'string'
               ? response.data
               : response.data.translation;
           replaceTextInElement(inputEl, textToInsert);
           setChatInput(textToInsert);
-          setTooltipState({ isOpen: false, isLoading: false });
         } else {
-          setTooltipState({ isOpen: true, isLoading: false, result: response.data });
+          setTooltipState({ isOpen: true, mode, isLoading: false, result: response.data });
         }
       } else {
         setTooltipState({
           isOpen: true,
+          mode,
           isLoading: false,
           error: response.error || 'Lỗi xử lý',
         });
@@ -61,6 +67,7 @@ export const StandaloneApp: React.FC = () => {
     } catch (err: any) {
       setTooltipState({
         isOpen: true,
+        mode,
         isLoading: false,
         error: err?.message || 'Có lỗi xảy ra',
       });
@@ -190,9 +197,9 @@ export const StandaloneApp: React.FC = () => {
         x={toolbar.x}
         y={toolbar.y}
         isLoading={toolbar.isLoading}
-        onSelectTone={async (tone) => {
+        onSelectTone={async (tone, mode) => {
           setToolbar((prev) => ({ ...prev, isLoading: true }));
-          await runOptimize(tone);
+          await runOptimize(tone, mode);
           setToolbar((prev) => ({ ...prev, isLoading: false, visible: false }));
         }}
         onClose={() => setToolbar((prev) => ({ ...prev, visible: false }))}
@@ -200,19 +207,22 @@ export const StandaloneApp: React.FC = () => {
 
       {tooltipState.isOpen && (
         <TranslatePopup
+          mode={tooltipState.mode}
           originalText={chatInput}
           isLoading={tooltipState.isLoading}
           error={tooltipState.error}
           result={tooltipState.result}
           hasEditableTarget={true}
+          onModeChange={(m) => runOptimize(m === 'rewrite' ? 'professional' : 'translate_explain', m)}
           onFollowUp={async (query) => {
             setTooltipState((p) => ({ ...p, isLoading: true }));
             const prompt = `Văn bản gốc: "${chatInput}"\n\nYêu cầu: ${query}`;
             const settings = await loadSettings();
-            const res = await executeOptimize({ text: prompt, tone: 'translate_explain' }, settings);
-            setTooltipState({ isOpen: true, isLoading: false, result: res.data, error: res.error });
+            const tone: ToneType = tooltipState.mode === 'rewrite' ? 'professional' : 'translate_explain';
+            const res = await executeOptimize({ text: prompt, tone }, settings);
+            setTooltipState({ isOpen: true, mode: tooltipState.mode, isLoading: false, result: res.data, error: res.error });
           }}
-          onRegenerate={() => runOptimize('translate_explain')}
+          onRegenerate={() => runOptimize(tooltipState.mode === 'rewrite' ? 'professional' : 'translate_explain', tooltipState.mode)}
           onInsert={(text) => {
             setChatInput(text);
             setTooltipState({ isOpen: false, isLoading: false });

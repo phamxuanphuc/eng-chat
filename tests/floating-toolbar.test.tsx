@@ -28,9 +28,9 @@ describe('FloatingToolbar Component', () => {
       />
     );
 
-    const polishBtn = screen.getByRole('button', { name: /polish text/i });
+    const polishBtn = screen.getByRole('button', { name: /rewrite text/i });
     fireEvent.click(polishBtn);
-    expect(onSelectTone).toHaveBeenCalledWith('professional');
+    expect(onSelectTone).toHaveBeenCalledWith('professional', 'rewrite');
 
     const optimizeBtn = screen.getByRole('button', { name: /ai optimize/i });
     fireEvent.click(optimizeBtn);
@@ -68,7 +68,7 @@ describe('FloatingToolbar Component', () => {
       />
     );
 
-    const polishBtn = screen.getByRole('button', { name: /polish text/i });
+    const polishBtn = screen.getByRole('button', { name: /rewrite text/i });
     expect(polishBtn.hasAttribute('disabled')).toBe(true);
 
     const optimizeBtn = screen.getByRole('button', { name: /ai optimize/i });
@@ -88,6 +88,6 @@ describe('FloatingToolbar Component', () => {
 
     const translateBtn = screen.getByRole('button', { name: /dịch & giải thích/i });
     fireEvent.click(translateBtn);
-    expect(onSelectTone).toHaveBeenCalledWith('translate_explain');
+    expect(onSelectTone).toHaveBeenCalledWith('translate_explain', 'translate');
   });
 });

@@ -125,4 +125,29 @@ describe('TranslatePopup Component', () => {
     expect(screen.getByText('implementation')).toBeDefined();
     expect(screen.getByText('solid')).toBeDefined();
   });
+
+  it('TC-TP-07: Renders Rewrite mode with PenLine icon and without language selector', () => {
+    const handleModeChange = vi.fn();
+    render(
+      <TranslatePopup
+        mode="rewrite"
+        originalText="Currently the system works..."
+        result="While section navigation functions correctly..."
+        isLoading={false}
+        onModeChange={handleModeChange}
+        onClose={() => {}}
+      />
+    );
+
+    expect(screen.getByText('Rewrite')).toBeDefined();
+    expect(screen.getByText('While section navigation functions correctly...')).toBeDefined();
+    expect(screen.queryByRole('button', { name: /vietnamese/i })).toBeNull();
+    expect(screen.queryByText(/engchat translation are based/i)).toBeNull();
+
+    const modeBtn = screen.getByText('Rewrite');
+    fireEvent.click(modeBtn);
+    const translateOption = screen.getByRole('button', { name: /^translate$/i });
+    fireEvent.click(translateOption);
+    expect(handleModeChange).toHaveBeenCalledWith('translate');
+  });
 });

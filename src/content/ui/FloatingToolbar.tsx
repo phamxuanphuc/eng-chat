@@ -18,7 +18,7 @@ export interface FloatingToolbarProps {
   x: number;
   y: number;
   isLoading?: boolean;
-  onSelectTone: (tone: ToneType) => void;
+  onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite') => void;
   onClose?: () => void;
 }
 
@@ -51,9 +51,13 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
 
   if (!visible) return null;
 
-  const handleToneClick = (tone: ToneType) => {
+  const handleToneClick = (tone: ToneType, mode?: 'translate' | 'rewrite') => {
     setMenuOpen(false);
-    onSelectTone(tone);
+    if (mode) {
+      onSelectTone(tone, mode);
+    } else {
+      onSelectTone(tone);
+    }
   };
 
   return (
@@ -72,7 +76,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         <button
           type="button"
           disabled={isLoading}
-          onClick={() => handleToneClick('translate_explain')}
+          onClick={() => handleToneClick('translate_explain', 'translate')}
           className="p-1.5 rounded-full text-slate-300 hover:text-indigo-300 hover:bg-slate-800/80 active:bg-slate-700/60 transition-colors disabled:opacity-50 cursor-pointer"
           title="Dịch & Giải thích (Translate)"
           aria-label="Dịch & Giải thích"
@@ -85,10 +89,10 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         <button
           type="button"
           disabled={isLoading}
-          onClick={() => handleToneClick('professional')}
+          onClick={() => handleToneClick('professional', 'rewrite')}
           className="p-1.5 rounded-full text-slate-300 hover:text-indigo-300 hover:bg-slate-800/80 active:bg-slate-700/60 transition-colors disabled:opacity-50 cursor-pointer"
-          title="Làm mượt văn bản (Professional)"
-          aria-label="Polish text"
+          title="Viết lại văn bản (Rewrite)"
+          aria-label="Rewrite text"
         >
           <PenLine size={15} />
         </button>
