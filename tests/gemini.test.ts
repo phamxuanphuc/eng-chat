@@ -6,7 +6,7 @@ import {
   mockGeminiJsonRawResponse,
   mockTranslateExplainResult,
 } from './mocks/gemini.mock';
-import { mockDefaultSettings } from './mocks/settings.mock';
+import { mockDefaultSettings, mockMultiKeySettings, mockEmptySettings } from './mocks/settings.mock';
 
 vi.mock('axios');
 
@@ -97,4 +97,62 @@ describe('Gemini Service & Axios Client', () => {
     expect(response.success).toBe(true);
     expect(response.data).toEqual(mockTranslateExplainResult);
   });
+
+  it('TC-GM-06: executeOptimize fails over to backup key on 429 quota error', async () => {
+    const error429 = {
+      isAxios: true,
+      response: {
+        status: 429,
+        data: { error: { message: 'RESOURCE_EXHAUSTED' } },
+      },
+    };
+
+    vi.mocked(axios.post)
+      .mockRejectedValueOnce(error429)
+      .mockResolvedValueOnce({
+        data: mockGeminiSuccessRawResponse,
+      });
+
+    const response = await executeOptimize(
+      { text: 'Hello', tone: 'professional' },
+      mockMultiKeySettings
+    );
+
+    expect(response.success).toBe(true);
+    expect(axios.post).toHaveBeenCalledTimes(2);
+    expect((axios.post as any).mock.calls[0][1].contents).toBeDefined();
+  });
+
+  it('TC-GM-07: executeOptimize does not rotate keys when autoRotateKeys is false', async () => {
+    const error429 = {
+      isAxios: true,
+      response: {
+        status: 429,
+        data: { error: { message: 'RESOURCE_EXHAUSTED' } },
+      },
+    };
+
+    vi.mocked(axios.post).mockRejectedValueOnce(error429);
+
+    const noRotateSettings = { ...mockMultiKeySettings, autoRotateKeys: false };
+    const response = await executeOptimize(
+      { text: 'Hello', tone: 'professional' },
+      noRotateSettings
+    );
+
+    expect(response.success).toBe(false);
+    expect(axios.post).toHaveBeenCalledTimes(1);
+    expect(response.error).toContain('Đã vượt quá hạn mức gọi API');
+  });
+
+  it('TC-GM-08: executeOptimize returns error when no API keys configured', async () => {
+    const response = await executeOptimize(
+      { text: 'Hello', tone: 'professional' },
+      mockEmptySettings
+    );
+
+    expect(response.success).toBe(false);
+    expect(response.error).toContain('Chưa cấu hình API Key');
+  });
 });
+

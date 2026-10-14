@@ -8,6 +8,7 @@ import { Switch } from '../src/components/ui/Switch';
 import { Loader } from '../src/components/ui/Loader';
 import { ToneCard } from '../src/components/ui/ToneCard';
 import { Alert } from '../src/components/ui/Alert';
+import { Badge } from '../src/components/ui/Badge';
 
 describe('Uiverse Galaxy UI Components', () => {
   it('TC-UI-01: Button renders variants and handles click & loading', () => {
@@ -129,4 +130,16 @@ describe('Uiverse Galaxy UI Components', () => {
     fireEvent.click(closeBtn);
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
+
+  it('TC-UI-08: Badge renders with text and variant style', () => {
+    const { container } = render(
+      <Badge variant="success" size="sm">
+        Hoạt động
+      </Badge>
+    );
+    expect(screen.getByText('Hoạt động')).toBeDefined();
+    expect((container.firstChild as HTMLElement).className).toContain('text-emerald-300');
+  });
+
 });
+

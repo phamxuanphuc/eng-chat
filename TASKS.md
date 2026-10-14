@@ -77,10 +77,17 @@ Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, 
 - [x] **Task 7.2**: `src/popup/App.tsx`: Quick panel tra cứu trạng thái kết nối, dịch nhanh.
 - [x] **Task 7.3**: HTML entrypoints (`src/options/index.html`, `src/popup/index.html`).
 
-### Giai đoạn 8: Kiểm Thử Toàn Diện, Build & E2E Verification
-- [x] **Task 8.1**: Toàn bộ unit tests pass 100% (`pnpm test`) - Đạt 29/29 tests pass.
-- [x] **Task 8.2**: Biên dịch production (`pnpm build`) sạch, không lỗi type-check (đóng gói ra thư mục `dist/`).
-- [ ] **Task 8.3**: Hướng dẫn nạp tiện ích vào `chrome://extensions` để người dùng trải nghiệm thực tế.
+### Giai đoạn 8: Hỗ Trợ Đa Google AI API Key & Failover (Multi-Key Management)
+- [x] **Task 8.1**: Mở rộng schema `AppSettings` với `apiKeys: ApiKeyItem[]` và `autoRotateKeys: boolean`.
+- [x] **Task 8.2**: Xây dựng UI component `ApiKeyManager.tsx` và `Badge.tsx` theo chuẩn Uiverse Galaxy.
+- [x] **Task 8.3**: Tích hợp cơ chế failover trong `gemini.ts` (tự động luân phiên khi gặp mã 429 hoặc 401/403).
+- [x] **Task 8.4**: Cập nhật giao diện Popup hiển thị số lượng API keys sẵn sàng.
+- [x] **Task 8.5**: Bổ sung bộ test unit và E2E cho Multi-Key failover (`tests/e2e-multi-key.test.tsx`).
+
+### Giai đoạn 9: Kiểm Thử Toàn Diện, Build & E2E Verification
+- [x] **Task 9.1**: Toàn bộ unit tests & E2E tests pass 100% (`pnpm test`) - Đạt 44/44 tests pass (10 test suites).
+- [x] **Task 9.2**: Biên dịch production (`pnpm build`) sạch, không lỗi type-check (đóng gói ra thư mục `dist/`).
+- [ ] **Task 9.3**: Hướng dẫn nạp tiện ích vào `chrome://extensions` để người dùng trải nghiệm thực tế.
 
 ---
 
@@ -95,12 +102,20 @@ Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, 
 | **TC-GM-02** | `gemini.ts` | Gọi API với mã lỗi 401 | Báo lỗi "API Key không hợp lệ" |
 | **TC-GM-03** | `gemini.ts` | Gọi API với mã lỗi 429 | Báo lỗi "Đã vượt hạn mức (Quota exceeded)" |
 | **TC-GM-04** | `gemini.ts` | Parse phản hồi JSON hợp lệ | Trả về object `TranslateExplainResult` đầy đủ trường |
+| **TC-GM-06** | `gemini.ts` | Tự động chuyển key dự phòng khi gặp 429 | Gọi tiếp key thứ 2 và trả về kết quả thành công |
+| **TC-GM-07** | `gemini.ts` | Dừng lại khi `autoRotateKeys: false` | Báo lỗi ngay lập tức, không gọi tiếp key dự phòng |
 | **TC-ST-01** | `storage.ts` | Đọc storage khi chưa có dữ liệu | Trả về giá trị mặc định cấu hình an toàn |
 | **TC-ST-02** | `storage.ts` | Cập nhật API key mới | Dữ liệu được ghi vào storage thành công |
+| **TC-ST-04** | `storage.ts` | Lưu và nạp nhiều API keys kèm cấu hình xoay tua | Dữ liệu mảng `apiKeys` được bảo toàn nguyên vẹn |
 | **TC-DM-01** | `dom-utils.ts`| Thay thế text trên `<input>` | Value thay đổi và kích hoạt event `input`, `change` |
 | **TC-DM-02** | `dom-utils.ts`| Thay thế text trên `contenteditable` | Nội dung text trong node được cập nhật chính xác |
 | **TC-UI-01** | `Button.tsx` | Click button khi đang `isLoading` | Không kích hoạt sự kiện click, hiển thị spinner |
 | **TC-UI-02** | `Switch.tsx` | Click toggle switch | Giá trị boolean đảo chiều và kích hoạt `onChange` |
+| **TC-UI-08** | `Badge.tsx`  | Hiển thị badge galaxy với màu và kích thước | Render chính xác class và text |
+| **E2E-MK-01** | `OptionsApp`| Thêm key chính & key dự phòng | Storage ghi nhận cả 2 key với nhãn tùy biến |
+| **E2E-MK-02** | `PopupApp`  | Hiển thị badge số lượng key và tối ưu text | Badge "2 Keys" và kết quả tối ưu hiển thị |
+| **E2E-MK-03** | `OptionsApp`| Đặt key dự phòng thành key chính | Thứ tự key được đảo vị trí và lưu an toàn |
+
 
 ---
 

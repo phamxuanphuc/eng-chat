@@ -47,4 +47,22 @@ describe('Storage & Settings Store', () => {
     expect(current.geminiApiKey).toBe('new-key-xyz');
     expect(current.enableChatContext).toBe(false);
   });
+
+  it('TC-ST-04: loads and saves multiple API keys with auto-rotation setting', async () => {
+    const customKeys = [
+      { id: 'k1', label: 'Main', key: 'key-1' },
+      { id: 'k2', label: 'Backup', key: 'key-2' },
+    ];
+    await saveSettings({
+      apiKeys: customKeys,
+      autoRotateKeys: true,
+      geminiApiKey: 'key-1',
+    });
+
+    const loaded = await loadSettings();
+    expect(loaded.apiKeys).toEqual(customKeys);
+    expect(loaded.autoRotateKeys).toBe(true);
+    expect(loaded.geminiApiKey).toBe('key-1');
+  });
 });
+

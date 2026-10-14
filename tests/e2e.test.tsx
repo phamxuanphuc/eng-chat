@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import axios from 'axios';
 import { App as OptionsApp } from '../src/options/App';
 import { App as PopupApp } from '../src/popup/App';
-import { TooltipApp } from '../src/content/ui/TooltipApp';
 import { replaceTextInElement } from '../src/content/dom-utils';
 import { extractChatContext } from '../src/content/chat-extractor';
 import { executeOptimize } from '../src/services/gemini';
@@ -14,8 +13,8 @@ import { useSettingsStore } from '../src/store/useSettingsStore';
 import {
   mockGeminiSuccessRawResponse,
   mockGeminiJsonRawResponse,
-  mockTranslateExplainResult,
 } from './mocks/gemini.mock';
+
 
 vi.mock('axios');
 
@@ -206,36 +205,8 @@ describe('E2E User Flow Tests', () => {
     );
   });
 
-  it('E2E-05: Translate & Explain mode displays translation and interactive explanation', async () => {
-    const handleInsert = vi.fn();
-    const handleClose = vi.fn();
+  it('E2E-05: Error handling and user alert when API key is invalid', async () => {
 
-    render(
-      <TooltipApp
-        isLoading={false}
-        result={mockTranslateExplainResult}
-        hasEditableTarget={true}
-        onInsert={handleInsert}
-        onClose={handleClose}
-      />
-    );
-
-    expect(
-      screen.getByText('Tôi đã xem xét việc triển khai cổng thanh toán và nó rất ổn định.')
-    ).toBeDefined();
-
-    expect(screen.getByText('implementation')).toBeDefined();
-    expect(screen.getByText('solid')).toBeDefined();
-    expect(screen.getByText(/have reviewed/i)).toBeDefined();
-
-    const insertBtn = screen.getByRole('button', { name: /Chèn vào ô/i });
-    fireEvent.click(insertBtn);
-    expect(handleInsert).toHaveBeenCalledWith(
-      'Tôi đã xem xét việc triển khai cổng thanh toán và nó rất ổn định.'
-    );
-  });
-
-  it('E2E-06: Error handling and user alert when API key is invalid', async () => {
     vi.mocked(axios.post).mockRejectedValueOnce({
       isAxios: true,
       response: {

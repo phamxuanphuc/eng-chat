@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
 import { useSettingsStore } from '../store/useSettingsStore';
-import { callGeminiApi } from '../services/gemini';
-import { ToneType } from '../types';
+import { ApiKeyItem, ToneType } from '../types';
+import { ApiKeyManager } from './ApiKeyManager';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Switch } from '../components/ui/Switch';
 import { ToneCard } from '../components/ui/ToneCard';
 import { Alert } from '../components/ui/Alert';
-import { KeyRound, Sparkles, Check, Save } from 'lucide-react';
+import { Check, Save } from 'lucide-react';
 
 const TONES_LIST: Array<{ id: ToneType; title: string; desc: string; icon: string }> = [
   { id: 'polite', title: 'Lịch sự & Trang trọng', desc: 'Email đối tác, thư từ trang trọng', icon: '🎩' },
@@ -27,7 +26,8 @@ const MODELS = [
 export const App: React.FC = () => {
   const { settings, fetchSettings, updateSettings } = useSettingsStore();
 
-  const [apiKey, setApiKey] = useState('');
+  const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([]);
+  const [autoRotate, setAutoRotate] = useState(true);
   const [model, setModel] = useState('gemini-2.0-flash');
   const [tone, setTone] = useState<ToneType>('professional');
   const [chatContext, setChatContext] = useState(true);
@@ -40,7 +40,13 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (settings) {
-      setApiKey(settings.geminiApiKey || '');
+      const keys = settings.apiKeys && settings.apiKeys.length > 0
+        ? settings.apiKeys
+        : settings.geminiApiKey
+        ? [{ id: 'key-1', label: 'Khóa chính', key: settings.geminiApiKey }]
+        : [];
+      setApiKeys(keys);
+      setAutoRotate(settings.autoRotateKeys ?? true);
       setModel(settings.selectedModel || 'gemini-2.0-flash');
       setTone(settings.defaultTone || 'professional');
       setChatContext(settings.enableChatContext ?? true);
@@ -48,20 +54,11 @@ export const App: React.FC = () => {
     }
   }, [settings]);
 
-  const testMutation = useMutation({
-    mutationFn: async () => {
-      return await callGeminiApi({
-        apiKey,
-        model,
-        systemInstruction: 'You are a test helper. Reply with single word "OK".',
-        prompt: 'Ping',
-      });
-    },
-  });
-
   const handleSave = async () => {
     await updateSettings({
-      geminiApiKey: apiKey,
+      geminiApiKey: apiKeys[0]?.key || '',
+      apiKeys,
+      autoRotateKeys: autoRotate,
       selectedModel: model,
       defaultTone: tone,
       enableChatContext: chatContext,
@@ -84,35 +81,14 @@ export const App: React.FC = () => {
       </div>
 
       <div className="flex flex-col gap-6">
-        <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
-          <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-            <KeyRound size={16} className="text-indigo-400" /> Cấu hình Gemini API Key
-          </h2>
-          <Input
-            label="Google Gemini API Key"
-            type="password"
-            placeholder="AIzaSy..."
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-          />
-          <div className="flex items-center gap-3 pt-1">
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={<Sparkles size={14} className="text-indigo-400" />}
-              isLoading={testMutation.isPending}
-              onClick={() => testMutation.mutate()}
-            >
-              Kiểm tra kết nối
-            </Button>
-          </div>
-          {testMutation.isSuccess && (
-            <Alert variant="success" message="Kết nối thành công! API Key hoạt động bình thường." />
-          )}
-          {testMutation.isError && (
-            <Alert variant="error" message="Kiểm tra kết nối thất bại" description={testMutation.error?.message} />
-          )}
-        </div>
+        <ApiKeyManager
+          apiKeys={apiKeys}
+          onUpdateKeys={setApiKeys}
+          autoRotate={autoRotate}
+          onToggleAutoRotate={setAutoRotate}
+          selectedModel={model}
+        />
+
 
         <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
           <h2 className="text-sm font-semibold text-slate-200">Mô hình AI (Model)</h2>

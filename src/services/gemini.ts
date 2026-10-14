@@ -83,23 +83,72 @@ export const callGeminiApi = async (params: {
   }
 };
 
+export const extractCandidateKeys = (settings: AppSettings): string[] => {
+  const keys: string[] = [];
+  if (settings.geminiApiKey && settings.geminiApiKey.trim()) {
+    keys.push(settings.geminiApiKey.trim());
+  }
+  if (Array.isArray(settings.apiKeys)) {
+    for (const item of settings.apiKeys) {
+      const trimmed = item.key?.trim();
+      if (trimmed && !keys.includes(trimmed)) {
+        keys.push(trimmed);
+      }
+    }
+  }
+  return keys;
+};
+
 export const executeOptimize = async (
   request: OptimizeRequest,
   settings: AppSettings
 ): Promise<OptimizeResponse> => {
   try {
+    const candidateKeys = extractCandidateKeys(settings);
+    if (candidateKeys.length === 0) {
+      throw new Error('Chưa cấu hình API Key. Vui lòng mở Cài đặt để thêm Gemini API Key.');
+    }
+
     const systemInstruction = buildSystemInstruction(request.tone);
     const userPrompt = buildUserPrompt(
       request.text,
       settings.enableChatContext ? request.contextMessages : undefined
     );
 
-    const rawResult = await callGeminiApi({
-      apiKey: settings.geminiApiKey,
-      model: settings.selectedModel || 'gemini-2.0-flash',
-      systemInstruction,
-      prompt: userPrompt,
-    });
+    let rawResult = '';
+    let lastError: any = null;
+
+    for (let i = 0; i < candidateKeys.length; i++) {
+      const currentKey = candidateKeys[i];
+      try {
+        rawResult = await callGeminiApi({
+          apiKey: currentKey,
+          model: settings.selectedModel || 'gemini-2.0-flash',
+          systemInstruction,
+          prompt: userPrompt,
+        });
+        lastError = null;
+        break;
+      } catch (err: any) {
+        lastError = err;
+        const msg = String(err?.message || '');
+        const isQuotaOrAuth =
+          msg.includes('hạn mức') ||
+          msg.includes('không chính xác') ||
+          msg.includes('429') ||
+          msg.includes('401') ||
+          msg.includes('403');
+
+        if (settings.autoRotateKeys !== false && isQuotaOrAuth && i < candidateKeys.length - 1) {
+          continue;
+        }
+        throw err;
+      }
+    }
+
+    if (lastError) {
+      throw lastError;
+    }
 
     if (request.tone === 'translate_explain') {
       try {

@@ -12,8 +12,16 @@ export interface ToneOption {
   icon: string;
 }
 
+export interface ApiKeyItem {
+  id: string;
+  label: string;
+  key: string;
+}
+
 export interface AppSettings {
   geminiApiKey: string;
+  apiKeys?: ApiKeyItem[];
+  autoRotateKeys?: boolean;
   selectedModel: string;
   defaultTone: ToneType;
   enableChatContext: boolean;

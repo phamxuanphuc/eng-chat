@@ -50,7 +50,9 @@ Tài liệu này đề xuất giải pháp kiến trúc và kỹ thuật để t
 ### 3.1. Dịch Vụ Lưu Trữ (`src/services/storage.ts`)
 - Sử dụng `chrome.storage.sync` (hoặc `chrome.storage.local` khi dữ liệu lớn).
 - Schema cấu hình:
-  - `geminiApiKey`: Chuỗi khóa API.
+  - `geminiApiKey`: Chuỗi khóa API chính.
+  - `apiKeys`: Mảng các đối tượng khóa `Array<{ id: string; label: string; key: string }>`.
+  - `autoRotateKeys`: `boolean` (mặc định: `true`) - Tự động luân phiên sang khóa tiếp theo khi gặp 429 / 401 / 403.
   - `selectedModel`: `gemini-2.0-flash` (mặc định), `gemini-1.5-flash`,...
   - `defaultTone`: `polite` | `professional` | `friendly` | `concise` | `translate_explain`.
   - `enableChatContext`: `boolean` (mặc định: `true`).
@@ -58,9 +60,13 @@ Tài liệu này đề xuất giải pháp kiến trúc và kỹ thuật để t
 
 ### 3.2. Dịch Vụ Gemini AI (`src/services/gemini.ts`)
 - **Endpoint**: `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`
+- **Cơ chế Failover đa khóa (Multi-Key Failover)**:
+  - Nạp danh sách ứng viên khóa từ `extractCandidateKeys(settings)`.
+  - Khi khóa đang gọi trả về lỗi 429 (Resource Exhausted) hoặc 401/403, tự động chuyển sang khóa dự phòng kế tiếp nếu `autoRotateKeys` được bật.
 - **System Instruction**:
   - *Chế độ tối ưu văn phong*: Áp dụng văn phong chỉ định (`polite`, `professional`, `friendly`, `concise`), sử dụng context chat nếu có, chỉ trả về văn bản kết quả thuần túy không kèm giải thích.
   - *Chế độ Dịch & Giải thích (`translate_explain`)*: Trả về kết quả có cấu trúc gồm: Bản dịch chính xác + Phân tích từ vựng trọng tâm + Giải thích ngữ pháp và sắc thái biểu đạt.
+
 
 ### 3.3. Background Service Worker (`src/background/index.ts`)
 - Khởi tạo `chrome.contextMenus` đa cấp khi cài đặt extension:

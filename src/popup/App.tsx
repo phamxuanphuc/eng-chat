@@ -7,7 +7,8 @@ import { Button } from '../components/ui/Button';
 import { Textarea } from '../components/ui/Textarea';
 import { ToneCard } from '../components/ui/ToneCard';
 import { Alert } from '../components/ui/Alert';
-import { Settings, Sparkles, Copy, Check, ArrowRight } from 'lucide-react';
+import { Badge } from '../components/ui/Badge';
+import { Settings, Sparkles, Copy, Check } from 'lucide-react';
 
 const POPUP_TONES: Array<{ id: ToneType; title: string; icon: string }> = [
   { id: 'polite', title: 'Lịch sự', icon: '🎩' },
@@ -57,6 +58,10 @@ export const App: React.FC = () => {
     }
   };
 
+  const keyCount = settings.apiKeys && settings.apiKeys.length > 0
+    ? settings.apiKeys.length
+    : settings.geminiApiKey ? 1 : 0;
+
   const resultData = optimizeMutation.data;
   const isExplain =
     resultData && typeof resultData === 'object' && 'translation' in resultData;
@@ -72,18 +77,20 @@ export const App: React.FC = () => {
           <span className="font-bold text-sm bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
             EngChat AI
           </span>
+          <Badge variant={keyCount > 0 ? 'success' : 'warning'} size="sm">
+            {keyCount > 0 ? `${keyCount} Keys` : 'Chưa có Key'}
+          </Badge>
         </div>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={<Settings size={15} />}
           onClick={openOptions}
-          className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-          title="Cài đặt"
-        >
-          <Settings size={16} />
-        </button>
+          aria-label="Cài đặt"
+        />
       </div>
 
-      {!settings.geminiApiKey && (
+      {keyCount === 0 && (
         <Alert
           variant="warning"
           message="Chưa cấu hình API Key"

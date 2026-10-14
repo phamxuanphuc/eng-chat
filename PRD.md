@@ -14,12 +14,15 @@ EngChat AI là tiện ích mở rộng (Chrome Extension Manifest V3) giúp ngư
 
 ## 3. Các Tính Năng Chính (Core Features)
 
-### 3.1. Quản Lý Cấu Hình (Settings & Options)
-- Nhập và lưu trữ an toàn Gemini API Key bằng `chrome.storage.sync`.
+### 3.1. Quản Lý Cấu Hình & Đa API Key (Settings & Multi-Key Management)
+- Nhập và lưu trữ an toàn nhiều Gemini API Keys bằng `chrome.storage.sync`.
+- Hỗ trợ gán nhãn tùy chỉnh cho từng API key, đánh dấu khóa ưu tiên (Primary) và các khóa dự phòng (Backup).
+- Cơ chế tự động luân phiên (Failover): Tự động chuyển khóa tiếp theo khi gặp lỗi 429 (Resource Exhausted / Quota Exceeded) hoặc 401/403.
 - Chọn model Gemini (`gemini-2.0-flash`, `gemini-1.5-flash`,...).
 - Nút kiểm tra kết nối (Test API Key).
 - Cài đặt văn phong mặc định khi dùng phím tắt hoặc click nhanh.
 - Bật/tắt và giới hạn số lượng tin nhắn context trích xuất từ đoạn chat.
+
 
 ### 3.2. Menu Chuột Phải (Context Menu)
 - Hiển thị menu ngữ cảnh khi người dùng bôi đen đoạn văn bản hoặc click vào ô nhập liệu (`input`, `textarea`, `contenteditable`).
