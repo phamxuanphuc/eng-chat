@@ -19,6 +19,7 @@ EngChat AI là tiện ích mở rộng (Chrome Extension Manifest V3) giúp ngư
 - Chọn model Gemini (`gemini-2.0-flash`, `gemini-1.5-flash`,...).
 - Nút kiểm tra kết nối (Test API Key).
 - Cài đặt văn phong mặc định khi dùng phím tắt hoặc click nhanh.
+- Bật/tắt và giới hạn số lượng tin nhắn context trích xuất từ đoạn chat.
 
 ### 3.2. Menu Chuột Phải (Context Menu)
 - Hiển thị menu ngữ cảnh khi người dùng bôi đen đoạn văn bản hoặc click vào ô nhập liệu (`input`, `textarea`, `contenteditable`).
@@ -35,8 +36,13 @@ EngChat AI là tiện ích mở rộng (Chrome Extension Manifest V3) giúp ngư
 
 ### 3.4. Dịch Vụ Gemini AI (AI Engine)
 - Tích hợp trực tiếp Google Gemini REST API.
-- Prompt chuẩn hóa: Chỉ trả về nội dung đã dịch và chau chuốt, giữ nguyên ý nghĩa, không kèm lời giải thích thừa.
+- Prompt chuẩn hóa: Hỗ trợ cả chế độ dịch trực tiếp và chế độ tối ưu dựa trên ngữ cảnh hội thoại (Contextual Prompting). Chỉ trả về nội dung hoàn chỉnh, không kèm lời giải thích thừa.
 - Xử lý lỗi thân thiện: Báo lỗi rõ ràng khi sai API Key, hết quota hoặc mất kết nối mạng.
+
+### 3.5. Trích Xuất Ngữ Cảnh Hội Thoại (Chat Context Awareness)
+- **Tự động nhận diện ngữ cảnh chat**: Khi người dùng đang ở trong khung chat (Slack, Teams, Messenger, WhatsApp, Discord,...), quét và lấy 3-5 tin nhắn gần nhất trong luồng hội thoại.
+- **Bổ sung ngữ cảnh vào Prompt**: Đóng gói lịch sử hội thoại gần nhất đưa vào prompt giúp Gemini nắm bắt vai trò, chủ đề và ý đồ phản hồi.
+- **Độ chính xác cao**: Giúp câu tiếng Anh trả về chuẩn ngữ pháp, xưng hô phù hợp và liền mạch với mạch trao đổi của cuộc trò chuyện.
 
 ---
 
@@ -52,13 +58,14 @@ EngChat AI là tiện ích mở rộng (Chrome Extension Manifest V3) giúp ngư
 - Xây dựng module kết nối Gemini API và định nghĩa prompt chuẩn.
 - Thao tác DOM cơ bản: Đọc text và thay thế trong `<input>`, `<textarea>`.
 
-### Giai đoạn 3: Hoàn Thiện Trải Nghiệm Người Dùng (UX Polish & Advanced DOM)
+### Giai đoạn 3: Ngữ Cảnh Hội Thoại & Hoàn Thiện UX (Chat Context & UX Polish)
+- Xây dựng module trích xuất tin nhắn trước đó (Chat Context Extractor).
 - Hỗ trợ các trình soạn thảo rich-text (`contenteditable`).
 - Thêm Floating Preview Tooltip cho text bôi đen thông thường.
 - Bổ sung hiệu ứng loading và thông báo lỗi trực quan.
 - Tích hợp phím tắt nhanh (`chrome.commands`).
 
 ### Giai đoạn 4: Kiểm Thử & Tối Ưu Hóa (Testing & E2E Verification)
-- Viết Unit Tests cho các module logic (Prompt builder, Storage, API Parser).
-- Kiểm thử thực tế trên các trang web phổ biến (Gmail, Slack Web, GitHub, Twitter).
+- Viết Unit Tests cho các module logic (Prompt builder, Storage, Chat Context Parser, API Parser).
+- Kiểm thử thực tế trên các trang web phổ biến (Gmail, Slack Web, GitHub, Discord, Messenger).
 - Tinh chỉnh theo tiêu chuẩn [Agents.md](file:///Users/phucpham/Desktop/game/eng-chat/Agents.md) trước khi bàn giao.
