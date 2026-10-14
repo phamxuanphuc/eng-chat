@@ -8,7 +8,7 @@ import {
 describe('Background Service Worker', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (global as any).chrome = {
+    (globalThis as any).chrome = {
       contextMenus: {
         removeAll: vi.fn((cb) => cb && cb()),
         create: vi.fn(),

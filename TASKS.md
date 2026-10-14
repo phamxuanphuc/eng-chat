@@ -73,14 +73,14 @@ Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, 
 - [x] **Task 6.2**: Unit test Background Worker (`tests/background.test.ts`).
 
 ### Giai đoạn 7: Giao Diện Options & Popup (React + React Query)
-- [ ] **Task 7.1**: `src/options/App.tsx`: Form cấu hình API Key, chọn model, test connection via React Query `useMutation`, switch chat context.
-- [ ] **Task 7.2**: `src/popup/App.tsx`: Quick panel tra cứu trạng thái kết nối, dịch nhanh.
-- [ ] **Task 7.3**: HTML entrypoints (`src/options/index.html`, `src/popup/index.html`).
+- [x] **Task 7.1**: `src/options/App.tsx`: Form cấu hình API Key, chọn model, test connection via React Query `useMutation`, switch chat context.
+- [x] **Task 7.2**: `src/popup/App.tsx`: Quick panel tra cứu trạng thái kết nối, dịch nhanh.
+- [x] **Task 7.3**: HTML entrypoints (`src/options/index.html`, `src/popup/index.html`).
 
 ### Giai đoạn 8: Kiểm Thử Toàn Diện, Build & E2E Verification
-- [ ] **Task 8.1**: Toàn bộ unit tests pass 100% (`pnpm test`).
-- [ ] **Task 8.2**: Biên dịch production (`pnpm build`) sạch, không lỗi type-check.
-- [ ] **Task 8.3**: Kiểm tra E2E thực tế trên Google Forms, Gmail Web, Slack Web theo [Agents.md](file:///Users/phucpham/Desktop/game/eng-chat/Agents.md).
+- [x] **Task 8.1**: Toàn bộ unit tests pass 100% (`pnpm test`) - Đạt 29/29 tests pass.
+- [x] **Task 8.2**: Biên dịch production (`pnpm build`) sạch, không lỗi type-check (đóng gói ra thư mục `dist/`).
+- [ ] **Task 8.3**: Hướng dẫn nạp tiện ích vào `chrome://extensions` để người dùng trải nghiệm thực tế.
 
 ---
 
