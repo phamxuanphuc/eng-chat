@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { App as OptionsApp } from '../options/App';
 import { App as PopupApp } from '../popup/App';
 import { TooltipApp } from '../content/ui/TooltipApp';
+import { FloatingToolbar } from '../content/ui/FloatingToolbar';
 import { extractChatContext } from '../content/chat-extractor';
 import { replaceTextInElement } from '../content/dom-utils';
 import { executeOptimize } from '../services/gemini';
@@ -13,6 +14,12 @@ import { Sparkles, Settings, Monitor, MessageSquare } from 'lucide-react';
 export const StandaloneApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'playground' | 'options' | 'popup'>('playground');
   const [chatInput, setChatInput] = useState('Tôi đồng ý với phương án này, hãy triển khai sớm nhé');
+  const [toolbar, setToolbar] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    isLoading: boolean;
+  }>({ visible: false, x: 0, y: 0, isLoading: false });
   const [tooltipState, setTooltipState] = useState<{
     isOpen: boolean;
     isLoading: boolean;
@@ -145,6 +152,15 @@ export const StandaloneApp: React.FC = () => {
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
+                  onFocus={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setToolbar({
+                      visible: true,
+                      x: Math.round(rect.left + rect.width / 2 - 90),
+                      y: Math.round(rect.bottom + 8),
+                      isLoading: false,
+                    });
+                  }}
                   className="w-full rounded-xl bg-slate-950 text-slate-100 px-4 py-3 text-sm border border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 outline-none"
                 />
               </div>
@@ -168,6 +184,19 @@ export const StandaloneApp: React.FC = () => {
           </div>
         )}
       </main>
+
+      <FloatingToolbar
+        visible={toolbar.visible}
+        x={toolbar.x}
+        y={toolbar.y}
+        isLoading={toolbar.isLoading}
+        onSelectTone={async (tone) => {
+          setToolbar((prev) => ({ ...prev, isLoading: true }));
+          await runOptimize(tone);
+          setToolbar((prev) => ({ ...prev, isLoading: false, visible: false }));
+        }}
+        onClose={() => setToolbar((prev) => ({ ...prev, visible: false }))}
+      />
 
       {tooltipState.isOpen && (
         <TooltipApp
