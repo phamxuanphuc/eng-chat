@@ -46,14 +46,14 @@ Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, 
 - [x] **Task 3.3**: Unit test storage & store (`tests/storage.test.ts`).
 
 ### Giai đoạn 4: Gemini AI Engine & Prompt Builder
-- [ ] **Task 4.1**: `src/services/prompt.ts`:
+- [x] **Task 4.1**: `src/services/prompt.ts`:
   - `buildSystemInstruction(tone)`: System prompt nghiêm ngặt cho từng tone.
   - `buildUserPrompt(text, contextMessages)`: Định dạng prompt sạch hoặc prompt JSON schema.
-- [ ] **Task 4.2**: `src/services/gemini.ts`:
+- [x] **Task 4.2**: `src/services/gemini.ts`:
   - Axios instance cấu hình baseURL, timeout 10000ms.
   - Xử lý mã lỗi HTTP 400 (Bad request), 401/403 (Invalid key), 429 (Rate limit).
   - Parse JSON kết quả cho chế độ `translate_explain`.
-- [ ] **Task 4.3**: Unit tests Prompt Builder & Gemini Client (`tests/prompt.test.ts`, `tests/gemini.test.ts`).
+- [x] **Task 4.3**: Unit tests Prompt Builder & Gemini Client (`tests/prompt.test.ts`, `tests/gemini.test.ts`).
 
 ### Giai đoạn 5: DOM Utilities, Chat Extractor & Shadow DOM UI
 - [ ] **Task 5.1**: `src/content/chat-extractor.ts`:
