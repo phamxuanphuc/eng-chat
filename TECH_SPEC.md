@@ -52,17 +52,15 @@ Tài liệu này đề xuất giải pháp kiến trúc và kỹ thuật để t
 - Schema cấu hình:
   - `geminiApiKey`: Chuỗi khóa API.
   - `selectedModel`: `gemini-2.0-flash` (mặc định), `gemini-1.5-flash`,...
-  - `defaultTone`: `polite` | `professional` | `friendly` | `concise`.
+  - `defaultTone`: `polite` | `professional` | `friendly` | `concise` | `translate_explain`.
   - `enableChatContext`: `boolean` (mặc định: `true`).
   - `maxContextMessages`: `number` (3 - 5 tin nhắn).
 
 ### 3.2. Dịch Vụ Gemini AI (`src/services/gemini.ts`)
 - **Endpoint**: `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`
 - **System Instruction**:
-  - Đóng vai trò chuyên gia biên dịch và tối ưu hóa tiếng Anh bản ngữ.
-  - Áp dụng văn phong chỉ định (`polite`, `professional`, `friendly`, `concise`).
-  - Sử dụng bối cảnh hội thoại (nếu có) để chuẩn hóa đại từ xưng hô và thuật ngữ.
-  - Quy tắc bất biến: Chỉ trả về đoạn văn bản kết quả thuần túy, không có mở bài, kết bài hay giải thích.
+  - *Chế độ tối ưu văn phong*: Áp dụng văn phong chỉ định (`polite`, `professional`, `friendly`, `concise`), sử dụng context chat nếu có, chỉ trả về văn bản kết quả thuần túy không kèm giải thích.
+  - *Chế độ Dịch & Giải thích (`translate_explain`)*: Trả về kết quả có cấu trúc gồm: Bản dịch chính xác + Phân tích từ vựng trọng tâm + Giải thích ngữ pháp và sắc thái biểu đạt.
 
 ### 3.3. Background Service Worker (`src/background/index.ts`)
 - Khởi tạo `chrome.contextMenus` đa cấp khi cài đặt extension:

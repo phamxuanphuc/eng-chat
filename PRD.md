@@ -28,6 +28,7 @@ EngChat AI là tiện ích mở rộng (Chrome Extension Manifest V3) giúp ngư
   - **Chuyên nghiệp (Professional)**: Giao tiếp công việc, tài liệu kỹ thuật.
   - **Thân thiện & Tự nhiên (Friendly & Casual)**: Trò chuyện đồng nghiệp, mạng xã hội.
   - **Ngắn gọn & Trực diện (Concise)**: Rút ngắn thông điệp, đi thẳng vào vấn đề.
+  - **Dịch & Giải thích chi tiết (Translate & Explain)**: Dịch 2 chiều kèm phân tích từ vựng, ngữ pháp và sắc thái từ ngữ.
 
 ### 3.3. Tương Tác Trang Web (Content Script & DOM Manipulation)
 - **Tự động thay thế (Auto-replace)**: Ghi đè trực tiếp kết quả vào ô nhập liệu và kích hoạt sự kiện DOM chuẩn để tương thích với các ứng dụng web hiện đại (Gmail, Slack, Notion, Facebook,...).
@@ -43,6 +44,12 @@ EngChat AI là tiện ích mở rộng (Chrome Extension Manifest V3) giúp ngư
 - **Tự động nhận diện ngữ cảnh chat**: Khi người dùng đang ở trong khung chat (Slack, Teams, Messenger, WhatsApp, Discord,...), quét và lấy 3-5 tin nhắn gần nhất trong luồng hội thoại.
 - **Bổ sung ngữ cảnh vào Prompt**: Đóng gói lịch sử hội thoại gần nhất đưa vào prompt giúp Gemini nắm bắt vai trò, chủ đề và ý đồ phản hồi.
 - **Độ chính xác cao**: Giúp câu tiếng Anh trả về chuẩn ngữ pháp, xưng hô phù hợp và liền mạch với mạch trao đổi của cuộc trò chuyện.
+
+### 3.6. Dịch Thuật & Giải Thích Chi Tiết (Translate & Explain)
+- **Học tập & Tra cứu sâu**: Khi người dùng bôi đen câu hoặc cụm từ và chọn "Dịch & Giải thích", tiện ích sẽ:
+  - Dịch chuẩn ngữ nghĩa (Việt -> Anh hoặc Anh -> Việt).
+  - Phân tích và giải thích: từ vựng chính (key vocabulary), cấu trúc ngữ pháp đặc biệt, ngữ cảnh sử dụng và tại sao lại chọn từ đó.
+- **Giao diện hiển thị chuyên dụng**: Hiển thị trên Floating Tooltip phân tách rõ ràng giữa bản dịch (kèm nút Copy) và thẻ giải thích (Collapsible Accordion / Card) giúp người dùng học hỏi và ghi nhớ.
 
 ---
 
@@ -60,6 +67,7 @@ EngChat AI là tiện ích mở rộng (Chrome Extension Manifest V3) giúp ngư
 
 ### Giai đoạn 3: Ngữ Cảnh Hội Thoại & Hoàn Thiện UX (Chat Context & UX Polish)
 - Xây dựng module trích xuất tin nhắn trước đó (Chat Context Extractor).
+- Hỗ trợ tính năng Dịch thuật & Giải thích chi tiết (Translate & Explain) với thẻ phân tích ngữ pháp/từ vựng.
 - Hỗ trợ các trình soạn thảo rich-text (`contenteditable`).
 - Thêm Floating Preview Tooltip cho text bôi đen thông thường.
 - Bổ sung hiệu ứng loading và thông báo lỗi trực quan.
