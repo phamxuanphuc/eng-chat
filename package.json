@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:standalone": "vite --open standalone.html",
     "build": "tsc && vite build",
     "test": "vitest run",
     "test:watch": "vitest"
