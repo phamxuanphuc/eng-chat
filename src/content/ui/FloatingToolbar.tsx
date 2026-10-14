@@ -101,8 +101,6 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           </button>
         </div>
 
-        <div className="h-4 w-[1px] bg-slate-700/60 mx-0.5" />
-
         <button
           type="button"
           disabled={isLoading}
