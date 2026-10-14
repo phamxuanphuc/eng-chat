@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EngChat AI - Test Page</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #090d16;
+      color: #e2e8f0;
+      padding: 32px 16px;
+      line-height: 1.5;
+    }
+    .container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+    .card {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 20px -2px rgba(0,0,0,0.5);
+    }
+    h1 { font-size: 20px; font-weight: 700; color: #f8fafc; }
+    h2 { font-size: 14px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+    p { font-size: 13px; color: #cbd5e1; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+    .guide-box {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px dashed rgba(99, 102, 241, 0.3);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 13px;
+    }
+    .guide-box ol { margin-left: 20px; margin-top: 6px; }
+    .guide-box li { margin-bottom: 4px; }
+    .chat-box {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chat-msg {
+      background: #1e293b;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      max-width: 80%;
+    }
+    .chat-msg.partner { align-self: flex-start; background: #1e293b; color: #e2e8f0; }
+    .chat-author { font-size: 11px; color: #818cf8; font-weight: 600; margin-bottom: 2px; }
+    input[type="text"], textarea, .rich-editor {
+      width: 100%;
+      background: #020617;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #f1f5f9;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    input[type="text"]:focus, textarea:focus, .rich-editor:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+    .rich-editor {
+      min-height: 70px;
+      white-space: pre-wrap;
+    }
+    .rich-editor:empty:before {
+      content: attr(placeholder);
+      color: #64748b;
+    }
+    .highlight-text {
+      background: rgba(99, 102, 241, 0.15);
+      border-left: 3px solid #6366f1;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      color: #cbd5e1;
+      user-select: all;
+    }
+    .status-log {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 10px;
+      max-height: 90px;
+      overflow-y: auto;
+      color: #38bdf8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" style="border-color: rgba(99, 102, 241, 0.4);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 22px;">✨</span>
+          <h1>EngChat AI - Trang Kiểm Thử Tương Tác</h1>
+        </div>
+        <span class="badge">Chrome Extension Testbed</span>
+      </div>
+      <div class="guide-box">
+        <strong>Cách thử nghiệm:</strong>
+        <ol>
+          <li><strong>Thao tác 1 (Auto-replace)</strong>: Gõ hoặc dùng câu tiếng Việt có sẵn ở các ô bên dưới, nhấp chuột phải chọn <em>Tối ưu tiếng Anh (EngChat AI)</em> hoặc bấm <code>Cmd+Shift+E</code> (Mac) / <code>Ctrl+Shift+E</code> (Windows).</li>
+          <li><strong>Thao tác 2 (Context Awareness)</strong>: Thử nghiệm ô chat phía dưới để xem AI tự động bắt bối cảnh cuộc trò chuyện để dịch chuẩn đại từ xưng hô.</li>
+          <li><strong>Thao tác 3 (Translate & Explain)</strong>: Bôi đen đoạn văn bản tiếng Anh bên dưới -> Chuột phải -> Chọn <em>Dịch & Giải thích chi tiết</em> để mở Tooltip phân tích ngữ pháp.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Kịch bản 1: Khung Chat Có Ngữ Cảnh (Chat Context Extraction)</h2>
+      <p style="margin-bottom: 10px;">Hệ thống sẽ quét 2-4 tin nhắn trước đó để hiểu bối cảnh công việc:</p>
+      <div class="chat-box" role="log">
+        <div class="chat-msg partner" data-qa="message_content">
+          <div class="chat-author">Alex (Tech Lead)</div>
+          <div>We are finalizing the release candidate for v2.0 tonight. Can you confirm if all payment APIs are tested?</div>
+        </div>
+        <div class="chat-msg partner" data-qa="message_content">
+          <div class="chat-author">Alex (Tech Lead)</div>
+          <div>Make sure to check Stripe webhooks too.</div>
+        </div>
+        <div style="margin-top: 6px;">
+          <input
+            id="chat-input-test"
+            type="text"
+            value="Tôi đã kiểm tra kỹ rồi, mọi thứ hoạt động trơn tru và sẵn sàng triển khai."
+            placeholder="Nhập phản hồi tiếng Việt..."
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Kịch bản 2: Các Loại Ô Nhập Liệu Khác Nhau</h2>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 4px;">
+            Ô Textarea nhiều dòng:
+          </label>
+          <textarea id="textarea-test" rows="3" placeholder="Gõ email hoặc đoạn văn tiếng Việt...">Kính gửi quý đối tác, chúng tôi xin gửi tài liệu đặc tả kỹ thuật đính kèm. Rất mong nhận được phản hồi trước thứ Sáu.</textarea>
+        </div>
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 4px;">
+            Rich Text Editor (contenteditable - mô phỏng Gmail, Notion, Slack):
+          </label>
+          <div
+            id="contenteditable-test"
+            class="rich-editor"
+            contenteditable="true"
+            placeholder="Gõ nội dung tại đây..."
+          >Cảm ơn bạn đã hỗ trợ, tôi sẽ cập nhật tiến độ vào buổi họp chiều nay.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Kịch bản 3: Bôi Đen Để Tra Cứu (Translate & Explain Tooltip)</h2>
+      <p style="margin-bottom: 10px;">Bôi đen đoạn văn dưới đây rồi nhấn chuột phải chọn <strong>Dịch & Giải thích chi tiết</strong>:</p>
+      <div class="highlight-text">
+        The microservices architecture decouples the persistent storage layer from the state machine to maximize fault tolerance during network partitions.
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h2>Nhật Ký Sự Kiện DOM (Event Monitor)</h2>
+        <button id="clear-log-btn" style="background: none; border: 1px solid #334155; color: #94a3b8; padding: 2px 8px; border-radius: 6px; font-size: 11px; cursor: pointer;">Xóa log</button>
+      </div>
+      <div id="event-log" class="status-log">Đang lắng nghe sự kiện input, change, beforeinput...</div>
+    </div>
+  </div>
+
+  <script>
+    const logEl = document.getElementById('event-log');
+    const appendLog = (text) => {
+      const time = new Date().toLocaleTimeString();
+      logEl.innerHTML = `[${time}] ${text}<br/>` + logEl.innerHTML;
+    };
+    ['chat-input-test', 'textarea-test', 'contenteditable-test'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      ['beforeinput', 'input', 'change'].forEach((evt) => {
+        el.addEventListener(evt, (e) => {
+          const val = el.value !== undefined ? el.value : el.innerText;
+          appendLog(`Sự kiện <b>${evt}</b> trên <i>#${id}</i> (Độ dài: ${val.length})`);
+        });
+      });
+    });
+    document.getElementById('clear-log-btn').addEventListener('click', () => {
+      logEl.innerHTML = 'Đã xóa log.';
+    });
+  </script>
+</body>
+</html>
