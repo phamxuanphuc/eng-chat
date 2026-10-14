@@ -110,6 +110,13 @@
     body.light-mode h2 { color: #475569; }
     body.light-mode p { color: #334155; }
     body.light-mode input[type="text"], body.light-mode textarea, body.light-mode .rich-editor { background: #ffffff; border-color: #cbd5e1; color: #0f172a; }
+    body.light-mode .chat-box { background: #f8fafc; border-color: #e2e8f0; }
+    body.light-mode .chat-msg.partner { background: #ffffff; color: #0f172a; border: 1px solid #e2e8f0; }
+    body.light-mode .highlight-text { background: rgba(99, 102, 241, 0.08); color: #1e293b; }
+    body.light-mode .status-log { background: #f8fafc; border-color: #e2e8f0; color: #0284c7; }
+    body.light-mode .guide-box { background: rgba(99, 102, 241, 0.05); color: #334155; }
+    body.light-mode #toggle-theme-btn { background: #e0e7ff !important; border-color: #c7d2fe !important; color: #4338ca !important; }
+    body.light-mode .badge { background: #e0e7ff; border-color: #c7d2fe; color: #4338ca; }
   </style>
 </head>
 <body>
@@ -121,7 +128,14 @@
           <h1>EngChat AI - Trang Kiểm Thử Tương Tác</h1>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <button id="toggle-theme-btn" style="background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;">☀️ / 🌙 Đổi Theme</button>
+          <button
+            id="toggle-theme-btn"
+            type="button"
+            onclick="window.toggleTheme ? window.toggleTheme() : (function(btn){ document.body.classList.toggle('light-mode'); document.documentElement.classList.toggle('light-mode'); const isL = document.body.classList.contains('light-mode'); const t = isL ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', t); document.body.setAttribute('data-theme', t); btn.textContent = isL ? '🌙 Chế độ Tối' : '☀️ / 🌙 Đổi Theme'; })(this)"
+            style="background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; padding: 4px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s;"
+          >
+            ☀️ / 🌙 Đổi Theme
+          </button>
           <span class="badge">Chrome Extension Testbed</span>
         </div>
       </div>
@@ -199,28 +213,6 @@
     </div>
   </div>
 
-  <script>
-    const logEl = document.getElementById('event-log');
-    const appendLog = (text) => {
-      const time = new Date().toLocaleTimeString();
-      logEl.innerHTML = `[${time}] ${text}<br/>` + logEl.innerHTML;
-    };
-    ['chat-input-test', 'textarea-test', 'contenteditable-test'].forEach((id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      ['beforeinput', 'input', 'change'].forEach((evt) => {
-        el.addEventListener(evt, (e) => {
-          const val = el.value !== undefined ? el.value : el.innerText;
-          appendLog(`Sự kiện <b>${evt}</b> trên <i>#${id}</i> (Độ dài: ${val.length})`);
-        });
-      });
-    });
-    document.getElementById('clear-log-btn').addEventListener('click', () => {
-      logEl.innerHTML = 'Đã xóa log.';
-    });
-    document.getElementById('toggle-theme-btn').addEventListener('click', () => {
-      document.body.classList.toggle('light-mode');
-    });
-  </script>
+  <script type="module" src="/src/test-page.ts"></script>
 </body>
 </html>
