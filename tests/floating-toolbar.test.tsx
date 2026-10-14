@@ -74,4 +74,20 @@ describe('FloatingToolbar Component', () => {
     const optimizeBtn = screen.getByRole('button', { name: /ai optimize/i });
     expect(optimizeBtn.hasAttribute('disabled')).toBe(true);
   });
+
+  it('TC-FT-05: Clicking translate button directly triggers translate_explain to open popup', () => {
+    const onSelectTone = vi.fn();
+    render(
+      <FloatingToolbar
+        visible={true}
+        x={150}
+        y={250}
+        onSelectTone={onSelectTone}
+      />
+    );
+
+    const translateBtn = screen.getByRole('button', { name: /dịch & giải thích/i });
+    fireEvent.click(translateBtn);
+    expect(onSelectTone).toHaveBeenCalledWith('translate_explain');
+  });
 });
