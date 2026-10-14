@@ -67,10 +67,10 @@ Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, 
 - [x] **Task 5.5**: Unit test DOM Utils & Chat Extractor (`tests/chat-extractor.test.ts`, `tests/dom-utils.test.ts`).
 
 ### Giai đoạn 6: Background Service Worker & Context Menu
-- [ ] **Task 6.1**: `src/background/index.ts`:
+- [x] **Task 6.1**: `src/background/index.ts`:
   - `chrome.runtime.onInstalled`: Tạo menu cha "EngChat AI" và 5 menu con tương ứng 5 tone.
   - `chrome.contextMenus.onClicked`: Bắt sự kiện, điều phối gửi message tới active tab.
-- [ ] **Task 6.2**: Unit test Background Worker (`tests/background.test.ts`).
+- [x] **Task 6.2**: Unit test Background Worker (`tests/background.test.ts`).
 
 ### Giai đoạn 7: Giao Diện Options & Popup (React + React Query)
 - [ ] **Task 7.1**: `src/options/App.tsx`: Form cấu hình API Key, chọn model, test connection via React Query `useMutation`, switch chat context.
