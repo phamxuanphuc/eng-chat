@@ -35,3 +35,8 @@ Tài liệu này định nghĩa các tiêu chuẩn bắt buộc mà Agent và l�
 - Giữ các file mã nguồn ngắn gọn, tối ưu (khuyến nghị dưới 250 dòng/file).
 - Tách biệt hoàn toàn mock data khỏi logic nghiệp vụ của mã nguồn.
 - Giữ cấu trúc dự án sạch sẽ, loại bỏ triệt để mã nguồn thừa và không thêm chú thích (comments) mặc định trong source code.
+
+## 5. Quy Chuẩn Giao Diện Bắt Buộc (UI Component Standards)
+- **Bắt buộc sử dụng UI Components chuẩn**: Mọi màn hình giao diện (Popup, Options, Shadow DOM Tooltip/Modal) BẮT BUỘC chỉ được xây dựng từ các component chuẩn hóa theo [uiverse-io/galaxy](https://github.com/uiverse-io/galaxy) nằm trong thư mục `src/components/ui/` (`Button`, `Input`, `Textarea`, `Switch`, `Loader`, `ToneCard`, `Badge`, `Alert`).
+- **Nghiêm cấm tự tạo UI tự phát**: Tuyệt đối KHÔNG tự viết style CSS thô, không tự sáng tạo kiểu dáng mới hoặc dùng các thẻ HTML thuần (`<button>`, `<input>`,...) mà không thông qua UI component chuẩn.
+- **Tính nhất quán thị giác**: Toàn bộ hiệu ứng (glow border, gradient, hover scaling, galaxy loader) phải đồng bộ tuyệt đối theo phong cách Uiverse Galaxy đã định nghĩa.
