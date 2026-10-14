@@ -1,0 +1,57 @@
+export type ToneType =
+  | 'polite'
+  | 'professional'
+  | 'friendly'
+  | 'concise'
+  | 'translate_explain';
+
+export interface ToneOption {
+  id: ToneType;
+  title: string;
+  description: string;
+  icon: string;
+}
+
+export interface AppSettings {
+  geminiApiKey: string;
+  selectedModel: string;
+  defaultTone: ToneType;
+  enableChatContext: boolean;
+  maxContextMessages: number;
+}
+
+export interface ChatMessage {
+  sender?: string;
+  text: string;
+}
+
+export interface TranslateExplainResult {
+  translation: string;
+  explanation: {
+    vocabulary: Array<{ word: string; meaning: string; note?: string }>;
+    grammar: string;
+    nuances: string;
+  };
+}
+
+export interface OptimizeRequest {
+  text: string;
+  tone: ToneType;
+  contextMessages?: ChatMessage[];
+}
+
+export interface OptimizeResponse {
+  success: boolean;
+  data?: string | TranslateExplainResult;
+  error?: string;
+}
+
+export interface ContextMenuActionMessage {
+  action: 'TRIGGER_OPTIMIZE';
+  tone: ToneType;
+}
+
+export interface ContentScriptQueryPayload {
+  action: 'PROCESS_OPTIMIZE';
+  payload: OptimizeRequest;
+}
