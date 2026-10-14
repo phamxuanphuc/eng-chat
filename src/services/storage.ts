@@ -4,11 +4,12 @@ export const DEFAULT_SETTINGS: AppSettings = {
   geminiApiKey: '',
   apiKeys: [],
   autoRotateKeys: true,
-  selectedModel: 'gemini-2.0-flash',
+  selectedModel: 'gemini-3.5-flash-lite',
   defaultTone: 'professional',
   enableChatContext: true,
   maxContextMessages: 4,
 };
+
 
 const STORAGE_KEY = 'engchat_settings';
 
@@ -59,8 +60,12 @@ export const loadSettings = async (): Promise<AppSettings> => {
     } catch {}
   }
 
+  if (!loaded.selectedModel || loaded.selectedModel.includes('2.0-flash')) {
+    loaded.selectedModel = 'gemini-3.5-flash-lite';
+  }
 
   const validKeys = (loaded.apiKeys || []).filter(
+
     (k) => k && typeof k.key === 'string' && k.key.trim().length > 0
   );
 

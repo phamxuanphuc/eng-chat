@@ -20,7 +20,7 @@ describe('Gemini Service & Axios Client', () => {
     await expect(
       callGeminiApi({
         apiKey: '',
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash-lite',
         systemInstruction: 'test',
         prompt: 'hello',
       })
@@ -34,7 +34,7 @@ describe('Gemini Service & Axios Client', () => {
 
     const result = await callGeminiApi({
       apiKey: 'valid-api-key',
-      model: 'gemini-2.0-flash',
+      model: 'gemini-3.5-flash-lite',
       systemInstruction: 'test',
       prompt: 'hello',
     });
@@ -57,7 +57,7 @@ describe('Gemini Service & Axios Client', () => {
     await expect(
       callGeminiApi({
         apiKey: 'invalid-key',
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash-lite',
         systemInstruction: 'test',
         prompt: 'hello',
       })
@@ -77,7 +77,7 @@ describe('Gemini Service & Axios Client', () => {
     await expect(
       callGeminiApi({
         apiKey: 'valid-key',
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash-lite',
         systemInstruction: 'test',
         prompt: 'hello',
       })
@@ -154,5 +154,24 @@ describe('Gemini Service & Axios Client', () => {
     expect(response.success).toBe(false);
     expect(response.error).toContain('Chưa cấu hình API Key');
   });
-});
 
+  it('TC-GM-09: maps 404 model not found error and fallback occurs', async () => {
+    const error404 = {
+      isAxios: true,
+      response: {
+        status: 404,
+        data: { error: { message: 'models/gemini-old is not found' } },
+      },
+    };
+    vi.mocked(axios.post).mockRejectedValueOnce(error404);
+
+    await expect(
+      callGeminiApi({
+        apiKey: 'key',
+        model: 'gemini-old',
+        systemInstruction: 'test',
+        prompt: 'hello',
+      })
+    ).rejects.toThrow('không tìm thấy (404)');
+  });
+});

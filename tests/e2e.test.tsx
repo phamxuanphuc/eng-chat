@@ -115,11 +115,12 @@ describe('E2E User Flow Tests', () => {
 
     const testSettings = {
       geminiApiKey: 'valid-popup-key',
-      selectedModel: 'gemini-2.0-flash',
+      selectedModel: 'gemini-3.5-flash-lite',
       defaultTone: 'professional' as const,
       enableChatContext: true,
       maxContextMessages: 4,
     };
+
     mockStorageData['engchat_settings'] = testSettings;
     useSettingsStore.setState({ settings: testSettings });
 
@@ -189,7 +190,7 @@ describe('E2E User Flow Tests', () => {
       },
       {
         geminiApiKey: 'test-chat-key',
-        selectedModel: 'gemini-2.0-flash',
+        selectedModel: 'gemini-3.5-flash-lite',
         defaultTone: 'professional',
         enableChatContext: true,
         maxContextMessages: 4,
@@ -217,11 +218,12 @@ describe('E2E User Flow Tests', () => {
 
     const invalidSettings = {
       geminiApiKey: 'invalid-401-key',
-      selectedModel: 'gemini-2.0-flash',
+      selectedModel: 'gemini-3.5-flash-lite',
       defaultTone: 'professional' as const,
       enableChatContext: true,
       maxContextMessages: 4,
     };
+
     mockStorageData['engchat_settings'] = invalidSettings;
     useSettingsStore.setState({ settings: invalidSettings });
 

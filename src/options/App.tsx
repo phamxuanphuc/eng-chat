@@ -18,9 +18,10 @@ const TONES_LIST: Array<{ id: ToneType; title: string; desc: string; icon: strin
 ];
 
 const MODELS = [
-  { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash (Khuyên dùng - Nhanh & Chuẩn)' },
-  { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash' },
-  { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro (Sâu sắc & Chi tiết)' },
+  { id: 'gemini-3.5-flash-lite', name: 'Gemini 3.5 Flash-Lite (Khuyên dùng - Nhanh & Tiết kiệm)' },
+  { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash (Chất lượng cao)' },
+  { id: 'gemini-3.1-flash-lite', name: 'Gemini 3.1 Flash-Lite' },
+  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
 ];
 
 export const App: React.FC = () => {
@@ -28,7 +29,7 @@ export const App: React.FC = () => {
 
   const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([]);
   const [autoRotate, setAutoRotate] = useState(true);
-  const [model, setModel] = useState('gemini-2.0-flash');
+  const [model, setModel] = useState('gemini-3.5-flash-lite');
   const [tone, setTone] = useState<ToneType>('professional');
   const [chatContext, setChatContext] = useState(true);
   const [maxContext, setMaxContext] = useState(4);
@@ -47,7 +48,8 @@ export const App: React.FC = () => {
         : [];
       setApiKeys(keys);
       setAutoRotate(settings.autoRotateKeys ?? true);
-      setModel(settings.selectedModel || 'gemini-2.0-flash');
+      setModel(settings.selectedModel || 'gemini-3.5-flash-lite');
+
       setTone(settings.defaultTone || 'professional');
       setChatContext(settings.enableChatContext ?? true);
       setMaxContext(settings.maxContextMessages ?? 4);

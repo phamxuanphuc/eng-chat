@@ -61,8 +61,9 @@ describe('Background Service Worker', () => {
     await handleRuntimeMessage({ action: 'GET_SETTINGS' }, {} as any, sendResponse);
 
     expect(sendResponse).toHaveBeenCalledWith(
-      expect.objectContaining({ selectedModel: 'gemini-2.0-flash' })
+      expect.objectContaining({ selectedModel: 'gemini-3.5-flash-lite' })
     );
+
   });
 
   it('TC-BG-04: dispatches message to active tab on keyboard command', async () => {

@@ -15,13 +15,15 @@ export const callGeminiApi = async (params: {
   systemInstruction: string;
   prompt: string;
 }): Promise<string> => {
-  const { apiKey, model, systemInstruction, prompt } = params;
+  const { apiKey, model: requestedModel, systemInstruction, prompt } = params;
 
   if (!apiKey || apiKey.trim() === '') {
     throw new Error('Chưa cấu hình API Key. Vui lòng mở Cài đặt để thêm Gemini API Key.');
   }
 
-  const url = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey}`;
+  const cleanKey = apiKey.trim();
+  const model = requestedModel?.trim() || 'gemini-3.5-flash-lite';
+  const url = `${GEMINI_API_BASE}/${model}:generateContent`;
 
   const payload = {
     system_instruction: {
@@ -33,16 +35,19 @@ export const callGeminiApi = async (params: {
       },
     ],
     generationConfig: {
-      temperature: 0.3,
       maxOutputTokens: 2048,
     },
   };
 
   try {
     const response = await axios.post(url, payload, {
-      timeout: 12000,
+      timeout: 15000,
       headers: {
         'Content-Type': 'application/json',
+        'x-goog-api-key': cleanKey,
+      },
+      params: {
+        key: cleanKey,
       },
     });
 
@@ -68,6 +73,9 @@ export const callGeminiApi = async (params: {
       }
       if (status === 401 || status === 403) {
         throw new Error('Gemini API Key không chính xác hoặc không có quyền truy cập.');
+      }
+      if (status === 404) {
+        throw new Error(`Mô hình "${model}" không tìm thấy (404). Khuyên dùng gemini-3.5-flash-lite.`);
       }
       if (status === 429) {
         throw new Error('Đã vượt quá hạn mức gọi API (Quota Exceeded / Rate Limit). Vui lòng thử lại sau.');
@@ -117,13 +125,17 @@ export const executeOptimize = async (
 
     let rawResult = '';
     let lastError: any = null;
+    let targetModel = settings.selectedModel || 'gemini-3.5-flash-lite';
+    if (targetModel.includes('2.0-flash')) {
+      targetModel = 'gemini-3.5-flash-lite';
+    }
 
     for (let i = 0; i < candidateKeys.length; i++) {
       const currentKey = candidateKeys[i];
       try {
         rawResult = await callGeminiApi({
           apiKey: currentKey,
-          model: settings.selectedModel || 'gemini-2.0-flash',
+          model: targetModel,
           systemInstruction,
           prompt: userPrompt,
         });
@@ -132,6 +144,13 @@ export const executeOptimize = async (
       } catch (err: any) {
         lastError = err;
         const msg = String(err?.message || '');
+
+        if (msg.includes('404') && targetModel !== 'gemini-3.5-flash-lite') {
+          targetModel = 'gemini-3.5-flash-lite';
+          i--;
+          continue;
+        }
+
         const isQuotaOrAuth =
           msg.includes('hạn mức') ||
           msg.includes('không chính xác') ||
