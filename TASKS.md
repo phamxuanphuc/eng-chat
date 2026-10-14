@@ -38,12 +38,12 @@ Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, 
 - [x] **Task 2.8**: Unit test toàn diện cho UI Kit (`tests/ui-components.test.tsx`).
 
 ### Giai đoạn 3: State Management & Storage Service
-- [ ] **Task 3.1**: `src/services/storage.ts`:
+- [x] **Task 3.1**: `src/services/storage.ts`:
   - `loadSettings()`: Đọc từ `chrome.storage.sync`, fallback giá trị mặc định.
   - `saveSettings(settings)`: Ghi đè cấu hình mới an toàn.
-- [ ] **Task 3.2**: `src/store/useSettingsStore.ts`:
+- [x] **Task 3.2**: `src/store/useSettingsStore.ts`:
   - Zustand Store quản lý state cài đặt, tự động sync khi storage thay đổi.
-- [ ] **Task 3.3**: Unit test storage & store (`tests/storage.test.ts`).
+- [x] **Task 3.3**: Unit test storage & store (`tests/storage.test.ts`).
 
 ### Giai đoạn 4: Gemini AI Engine & Prompt Builder
 - [ ] **Task 4.1**: `src/services/prompt.ts`:
