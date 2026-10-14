@@ -3,6 +3,7 @@ import {
   setupContextMenus,
   handleContextMenuClick,
   handleRuntimeMessage,
+  handleCommand,
 } from '../src/background/index';
 
 describe('Background Service Worker', () => {
@@ -15,6 +16,7 @@ describe('Background Service Worker', () => {
       },
       tabs: {
         sendMessage: vi.fn(),
+        query: vi.fn(async () => [{ id: 999 }]),
       },
       storage: {
         sync: {
@@ -58,5 +60,15 @@ describe('Background Service Worker', () => {
     expect(sendResponse).toHaveBeenCalledWith(
       expect.objectContaining({ selectedModel: 'gemini-2.0-flash' })
     );
+  });
+
+  it('TC-BG-04: dispatches message to active tab on keyboard command', async () => {
+    await handleCommand('optimize_selection');
+
+    expect(chrome.tabs.query).toHaveBeenCalledWith({ active: true, currentWindow: true });
+    expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(999, {
+      action: 'TRIGGER_OPTIMIZE',
+      tone: 'professional',
+    });
   });
 });

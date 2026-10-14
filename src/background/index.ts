@@ -77,6 +77,20 @@ export const handleRuntimeMessage = async (
   return false;
 };
 
+export const handleCommand = async (command: string) => {
+  if (command === 'optimize_selection') {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    const activeTab = tabs[0];
+    if (activeTab?.id) {
+      const settings = await loadSettings();
+      chrome.tabs.sendMessage(activeTab.id, {
+        action: 'TRIGGER_OPTIMIZE',
+        tone: settings.defaultTone || 'professional',
+      });
+    }
+  }
+};
+
 if (typeof chrome !== 'undefined') {
   chrome.runtime?.onInstalled?.addListener(() => {
     setupContextMenus();
@@ -84,6 +98,10 @@ if (typeof chrome !== 'undefined') {
 
   chrome.contextMenus?.onClicked?.addListener((info, tab) => {
     handleContextMenuClick(info, tab);
+  });
+
+  chrome.commands?.onCommand?.addListener((command) => {
+    handleCommand(command);
   });
 
   chrome.runtime?.onMessage?.addListener((message, sender, sendResponse) => {

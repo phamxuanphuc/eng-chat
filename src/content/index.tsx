@@ -4,6 +4,7 @@ import { ToneType, OptimizeResponse } from '../types';
 import { getActiveEditableElement, getSelectedText, replaceTextInElement } from './dom-utils';
 import { extractChatContext } from './chat-extractor';
 import { TooltipApp } from './ui/TooltipApp';
+import styles from '../styles/index.css?inline';
 
 let shadowRoot: ShadowRoot | null = null;
 let reactRoot: ReactDOM.Root | null = null;
@@ -23,6 +24,7 @@ const ensureShadowHost = (): ShadowRoot => {
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
     :host { all: initial; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
     * { box-sizing: border-box; }
+    ${styles}
   `;
   shadowRoot.appendChild(styleLink);
 
