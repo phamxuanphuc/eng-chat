@@ -48,7 +48,7 @@ describe('FloatingToolbar Component', () => {
       />
     );
 
-    const dropdownBtn = screen.getByRole('button', { name: /chọn giọng văn/i });
+    const dropdownBtn = screen.getByRole('button', { name: /more options/i });
     fireEvent.click(dropdownBtn);
 
     const conciseOption = screen.getByText(/ngắn gọn \(concise\)/i);

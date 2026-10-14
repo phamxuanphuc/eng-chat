@@ -3,7 +3,6 @@ import { ToneType } from '../../types';
 import {
   Sparkles,
   PenLine,
-  ChevronDown,
   MoreVertical,
   Check,
   Loader2,
@@ -70,36 +69,18 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       onMouseDown={(e) => e.preventDefault()}
     >
       <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-slate-900/95 border border-slate-700/80 shadow-[0_8px_30px_rgb(0,0,0,0.45)] backdrop-blur-xl text-slate-200 ring-1 ring-white/10 transition-all hover:border-slate-600">
-        <div className="flex items-center">
-          <button
-            type="button"
-            disabled={isLoading}
-            onClick={() => handleToneClick('translate_explain')}
-            className="flex items-center gap-1 px-2 py-1 rounded-l-full text-xs font-semibold text-slate-200 hover:text-white hover:bg-slate-800/80 active:bg-slate-700/60 transition-colors disabled:opacity-50 cursor-pointer group"
-            title="Dịch & Giải thích (Translate)"
-            aria-label="Dịch & Giải thích"
-          >
-            <span className="flex items-center justify-center w-5 h-5 rounded bg-indigo-500/20 text-indigo-300 font-bold text-[11px] group-hover:bg-indigo-500/30 transition-colors">
-              文A
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setMenuOpen((prev) => !prev)}
-            className="p-1 -ml-0.5 rounded-r-full text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 active:bg-slate-700/60 transition-colors cursor-pointer"
-            title="Chọn giọng văn"
-            aria-label="Chọn giọng văn"
-            aria-expanded={menuOpen}
-            aria-haspopup="true"
-          >
-            <ChevronDown
-              size={12}
-              className={`text-slate-400 group-hover:text-slate-200 transition-transform duration-200 ${
-                menuOpen ? 'rotate-180' : ''
-              }`}
-            />
-          </button>
-        </div>
+        <button
+          type="button"
+          disabled={isLoading}
+          onClick={() => handleToneClick('translate_explain')}
+          className="p-1.5 rounded-full text-slate-300 hover:text-indigo-300 hover:bg-slate-800/80 active:bg-slate-700/60 transition-colors disabled:opacity-50 cursor-pointer"
+          title="Dịch & Giải thích (Translate)"
+          aria-label="Dịch & Giải thích"
+        >
+          <span className="flex items-center justify-center w-5 h-5 rounded bg-indigo-500/20 text-indigo-300 font-bold text-[11px] group-hover:bg-indigo-500/30 transition-colors">
+            文A
+          </span>
+        </button>
 
         <button
           type="button"
