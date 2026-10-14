@@ -34,8 +34,8 @@ Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, 
 - [x] **Task 2.4**: `Switch.tsx` (Spring toggle switch cho Chat Context).
 - [x] **Task 2.5**: `Loader.tsx` (Galaxy dual-ring orbital spinner).
 - [x] **Task 2.6**: `ToneCard.tsx` (Card văn phong với viền gradient active).
-- [ ] **Task 2.7**: `Alert.tsx` (Glass notification card với viền dạ quang cho `success`, `error`, `info`).
-- [ ] **Task 2.8**: Unit test toàn diện cho UI Kit (`tests/ui-components.test.tsx`).
+- [x] **Task 2.7**: `Alert.tsx` (Glass notification card với viền dạ quang cho `success`, `error`, `info`).
+- [x] **Task 2.8**: Unit test toàn diện cho UI Kit (`tests/ui-components.test.tsx`).
 
 ### Giai đoạn 3: State Management & Storage Service
 - [ ] **Task 3.1**: `src/services/storage.ts`:
