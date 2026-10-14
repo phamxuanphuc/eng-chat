@@ -66,7 +66,7 @@ export const RewriteOptionsPanel: React.FC<RewriteOptionsPanelProps> = ({
     <div
       role="region"
       aria-label="Rewrite style options"
-      className="absolute inset-0 z-50 bg-slate-900/98 backdrop-blur-2xl rounded-2xl p-4 overflow-y-auto flex flex-col gap-4 text-slate-100 border border-slate-700/80 shadow-2xl ring-1 ring-white/10"
+      className="absolute inset-0 z-50 bg-slate-900 backdrop-blur-2xl rounded-2xl p-4 overflow-y-auto flex flex-col gap-4 text-slate-100 border border-slate-700/80 shadow-2xl ring-1 ring-white/10"
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div className="flex items-center justify-between pb-1 border-b border-slate-800">

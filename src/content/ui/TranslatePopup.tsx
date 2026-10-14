@@ -59,7 +59,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
     <div
       role="dialog"
       aria-label={mode === 'rewrite' ? 'EngChat Rewrite Popup' : 'EngChat Translate Popup'}
-      className="fixed bottom-6 right-6 z-[2147483647] w-[460px] max-w-[94vw] rounded-2xl bg-slate-900/98 border border-slate-700/80 shadow-[0_20px_60px_rgba(0,0,0,0.6)] backdrop-blur-2xl text-slate-100 p-4 font-sans flex flex-col gap-3 ring-1 ring-white/10"
+      className="fixed bottom-6 right-6 z-[2147483647] w-[460px] max-w-[94vw] rounded-2xl bg-slate-900 border border-slate-700/80 shadow-[0_20px_60px_rgba(0,0,0,0.6)] backdrop-blur-2xl text-slate-100 p-4 font-sans flex flex-col gap-3 ring-1 ring-white/10"
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div className="w-8 h-1 bg-slate-600/70 rounded-full mx-auto -mt-1" />

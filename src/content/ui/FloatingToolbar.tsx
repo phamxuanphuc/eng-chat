@@ -72,7 +72,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       }}
       onMouseDown={(e) => e.preventDefault()}
     >
-      <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-slate-900/95 border border-slate-700/80 shadow-[0_8px_30px_rgb(0,0,0,0.45)] backdrop-blur-xl text-slate-200 ring-1 ring-white/10 transition-all hover:border-slate-600">
+      <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-slate-900 border border-slate-700/80 shadow-[0_8px_30px_rgb(0,0,0,0.45)] backdrop-blur-xl text-slate-200 ring-1 ring-white/10 transition-all hover:border-slate-600">
         <button
           type="button"
           disabled={isLoading}
@@ -137,7 +137,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       {menuOpen && (
         <div
           role="menu"
-          className="absolute top-full mt-2 w-52 rounded-xl bg-slate-900/98 border border-slate-700/80 shadow-2xl backdrop-blur-xl p-1.5 flex flex-col gap-0.5 text-slate-200 z-50 ring-1 ring-white/10 animate-in fade-in slide-in-from-top-1 duration-150"
+          className="absolute top-full mt-2 w-52 rounded-xl bg-slate-900 border border-slate-700/80 shadow-2xl backdrop-blur-xl p-1.5 flex flex-col gap-0.5 text-slate-200 z-50 ring-1 ring-white/10 animate-in fade-in slide-in-from-top-1 duration-150"
         >
           <div className="px-2 py-1 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
             Chọn phong cách văn phong

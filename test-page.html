@@ -104,6 +104,12 @@
       overflow-y: auto;
       color: #38bdf8;
     }
+    body.light-mode { background: #f8fafc; color: #0f172a; }
+    body.light-mode .card { background: #ffffff; border-color: #e2e8f0; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.06); }
+    body.light-mode h1 { color: #0f172a; }
+    body.light-mode h2 { color: #475569; }
+    body.light-mode p { color: #334155; }
+    body.light-mode input[type="text"], body.light-mode textarea, body.light-mode .rich-editor { background: #ffffff; border-color: #cbd5e1; color: #0f172a; }
   </style>
 </head>
 <body>
@@ -114,7 +120,10 @@
           <span style="font-size: 22px;">✨</span>
           <h1>EngChat AI - Trang Kiểm Thử Tương Tác</h1>
         </div>
-        <span class="badge">Chrome Extension Testbed</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="toggle-theme-btn" style="background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #a5b4fc; padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;">☀️ / 🌙 Đổi Theme</button>
+          <span class="badge">Chrome Extension Testbed</span>
+        </div>
       </div>
       <div class="guide-box">
         <strong>Cách thử nghiệm:</strong>
@@ -208,6 +217,9 @@
     });
     document.getElementById('clear-log-btn').addEventListener('click', () => {
       logEl.innerHTML = 'Đã xóa log.';
+    });
+    document.getElementById('toggle-theme-btn').addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
     });
   </script>
 </body>

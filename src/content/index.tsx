@@ -35,7 +35,7 @@ const ensureShadowHost = (): ShadowRoot => {
   const styleLink = document.createElement('style');
   styleLink.textContent = `
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-    :host { all: initial; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    :host { all: initial; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color-scheme: dark; }
     * { box-sizing: border-box; }
     ${styles}
   `;
