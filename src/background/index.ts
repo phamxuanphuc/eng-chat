@@ -33,6 +33,44 @@ export const setupContextMenus = () => {
   });
 };
 
+export const safeSendTabMessage = async (
+  tabId: number,
+  message: any
+): Promise<boolean> => {
+  try {
+    await chrome.tabs.sendMessage(tabId, message);
+    return true;
+  } catch {
+    try {
+      const tab = await chrome.tabs.get(tabId);
+      const url = tab?.url || '';
+      const isRestricted =
+        url.startsWith('chrome://') ||
+        url.startsWith('chrome-extension://') ||
+        url.startsWith('devtools://') ||
+        url.startsWith('view-source:') ||
+        url.includes('chrome.google.com/webstore') ||
+        url.includes('chromewebstore.google.com');
+
+      if (!isRestricted && chrome.scripting) {
+        const manifest = chrome.runtime.getManifest();
+        const contentScripts = manifest.content_scripts?.[0]?.js;
+        if (contentScripts && contentScripts.length > 0) {
+          await chrome.scripting.executeScript({
+            target: { tabId },
+            files: contentScripts,
+          });
+          await chrome.tabs.sendMessage(tabId, message);
+          return true;
+        }
+      }
+    } catch {
+      return false;
+    }
+    return false;
+  }
+};
+
 export const handleContextMenuClick = async (
   info: chrome.contextMenus.OnClickData,
   tab?: chrome.tabs.Tab
@@ -43,7 +81,7 @@ export const handleContextMenuClick = async (
   if (menuId.startsWith(CONTEXT_MENU_PREFIX)) {
     const tone = menuId.replace(CONTEXT_MENU_PREFIX, '') as ToneType;
     const settings = await loadSettings();
-    chrome.tabs.sendMessage(tab.id, {
+    await safeSendTabMessage(tab.id, {
       action: 'TRIGGER_OPTIMIZE',
       tone,
       settings,
@@ -56,40 +94,50 @@ export const handleRuntimeMessage = async (
   _sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void
 ) => {
-  if (message?.action === 'EXECUTE_GEMINI') {
-    const request: OptimizeRequest = message.payload;
-    const settings = await loadSettings();
-    const result = await executeOptimize(request, settings);
-    sendResponse(result);
-    return true;
-  }
+  try {
+    if (message?.action === 'EXECUTE_GEMINI') {
+      const request: OptimizeRequest = message.payload;
+      const settings = await loadSettings();
+      const result = await executeOptimize(request, settings);
+      sendResponse(result);
+      return true;
+    }
 
-  if (message?.action === 'GET_SETTINGS') {
-    const settings = await loadSettings();
-    sendResponse(settings);
-    return true;
-  }
+    if (message?.action === 'GET_SETTINGS') {
+      const settings = await loadSettings();
+      sendResponse(settings);
+      return true;
+    }
 
-  if (message?.action === 'SAVE_SETTINGS') {
-    const updated = await saveSettings(message.payload);
-    sendResponse({ success: true, settings: updated });
-    return true;
-  }
+    if (message?.action === 'SAVE_SETTINGS') {
+      const updated = await saveSettings(message.payload);
+      sendResponse({ success: true, settings: updated });
+      return true;
+    }
 
-  return false;
+    sendResponse({ success: false, error: 'Unknown action' });
+    return false;
+  } catch (err: any) {
+    sendResponse({ success: false, error: err?.message || 'Lỗi xử lý nội bộ' });
+    return false;
+  }
 };
 
 export const handleCommand = async (command: string) => {
   if (command === 'optimize_selection') {
-    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-    const activeTab = tabs[0];
-    if (activeTab?.id) {
-      const settings = await loadSettings();
-      chrome.tabs.sendMessage(activeTab.id, {
-        action: 'TRIGGER_OPTIMIZE',
-        tone: settings.defaultTone || 'professional',
-        settings,
-      });
+    try {
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      const activeTab = tabs[0];
+      if (activeTab?.id) {
+        const settings = await loadSettings();
+        await safeSendTabMessage(activeTab.id, {
+          action: 'TRIGGER_OPTIMIZE',
+          tone: settings.defaultTone || 'professional',
+          settings,
+        });
+      }
+    } catch {
+      return;
     }
   }
 };
@@ -100,15 +148,17 @@ if (typeof chrome !== 'undefined') {
   });
 
   chrome.contextMenus?.onClicked?.addListener((info, tab) => {
-    handleContextMenuClick(info, tab);
+    handleContextMenuClick(info, tab).catch(() => {});
   });
 
   chrome.commands?.onCommand?.addListener((command) => {
-    handleCommand(command);
+    handleCommand(command).catch(() => {});
   });
 
   chrome.runtime?.onMessage?.addListener((message, sender, sendResponse) => {
-    handleRuntimeMessage(message, sender, sendResponse);
+    handleRuntimeMessage(message, sender, sendResponse).catch((err) => {
+      sendResponse({ success: false, error: err?.message || 'Message error' });
+    });
     return true;
   });
 }

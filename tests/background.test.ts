@@ -4,6 +4,7 @@ import {
   handleContextMenuClick,
   handleRuntimeMessage,
   handleCommand,
+  safeSendTabMessage,
 } from '../src/background/index';
 
 describe('Background Service Worker', () => {
@@ -77,5 +78,15 @@ describe('Background Service Worker', () => {
         tone: 'professional',
       })
     );
+  });
+
+  it('TC-BG-05: safeSendTabMessage safely handles unreachable tab without throwing', async () => {
+    (chrome.tabs.sendMessage as any).mockRejectedValueOnce(
+      new Error('Could not establish connection. Receiving end does not exist.')
+    );
+    (chrome.tabs.get as any) = vi.fn().mockResolvedValue({ url: 'chrome://extensions' });
+
+    const result = await safeSendTabMessage(999, { action: 'TRIGGER_OPTIMIZE' });
+    expect(result).toBe(false);
   });
 });

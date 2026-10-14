@@ -237,7 +237,8 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
     if (message?.action === 'TRIGGER_OPTIMIZE') {
       handleTriggerOptimize(message.tone, message.settings);
       sendResponse({ received: true });
+      return true;
     }
-    return true;
+    return false;
   });
 }
