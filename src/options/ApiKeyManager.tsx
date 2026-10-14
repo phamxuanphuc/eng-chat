@@ -7,7 +7,7 @@ import { Switch } from '../components/ui/Switch';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
 import { callGeminiApi } from '../services/gemini';
-import { KeyRound, Sparkles, Plus, Trash2, Star, ExternalLink } from 'lucide-react';
+import { KeyRound, Sparkles, Plus, Trash2, Star, ExternalLink, Save } from 'lucide-react';
 
 interface ApiKeyManagerProps {
   apiKeys: ApiKeyItem[];
@@ -15,6 +15,7 @@ interface ApiKeyManagerProps {
   autoRotate: boolean;
   onToggleAutoRotate: (val: boolean) => void;
   selectedModel: string;
+  onSave?: () => void;
 }
 
 export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
@@ -23,6 +24,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
   autoRotate,
   onToggleAutoRotate,
   selectedModel,
+  onSave,
 }) => {
   const [newLabel, setNewLabel] = useState('');
   const [newKey, setNewKey] = useState('');
@@ -30,13 +32,14 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
   const primaryKey = apiKeys[0]?.key || '';
 
   const handlePrimaryChange = (val: string) => {
+    const trimmed = val.trim();
     if (apiKeys.length === 0) {
-      if (val) {
-        onUpdateKeys([{ id: 'key-1', label: 'Khóa chính', key: val }]);
+      if (trimmed) {
+        onUpdateKeys([{ id: 'key-1', label: 'Khóa chính', key: trimmed }]);
       }
     } else {
       const updated = [...apiKeys];
-      updated[0] = { ...updated[0], key: val };
+      updated[0] = { ...updated[0], key: trimmed };
       onUpdateKeys(updated);
     }
   };
@@ -69,12 +72,14 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
     mutationFn: async () => {
       const keyToTest = primaryKey || newKey.trim();
       if (!keyToTest) throw new Error('Vui lòng thêm ít nhất một API Key để kiểm tra.');
-      return await callGeminiApi({
+      const res = await callGeminiApi({
         apiKey: keyToTest,
         model: selectedModel,
         systemInstruction: 'You are a test helper. Reply with single word "OK".',
         prompt: 'Ping',
       });
+      if (onSave) onSave();
+      return res;
     },
   });
 
@@ -109,7 +114,6 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
           <ExternalLink size={12} />
         </a>
       </div>
-
 
       {apiKeys.length > 1 && (
         <div className="flex flex-col gap-2 pt-1">
@@ -192,7 +196,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
         onChange={onToggleAutoRotate}
       />
 
-      <div className="flex items-center gap-3 pt-1 border-t border-slate-800">
+      <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
         <Button
           variant="secondary"
           size="sm"
@@ -203,10 +207,22 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
         >
           Kiểm tra kết nối
         </Button>
+        {onSave && (
+          <Button
+            variant="primary"
+            size="sm"
+            icon={<Save size={14} />}
+            disabled={!primaryKey && !newKey.trim()}
+            onClick={onSave}
+          >
+            Lưu Khóa
+          </Button>
+        )}
       </div>
       {testMutation.isSuccess && (
         <Alert variant="success" message="Kết nối thành công! API Key hoạt động bình thường." />
       )}
+
       {testMutation.isError && (
         <Alert variant="error" message="Kiểm tra kết nối thất bại" description={testMutation.error?.message} />
       )}

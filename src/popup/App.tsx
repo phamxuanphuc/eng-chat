@@ -4,11 +4,12 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { executeOptimize } from '../services/gemini';
 import { ToneType, TranslateExplainResult } from '../types';
 import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
 import { Textarea } from '../components/ui/Textarea';
 import { ToneCard } from '../components/ui/ToneCard';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
-import { Settings, Sparkles, Copy, Check, ExternalLink } from 'lucide-react';
+import { Settings, Sparkles, Copy, Check, ExternalLink, KeyRound } from 'lucide-react';
 
 const POPUP_TONES: Array<{ id: ToneType; title: string; icon: string }> = [
   { id: 'polite', title: 'Lịch sự', icon: '🎩' },
@@ -19,10 +20,12 @@ const POPUP_TONES: Array<{ id: ToneType; title: string; icon: string }> = [
 ];
 
 export const App: React.FC = () => {
-  const { settings, fetchSettings } = useSettingsStore();
+  const { settings, fetchSettings, updateSettings } = useSettingsStore();
   const [inputText, setInputText] = useState('');
   const [selectedTone, setSelectedTone] = useState<ToneType>('professional');
   const [copied, setCopied] = useState(false);
+  const [quickKey, setQuickKey] = useState('');
+  const [saveLoading, setSaveLoading] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -33,6 +36,18 @@ export const App: React.FC = () => {
       setSelectedTone(settings.defaultTone);
     }
   }, [settings]);
+
+  const handleSaveQuickKey = async () => {
+    const trimmed = quickKey.trim();
+    if (!trimmed) return;
+    setSaveLoading(true);
+    await updateSettings({
+      geminiApiKey: trimmed,
+      apiKeys: [{ id: 'key-1', label: 'Khóa chính', key: trimmed }],
+    });
+    setQuickKey('');
+    setSaveLoading(false);
+  };
 
   const optimizeMutation = useMutation({
     mutationFn: async () => {
@@ -58,9 +73,8 @@ export const App: React.FC = () => {
     }
   };
 
-  const keyCount = settings.apiKeys && settings.apiKeys.length > 0
-    ? settings.apiKeys.length
-    : settings.geminiApiKey ? 1 : 0;
+  const validKeys = (settings.apiKeys || []).filter((k) => k.key?.trim());
+  const keyCount = validKeys.length > 0 ? validKeys.length : settings.geminiApiKey?.trim() ? 1 : 0;
 
   const resultData = optimizeMutation.data;
   const isExplain =
@@ -91,12 +105,32 @@ export const App: React.FC = () => {
       </div>
 
       {keyCount === 0 && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2.5 p-3 rounded-xl bg-slate-900/80 border border-slate-800">
           <Alert
             variant="warning"
             message="Chưa cấu hình API Key"
-            description="Vui lòng bấm vào icon Cài đặt ở trên để thêm Gemini API Key."
+            description="Dán Gemini API Key vào bên dưới để kích hoạt tiện ích ngay."
           />
+          <div className="flex gap-2 items-center">
+            <div className="flex-1 min-w-0">
+              <Input
+                type="password"
+                placeholder="AIzaSy..."
+                value={quickKey}
+                onChange={(e) => setQuickKey(e.target.value)}
+              />
+            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              icon={<KeyRound size={13} />}
+              disabled={!quickKey.trim()}
+              isLoading={saveLoading}
+              onClick={handleSaveQuickKey}
+            >
+              Lưu Key
+            </Button>
+          </div>
           <div className="flex items-center justify-between px-1 text-[11px] text-slate-400">
             <span>Chưa có Google AI Token?</span>
             <a
@@ -111,7 +145,6 @@ export const App: React.FC = () => {
           </div>
         </div>
       )}
-
 
       <Textarea
         label="Nhập nội dung cần xử lý"

@@ -87,7 +87,9 @@ export const App: React.FC = () => {
           autoRotate={autoRotate}
           onToggleAutoRotate={setAutoRotate}
           selectedModel={model}
+          onSave={handleSave}
         />
+
 
 
         <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
