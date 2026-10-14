@@ -150,4 +150,20 @@ describe('TranslatePopup Component', () => {
     fireEvent.click(translateOption);
     expect(handleModeChange).toHaveBeenCalledWith('translate');
   });
+
+  it('TC-TP-08: Renders light theme with light background card and slate styling', () => {
+    const { container } = render(
+      <TranslatePopup
+        theme="light"
+        mode="translate"
+        originalText="Hello world"
+        result="Xin chào thế giới"
+        isLoading={false}
+        onClose={() => {}}
+      />
+    );
+
+    const card = container.querySelector('.bg-white');
+    expect(card).not.toBeNull();
+  });
 });

@@ -18,6 +18,7 @@ export interface FloatingToolbarProps {
   x: number;
   y: number;
   isLoading?: boolean;
+  theme?: 'light' | 'dark';
   onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite') => void;
   onClose?: () => void;
 }
@@ -35,6 +36,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   x,
   y,
   isLoading = false,
+  theme = 'dark',
   onSelectTone,
   onClose,
 }) => {
@@ -60,28 +62,40 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     }
   };
 
+  const isLight = theme === 'light';
+  const barStyle = isLight
+    ? 'bg-white border-slate-200/90 shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-slate-700 hover:border-slate-300'
+    : 'bg-slate-900 border-slate-700/80 shadow-[0_8px_30px_rgb(0,0,0,0.45)] text-slate-200 hover:border-slate-600 ring-1 ring-white/10';
+  const btnHover = isLight
+    ? 'text-slate-600 hover:text-indigo-600 hover:bg-slate-100 active:bg-slate-200'
+    : 'text-slate-300 hover:text-indigo-300 hover:bg-slate-800/80 active:bg-slate-700/60';
+  const menuStyle = isLight
+    ? 'bg-white border-slate-200 shadow-2xl text-slate-700 ring-1 ring-black/5'
+    : 'bg-slate-900 border-slate-700/80 shadow-2xl text-slate-200 ring-1 ring-white/10';
+  const menuItemHover = isLight
+    ? 'text-slate-700 hover:text-indigo-700 hover:bg-indigo-50'
+    : 'text-slate-300 hover:text-white hover:bg-indigo-600/30';
+  const iconBg = isLight ? 'bg-slate-100 group-hover:bg-indigo-100/60' : 'bg-slate-800/80 group-hover:bg-indigo-500/20';
+
   return (
     <div
       ref={containerRef}
       role="toolbar"
       aria-label="EngChat Floating Toolbar"
       className="fixed z-[2147483646] flex flex-col items-center select-none animate-in fade-in zoom-in-95 duration-200"
-      style={{
-        left: `${x}px`,
-        top: `${y}px`,
-      }}
+      style={{ left: `${x}px`, top: `${y}px` }}
       onMouseDown={(e) => e.preventDefault()}
     >
-      <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-slate-900 border border-slate-700/80 shadow-[0_8px_30px_rgb(0,0,0,0.45)] backdrop-blur-xl text-slate-200 ring-1 ring-white/10 transition-all hover:border-slate-600">
+      <div className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full border backdrop-blur-xl transition-all ${barStyle}`}>
         <button
           type="button"
           disabled={isLoading}
           onClick={() => handleToneClick('translate_explain', 'translate')}
-          className="p-1.5 rounded-full text-slate-300 hover:text-indigo-300 hover:bg-slate-800/80 active:bg-slate-700/60 transition-colors disabled:opacity-50 cursor-pointer"
+          className={`p-1.5 rounded-full transition-colors disabled:opacity-50 cursor-pointer ${btnHover}`}
           title="Dịch & Giải thích (Translate)"
           aria-label="Dịch & Giải thích"
         >
-          <span className="flex items-center justify-center w-5 h-5 rounded bg-indigo-500/20 text-indigo-300 font-bold text-[11px] group-hover:bg-indigo-500/30 transition-colors">
+          <span className="flex items-center justify-center w-5 h-5 rounded bg-indigo-500/20 text-indigo-400 font-bold text-[11px] group-hover:bg-indigo-500/30 transition-colors">
             文A
           </span>
         </button>
@@ -90,7 +104,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           type="button"
           disabled={isLoading}
           onClick={() => handleToneClick('professional', 'rewrite')}
-          className="p-1.5 rounded-full text-slate-300 hover:text-indigo-300 hover:bg-slate-800/80 active:bg-slate-700/60 transition-colors disabled:opacity-50 cursor-pointer"
+          className={`p-1.5 rounded-full transition-colors disabled:opacity-50 cursor-pointer ${btnHover}`}
           title="Viết lại văn bản (Rewrite)"
           aria-label="Rewrite text"
         >
@@ -101,7 +115,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           type="button"
           disabled={isLoading}
           onClick={() => handleToneClick('polite')}
-          className="p-1.5 rounded-full text-slate-300 hover:text-indigo-300 hover:bg-slate-800/80 active:bg-slate-700/60 transition-colors disabled:opacity-50 cursor-pointer relative"
+          className={`p-1.5 rounded-full transition-colors disabled:opacity-50 cursor-pointer relative ${btnHover}`}
           title="Tối ưu với AI (Polite)"
           aria-label="AI Optimize"
         >
@@ -117,7 +131,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         <button
           type="button"
           onClick={() => setMenuOpen((prev) => !prev)}
-          className="p-1.5 rounded-full text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 active:bg-slate-700/60 transition-colors cursor-pointer"
+          className={`p-1.5 rounded-full transition-colors cursor-pointer ${isLight ? 'text-slate-400 hover:text-slate-700 hover:bg-slate-100' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'}`}
           title="Tùy chọn khác"
           aria-label="More options"
         >
@@ -137,7 +151,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       {menuOpen && (
         <div
           role="menu"
-          className="absolute top-full mt-2 w-52 rounded-xl bg-slate-900 border border-slate-700/80 shadow-2xl backdrop-blur-xl p-1.5 flex flex-col gap-0.5 text-slate-200 z-50 ring-1 ring-white/10 animate-in fade-in slide-in-from-top-1 duration-150"
+          className={`absolute top-full mt-2 w-52 rounded-xl border backdrop-blur-xl p-1.5 flex flex-col gap-0.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150 ${menuStyle}`}
         >
           <div className="px-2 py-1 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
             Chọn phong cách văn phong
@@ -148,9 +162,9 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
               role="menuitem"
               type="button"
               onClick={() => handleToneClick(item.id)}
-              className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-indigo-600/30 active:bg-indigo-600/50 transition-colors text-left cursor-pointer group"
+              className={`flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors text-left cursor-pointer group ${menuItemHover}`}
             >
-              <span className="p-1 rounded bg-slate-800/80 group-hover:bg-indigo-500/20 transition-colors">
+              <span className={`p-1 rounded transition-colors ${iconBg}`}>
                 {item.icon}
               </span>
               <span>{item.label}</span>

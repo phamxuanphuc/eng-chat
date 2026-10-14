@@ -9,9 +9,10 @@ import { executeOptimize } from '../services/gemini';
 import { loadSettings } from '../services/storage';
 import { ToneType, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../types';
 import { Button } from '../components/ui/Button';
-import { Sparkles, Settings, Monitor, MessageSquare } from 'lucide-react';
+import { Sparkles, Settings, Monitor, MessageSquare, Sun, Moon } from 'lucide-react';
 
 export const StandaloneApp: React.FC = () => {
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [activeTab, setActiveTab] = useState<'playground' | 'options' | 'popup'>('playground');
   const [chatInput, setChatInput] = useState('Tôi đồng ý với phương án này, hãy triển khai sớm nhé');
   const [rewriteOptions, setRewriteOptions] = useState<RewriteOptions>(DEFAULT_REWRITE_OPTIONS);
@@ -98,6 +99,9 @@ export const StandaloneApp: React.FC = () => {
           <Button variant={activeTab === 'popup' ? 'primary' : 'ghost'} size="sm" icon={<MessageSquare size={14} />} onClick={() => setActiveTab('popup')}>
             Cửa Sổ Popup
           </Button>
+          <Button variant="ghost" size="sm" icon={theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+            {theme === 'dark' ? 'Sáng' : 'Tối'}
+          </Button>
         </nav>
       </header>
 
@@ -177,6 +181,7 @@ export const StandaloneApp: React.FC = () => {
       </main>
 
       <FloatingToolbar
+        theme={theme}
         visible={toolbar.visible}
         x={toolbar.x}
         y={toolbar.y}
@@ -191,6 +196,7 @@ export const StandaloneApp: React.FC = () => {
 
       {tooltipState.isOpen && (
         <TranslatePopup
+          theme={theme}
           mode={tooltipState.mode}
           originalText={chatInput}
           isLoading={tooltipState.isLoading}

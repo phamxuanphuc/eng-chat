@@ -90,4 +90,35 @@ describe('FloatingToolbar Component', () => {
     fireEvent.click(translateBtn);
     expect(onSelectTone).toHaveBeenCalledWith('translate_explain', 'translate');
   });
+
+  it('TC-FT-06: Renders light theme with light background styling', () => {
+    const onSelectTone = vi.fn();
+    const { container } = render(
+      <FloatingToolbar
+        visible={true}
+        x={150}
+        y={250}
+        theme="light"
+        onSelectTone={onSelectTone}
+      />
+    );
+
+    const toolbarEl = container.querySelector('.bg-white');
+    expect(toolbarEl).not.toBeNull();
+  });
+
+  it('TC-FT-07: Renders dark theme by default with dark background styling', () => {
+    const onSelectTone = vi.fn();
+    const { container } = render(
+      <FloatingToolbar
+        visible={true}
+        x={150}
+        y={250}
+        onSelectTone={onSelectTone}
+      />
+    );
+
+    const toolbarEl = container.querySelector('.bg-slate-900');
+    expect(toolbarEl).not.toBeNull();
+  });
 });

@@ -4,6 +4,7 @@ import { TranslatePopup } from './TranslatePopup';
 import { ToneType, RewriteOptions } from '../../types';
 
 export interface ContentOverlayProps {
+  theme?: 'light' | 'dark';
   toolbar: {
     visible: boolean;
     x: number;
@@ -35,6 +36,7 @@ export interface ContentOverlayProps {
 }
 
 export const ContentOverlay: React.FC<ContentOverlayProps> = ({
+  theme = 'dark',
   toolbar,
   tooltip,
   onSelectTone,
@@ -55,12 +57,14 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
         x={toolbar.x}
         y={toolbar.y}
         isLoading={toolbar.isLoading}
+        theme={theme}
         onSelectTone={onSelectTone}
         onClose={onCloseToolbar}
       />
 
       {tooltip.visible && (
         <TranslatePopup
+          theme={theme}
           mode={tooltip.mode}
           originalText={tooltip.originalText}
           result={tooltip.result}

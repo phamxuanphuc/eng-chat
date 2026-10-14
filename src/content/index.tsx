@@ -5,11 +5,21 @@ import { getActiveEditableElement, getSelectedText, replaceTextInElement } from 
 import { extractChatContext } from './chat-extractor';
 import { computeToolbarPos, setupDOMEvents } from './content-events';
 import { ContentOverlay } from './ui/ContentOverlay';
+import { detectPageTheme, observePageTheme } from './theme-detector';
 import styles from '../styles/index.css?inline';
 
 let shadowRoot: ShadowRoot | null = null;
 let reactRoot: ReactDOM.Root | null = null;
 let currentEditableEl: HTMLElement | null = null;
+let currentTheme: 'light' | 'dark' = 'dark';
+
+try {
+  currentTheme = detectPageTheme();
+  observePageTheme((theme) => {
+    currentTheme = theme;
+    renderApp();
+  });
+} catch (_) {}
 
 let toolbarState = { visible: false, x: 0, y: 0, isLoading: false };
 let tooltipState = {
@@ -35,7 +45,7 @@ const ensureShadowHost = (): ShadowRoot => {
   const styleLink = document.createElement('style');
   styleLink.textContent = `
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-    :host { all: initial; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color-scheme: dark; }
+    :host { all: initial; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
     * { box-sizing: border-box; }
     ${styles}
   `;
@@ -54,6 +64,7 @@ const renderApp = () => {
 
   reactRoot.render(
     <ContentOverlay
+      theme={currentTheme}
       toolbar={toolbarState}
       tooltip={tooltipState}
       onSelectTone={(tone, mode) => {
@@ -67,11 +78,11 @@ const renderApp = () => {
         tooltipState = { ...tooltipState, isPinned: !tooltipState.isPinned };
         renderApp();
       }}
-      onLanguageChange={(lang) => handleLanguageChange(lang)}
-      onModeChange={(newMode) => handleModeChange(newMode)}
-      onRewriteOptionsChange={(opts) => handleRewriteOptionsChange(opts)}
-      onFollowUp={(query) => handleFollowUp(query)}
-      onRegenerate={() => handleRegenerate()}
+      onLanguageChange={handleLanguageChange}
+      onModeChange={handleModeChange}
+      onRewriteOptionsChange={handleRewriteOptionsChange}
+      onFollowUp={handleFollowUp}
+      onRegenerate={handleRegenerate}
       onInsertText={(text) => {
         if (currentEditableEl) {
           replaceTextInElement(currentEditableEl, text);
