@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ToneType, OptimizeResponse } from '../types';
+import { ToneType, OptimizeResponse, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../types';
 import { getActiveEditableElement, getSelectedText, replaceTextInElement } from './dom-utils';
 import { extractChatContext } from './chat-extractor';
 import { computeToolbarPos, setupDOMEvents } from './content-events';
@@ -20,6 +20,7 @@ let tooltipState = {
   isLoading: false,
   error: null as string | null,
   targetLanguage: 'Vietnamese',
+  rewriteOptions: DEFAULT_REWRITE_OPTIONS,
   isPinned: false,
   hasEditableTarget: false,
 };
@@ -68,6 +69,7 @@ const renderApp = () => {
       }}
       onLanguageChange={(lang) => handleLanguageChange(lang)}
       onModeChange={(newMode) => handleModeChange(newMode)}
+      onRewriteOptionsChange={(opts) => handleRewriteOptionsChange(opts)}
       onFollowUp={(query) => handleFollowUp(query)}
       onRegenerate={() => handleRegenerate()}
       onInsertText={(text) => {
@@ -177,6 +179,19 @@ const handleLanguageChange = async (lang: string) => {
   tooltipState = { ...tooltipState, targetLanguage: lang, isLoading: true, error: null };
   renderApp();
   await handleFollowUp(`Dịch toàn bộ văn bản gốc sang ngôn ngữ: ${lang}`);
+};
+
+const handleRewriteOptionsChange = async (opts: RewriteOptions) => {
+  tooltipState = { ...tooltipState, rewriteOptions: opts };
+  renderApp();
+  if (!tooltipState.originalText) return;
+  const parts: string[] = [];
+  if (opts.length !== 'Auto') parts.push(`Length: ${opts.length}`);
+  if (opts.formality !== 'Auto') parts.push(`Formality: ${opts.formality}`);
+  if (opts.format !== 'Auto') parts.push(`Format: ${opts.format}`);
+  if (opts.tone !== 'Auto') parts.push(`Tone: ${opts.tone}`);
+  const prompt = parts.length > 0 ? `Rewrite with style requirements: ${parts.join(', ')}.` : 'Rewrite naturally.';
+  await handleFollowUp(prompt);
 };
 
 setupDOMEvents({

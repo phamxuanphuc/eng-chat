@@ -63,3 +63,18 @@ export interface ContentScriptQueryPayload {
   action: 'PROCESS_OPTIMIZE';
   payload: OptimizeRequest;
 }
+
+export interface RewriteOptions {
+  length: 'Auto' | 'Short' | 'Medium' | 'Long';
+  formality: 'Auto' | 'Casual' | 'Neutral' | 'Formal';
+  format: string;
+  tone: string;
+}
+
+export const DEFAULT_REWRITE_OPTIONS: RewriteOptions = {
+  length: 'Auto',
+  formality: 'Auto',
+  format: 'Auto',
+  tone: 'Auto',
+};
+

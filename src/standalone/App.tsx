@@ -7,13 +7,14 @@ import { extractChatContext } from '../content/chat-extractor';
 import { replaceTextInElement } from '../content/dom-utils';
 import { executeOptimize } from '../services/gemini';
 import { loadSettings } from '../services/storage';
-import { ToneType } from '../types';
+import { ToneType, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../types';
 import { Button } from '../components/ui/Button';
 import { Sparkles, Settings, Monitor, MessageSquare } from 'lucide-react';
 
 export const StandaloneApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'playground' | 'options' | 'popup'>('playground');
   const [chatInput, setChatInput] = useState('Tôi đồng ý với phương án này, hãy triển khai sớm nhé');
+  const [rewriteOptions, setRewriteOptions] = useState<RewriteOptions>(DEFAULT_REWRITE_OPTIONS);
   const [toolbar, setToolbar] = useState<{
     visible: boolean;
     x: number;
@@ -88,28 +89,13 @@ export const StandaloneApp: React.FC = () => {
         </div>
 
         <nav className="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
-          <Button
-            variant={activeTab === 'playground' ? 'primary' : 'ghost'}
-            size="sm"
-            icon={<Monitor size={14} />}
-            onClick={() => setActiveTab('playground')}
-          >
+          <Button variant={activeTab === 'playground' ? 'primary' : 'ghost'} size="sm" icon={<Monitor size={14} />} onClick={() => setActiveTab('playground')}>
             Trang Thử Nghiệm
           </Button>
-          <Button
-            variant={activeTab === 'options' ? 'primary' : 'ghost'}
-            size="sm"
-            icon={<Settings size={14} />}
-            onClick={() => setActiveTab('options')}
-          >
+          <Button variant={activeTab === 'options' ? 'primary' : 'ghost'} size="sm" icon={<Settings size={14} />} onClick={() => setActiveTab('options')}>
             Cài Đặt (Options)
           </Button>
-          <Button
-            variant={activeTab === 'popup' ? 'primary' : 'ghost'}
-            size="sm"
-            icon={<MessageSquare size={14} />}
-            onClick={() => setActiveTab('popup')}
-          >
+          <Button variant={activeTab === 'popup' ? 'primary' : 'ghost'} size="sm" icon={<MessageSquare size={14} />} onClick={() => setActiveTab('popup')}>
             Cửa Sổ Popup
           </Button>
         </nav>
@@ -136,18 +122,16 @@ export const StandaloneApp: React.FC = () => {
             <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 flex flex-col gap-4">
               <h2 className="text-sm font-semibold text-slate-200">Kênh Trao Đổi Dự Án (#general-chat)</h2>
               <div role="log" className="flex flex-col gap-3 p-4 rounded-xl bg-slate-950 border border-slate-800/80 max-h-64 overflow-y-auto">
-                <div className="c-message__body flex flex-col text-xs">
-                  <span className="font-semibold text-indigo-400">Sarah (Product Manager):</span>
-                  <span className="text-slate-300 mt-0.5">Hi team, please review the PRD for the upcoming release.</span>
-                </div>
-                <div className="c-message__body flex flex-col text-xs">
-                  <span className="font-semibold text-purple-400">David (Tech Lead):</span>
-                  <span className="text-slate-300 mt-0.5">The architecture proposal is ready. Are there any blockers?</span>
-                </div>
-                <div className="c-message__body flex flex-col text-xs">
-                  <span className="font-semibold text-pink-400">Alex (Designer):</span>
-                  <span className="text-slate-300 mt-0.5">The Uiverse Galaxy components look clean. Please proceed.</span>
-                </div>
+                {[
+                  { sender: 'Sarah (PM)', color: 'text-indigo-400', text: 'Hi team, please review the PRD for the upcoming release.' },
+                  { sender: 'David (Tech Lead)', color: 'text-purple-400', text: 'The architecture proposal is ready. Are there any blockers?' },
+                  { sender: 'Alex (Designer)', color: 'text-pink-400', text: 'The Uiverse Galaxy components look clean. Please proceed.' },
+                ].map((m, i) => (
+                  <div key={i} className="c-message__body flex flex-col text-xs">
+                    <span className={`font-semibold ${m.color}`}>{m.sender}:</span>
+                    <span className="text-slate-300 mt-0.5">{m.text}</span>
+                  </div>
+                ))}
               </div>
 
               <div className="flex flex-col gap-2 pt-2">
@@ -213,6 +197,20 @@ export const StandaloneApp: React.FC = () => {
           error={tooltipState.error}
           result={tooltipState.result}
           hasEditableTarget={true}
+          rewriteOptions={rewriteOptions}
+          onRewriteOptionsChange={async (opts) => {
+            setRewriteOptions(opts);
+            setTooltipState((p) => ({ ...p, isLoading: true }));
+            const parts: string[] = [];
+            if (opts.length !== 'Auto') parts.push(`Length: ${opts.length}`);
+            if (opts.formality !== 'Auto') parts.push(`Formality: ${opts.formality}`);
+            if (opts.format !== 'Auto') parts.push(`Format: ${opts.format}`);
+            if (opts.tone !== 'Auto') parts.push(`Tone: ${opts.tone}`);
+            const prompt = parts.length > 0 ? `Văn bản gốc: "${chatInput}"\nRewrite requirements: ${parts.join(', ')}.` : chatInput;
+            const settings = await loadSettings();
+            const res = await executeOptimize({ text: prompt, tone: 'professional' }, settings);
+            setTooltipState((p) => ({ ...p, isLoading: false, result: res.data, error: res.error }));
+          }}
           onModeChange={(m) => runOptimize(m === 'rewrite' ? 'professional' : 'translate_explain', m)}
           onFollowUp={async (query) => {
             setTooltipState((p) => ({ ...p, isLoading: true }));

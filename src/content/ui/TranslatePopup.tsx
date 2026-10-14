@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { TranslateExplainResult } from '../../types';
-import { Languages, PenLine, ChevronDown, Pin, PinOff, X, Sparkles, Loader2, BookOpen } from 'lucide-react';
+import { TranslateExplainResult, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../../types';
+import { Languages, PenLine, ChevronDown, Pin, PinOff, X, Sparkles, Loader2, BookOpen, AudioWaveform } from 'lucide-react';
 import { TranslatePopupFooter } from './TranslatePopupFooter';
+import { RewriteOptionsPanel } from './RewriteOptionsPanel';
 
 export interface TranslatePopupProps {
   mode?: 'translate' | 'rewrite';
@@ -10,11 +11,13 @@ export interface TranslatePopupProps {
   isLoading: boolean;
   error?: string | null;
   targetLanguage?: string;
+  rewriteOptions?: RewriteOptions;
   isPinned?: boolean;
   hasEditableTarget?: boolean;
   onTogglePin?: () => void;
   onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite') => void;
+  onRewriteOptionsChange?: (options: RewriteOptions) => void;
   onFollowUp?: (query: string) => void;
   onRegenerate?: () => void;
   onInsert?: (text: string) => void;
@@ -30,11 +33,13 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   isLoading,
   error,
   targetLanguage = 'Vietnamese',
+  rewriteOptions,
   isPinned = false,
   hasEditableTarget = false,
   onTogglePin,
   onLanguageChange,
   onModeChange,
+  onRewriteOptionsChange,
   onFollowUp,
   onRegenerate,
   onInsert,
@@ -44,6 +49,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [showRewriteOptions, setShowRewriteOptions] = useState(false);
 
   const isExplain = result && typeof result === 'object' && 'translation' in result;
   const translationText = isExplain ? (result as TranslateExplainResult).translation : (result as string) || '';
@@ -198,6 +204,27 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           <Sparkles size={13} className="text-indigo-400 group-hover:scale-110 transition-transform" />
           <span>Ask Gemini for a better answer</span>
         </button>
+      )}
+
+      {mode === 'rewrite' && (
+        <div className="flex items-center gap-2 px-0.5">
+          <button
+            type="button"
+            onClick={() => setShowRewriteOptions((p) => !p)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 border border-slate-700/60 cursor-pointer transition-colors"
+          >
+            <AudioWaveform size={14} className="text-indigo-400" />
+            <span>Length & format</span>
+          </button>
+        </div>
+      )}
+
+      {showRewriteOptions && mode === 'rewrite' && (
+        <RewriteOptionsPanel
+          options={rewriteOptions || DEFAULT_REWRITE_OPTIONS}
+          onChange={(opts) => onRewriteOptionsChange?.(opts)}
+          onClose={() => setShowRewriteOptions(false)}
+        />
       )}
 
       <TranslatePopupFooter

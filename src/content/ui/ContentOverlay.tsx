@@ -1,7 +1,7 @@
 import React from 'react';
 import { FloatingToolbar } from './FloatingToolbar';
 import { TranslatePopup } from './TranslatePopup';
-import { ToneType } from '../../types';
+import { ToneType, RewriteOptions } from '../../types';
 
 export interface ContentOverlayProps {
   toolbar: {
@@ -18,6 +18,7 @@ export interface ContentOverlayProps {
     result?: any;
     error?: string | null;
     targetLanguage?: string;
+    rewriteOptions?: RewriteOptions;
     isPinned?: boolean;
     hasEditableTarget: boolean;
   };
@@ -26,6 +27,7 @@ export interface ContentOverlayProps {
   onTogglePin?: () => void;
   onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite') => void;
+  onRewriteOptionsChange?: (options: RewriteOptions) => void;
   onFollowUp?: (query: string) => void;
   onRegenerate?: () => void;
   onInsertText: (text: string) => void;
@@ -40,6 +42,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
   onTogglePin,
   onLanguageChange,
   onModeChange,
+  onRewriteOptionsChange,
   onFollowUp,
   onRegenerate,
   onInsertText,
@@ -64,11 +67,13 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
           isLoading={tooltip.isLoading}
           error={tooltip.error}
           targetLanguage={tooltip.targetLanguage}
+          rewriteOptions={tooltip.rewriteOptions}
           isPinned={tooltip.isPinned}
           hasEditableTarget={tooltip.hasEditableTarget}
           onTogglePin={onTogglePin}
           onLanguageChange={onLanguageChange}
           onModeChange={onModeChange}
+          onRewriteOptionsChange={onRewriteOptionsChange}
           onFollowUp={onFollowUp}
           onRegenerate={onRegenerate}
           onInsert={onInsertText}
