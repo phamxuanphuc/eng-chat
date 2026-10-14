@@ -1,6 +1,6 @@
 import React from 'react';
 import { FloatingToolbar } from './FloatingToolbar';
-import { TooltipApp } from './TooltipApp';
+import { TranslatePopup } from './TranslatePopup';
 import { ToneType } from '../../types';
 
 export interface ContentOverlayProps {
@@ -13,12 +13,19 @@ export interface ContentOverlayProps {
   tooltip: {
     visible: boolean;
     isLoading: boolean;
-    error?: string | null;
+    originalText: string;
     result?: any;
+    error?: string | null;
+    targetLanguage?: string;
+    isPinned?: boolean;
     hasEditableTarget: boolean;
   };
   onSelectTone: (tone: ToneType) => void;
   onCloseToolbar: () => void;
+  onTogglePin?: () => void;
+  onLanguageChange?: (lang: string) => void;
+  onFollowUp?: (query: string) => void;
+  onRegenerate?: () => void;
   onInsertText: (text: string) => void;
   onCloseTooltip: () => void;
 }
@@ -28,6 +35,10 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
   tooltip,
   onSelectTone,
   onCloseToolbar,
+  onTogglePin,
+  onLanguageChange,
+  onFollowUp,
+  onRegenerate,
   onInsertText,
   onCloseTooltip,
 }) => {
@@ -43,11 +54,18 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
       />
 
       {tooltip.visible && (
-        <TooltipApp
+        <TranslatePopup
+          originalText={tooltip.originalText}
+          result={tooltip.result}
           isLoading={tooltip.isLoading}
           error={tooltip.error}
-          result={tooltip.result}
+          targetLanguage={tooltip.targetLanguage}
+          isPinned={tooltip.isPinned}
           hasEditableTarget={tooltip.hasEditableTarget}
+          onTogglePin={onTogglePin}
+          onLanguageChange={onLanguageChange}
+          onFollowUp={onFollowUp}
+          onRegenerate={onRegenerate}
           onInsert={onInsertText}
           onClose={onCloseTooltip}
         />

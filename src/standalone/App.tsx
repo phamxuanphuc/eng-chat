@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { App as OptionsApp } from '../options/App';
 import { App as PopupApp } from '../popup/App';
-import { TooltipApp } from '../content/ui/TooltipApp';
+import { TranslatePopup } from '../content/ui/TranslatePopup';
 import { FloatingToolbar } from '../content/ui/FloatingToolbar';
 import { extractChatContext } from '../content/chat-extractor';
 import { replaceTextInElement } from '../content/dom-utils';
@@ -199,11 +199,20 @@ export const StandaloneApp: React.FC = () => {
       />
 
       {tooltipState.isOpen && (
-        <TooltipApp
+        <TranslatePopup
+          originalText={chatInput}
           isLoading={tooltipState.isLoading}
           error={tooltipState.error}
           result={tooltipState.result}
           hasEditableTarget={true}
+          onFollowUp={async (query) => {
+            setTooltipState((p) => ({ ...p, isLoading: true }));
+            const prompt = `Văn bản gốc: "${chatInput}"\n\nYêu cầu: ${query}`;
+            const settings = await loadSettings();
+            const res = await executeOptimize({ text: prompt, tone: 'translate_explain' }, settings);
+            setTooltipState({ isOpen: true, isLoading: false, result: res.data, error: res.error });
+          }}
+          onRegenerate={() => runOptimize('translate_explain')}
           onInsert={(text) => {
             setChatInput(text);
             setTooltipState({ isOpen: false, isLoading: false });
