@@ -42,9 +42,11 @@ export const handleContextMenuClick = async (
 
   if (menuId.startsWith(CONTEXT_MENU_PREFIX)) {
     const tone = menuId.replace(CONTEXT_MENU_PREFIX, '') as ToneType;
+    const settings = await loadSettings();
     chrome.tabs.sendMessage(tab.id, {
       action: 'TRIGGER_OPTIMIZE',
       tone,
+      settings,
     });
   }
 };
@@ -86,6 +88,7 @@ export const handleCommand = async (command: string) => {
       chrome.tabs.sendMessage(activeTab.id, {
         action: 'TRIGGER_OPTIMIZE',
         tone: settings.defaultTone || 'professional',
+        settings,
       });
     }
   }

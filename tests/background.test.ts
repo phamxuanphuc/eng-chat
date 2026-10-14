@@ -47,10 +47,13 @@ describe('Background Service Worker', () => {
 
     await handleContextMenuClick(info, tab);
 
-    expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(101, {
-      action: 'TRIGGER_OPTIMIZE',
-      tone: 'friendly',
-    });
+    expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
+      101,
+      expect.objectContaining({
+        action: 'TRIGGER_OPTIMIZE',
+        tone: 'friendly',
+      })
+    );
   });
 
   it('TC-BG-03: handles GET_SETTINGS message', async () => {
@@ -66,9 +69,12 @@ describe('Background Service Worker', () => {
     await handleCommand('optimize_selection');
 
     expect(chrome.tabs.query).toHaveBeenCalledWith({ active: true, currentWindow: true });
-    expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(999, {
-      action: 'TRIGGER_OPTIMIZE',
-      tone: 'professional',
-    });
+    expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
+      999,
+      expect.objectContaining({
+        action: 'TRIGGER_OPTIMIZE',
+        tone: 'professional',
+      })
+    );
   });
 });

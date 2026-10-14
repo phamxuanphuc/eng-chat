@@ -31,6 +31,7 @@ export const App: React.FC = () => {
   const [model, setModel] = useState('gemini-2.0-flash');
   const [tone, setTone] = useState<ToneType>('professional');
   const [chatContext, setChatContext] = useState(true);
+  const [maxContext, setMaxContext] = useState(4);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export const App: React.FC = () => {
       setModel(settings.selectedModel || 'gemini-2.0-flash');
       setTone(settings.defaultTone || 'professional');
       setChatContext(settings.enableChatContext ?? true);
+      setMaxContext(settings.maxContextMessages ?? 4);
     }
   }, [settings]);
 
@@ -63,6 +65,7 @@ export const App: React.FC = () => {
       selectedModel: model,
       defaultTone: tone,
       enableChatContext: chatContext,
+      maxContextMessages: Number(maxContext) || 4,
     });
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
@@ -158,10 +161,22 @@ export const App: React.FC = () => {
         <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
           <Switch
             label="Trích xuất ngữ cảnh chat (Chat Context Awareness)"
-            description="Tự động thu thập 3-5 tin nhắn liền trước trong khung chat (Slack, Discord, Teams) để dịch chuẩn xưng hô và bối cảnh."
+            description="Tự động thu thập các tin nhắn liền trước trong khung chat (Slack, Discord, Teams) để dịch chuẩn xưng hô và bối cảnh."
             checked={chatContext}
             onChange={setChatContext}
           />
+          {chatContext && (
+            <div className="pt-2 border-t border-slate-800/80">
+              <Input
+                label="Số lượng tin nhắn ngữ cảnh tối đa (1 - 10)"
+                type="number"
+                min={1}
+                max={10}
+                value={maxContext}
+                onChange={(e) => setMaxContext(Math.max(1, Math.min(10, Number(e.target.value))))}
+              />
+            </div>
+          )}
         </div>
 
         {saveSuccess && (

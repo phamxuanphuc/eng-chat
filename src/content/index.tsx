@@ -65,7 +65,7 @@ const closeTooltip = () => {
   }
 };
 
-const handleTriggerOptimize = async (tone: ToneType) => {
+const handleTriggerOptimize = async (tone: ToneType, settings?: any) => {
   const activeEl = getActiveEditableElement();
   currentEditableEl = activeEl;
 
@@ -79,7 +79,11 @@ const handleTriggerOptimize = async (tone: ToneType) => {
     return;
   }
 
-  const contextMessages = extractChatContext(activeEl, 4);
+  const shouldExtract = settings ? settings.enableChatContext : true;
+  const maxMessages = settings?.maxContextMessages || 4;
+  const contextMessages = shouldExtract
+    ? extractChatContext(activeEl, maxMessages)
+    : [];
 
   renderTooltip({
     isLoading: true,
@@ -130,7 +134,7 @@ const handleTriggerOptimize = async (tone: ToneType) => {
 if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message?.action === 'TRIGGER_OPTIMIZE') {
-      handleTriggerOptimize(message.tone);
+      handleTriggerOptimize(message.tone, message.settings);
       sendResponse({ received: true });
     }
     return true;
