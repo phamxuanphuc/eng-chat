@@ -9,8 +9,11 @@ Tài liệu này đề xuất giải pháp kiến trúc và kỹ thuật để t
 | Thành phần | Lựa chọn công nghệ | Lý do lựa chọn |
 | :--- | :--- | :--- |
 | **Ngôn ngữ** | TypeScript (Strict mode) | Đảm bảo an toàn kiểu dữ liệu, giảm thiểu bug khi thao tác Chrome APIs và DOM. |
+| **Giao diện (UI)** | React 18 | Xây dựng UI linh hoạt, module hóa cho Popup, Options và Tooltip trong Shadow DOM. |
+| **State Management** | Zustand | State management siêu nhẹ (~1KB), cú pháp đơn giản, đồng bộ mượt mà với `chrome.storage`. |
+| **Styling** | Tailwind CSS | Thiết kế giao diện hiện đại, nhanh chóng, tiện dụng cho cả Popup, Options và Shadow DOM UI. |
 | **Công cụ Build** | Vite + Rollup | Tốc độ build siêu nhanh, hỗ trợ đa entrypoint cho Manifest V3 (background, content, popup, options). |
-| **UI Injection** | Shadow DOM + Scoped CSS | Cách ly 100% CSS của extension với CSS của trang web người dùng đang duyệt (tránh vỡ layout). |
+| **UI Injection** | Shadow DOM | Cách ly 100% CSS (kèm Tailwind reset/utility) với CSS của trang web đích (tránh xung đột style). |
 | **Kiểm thử (Test)** | Vitest + Happy-DOM | Tương thích trực tiếp với Vite, chạy cực nhanh, hỗ trợ test logic DOM và Service Worker. |
 | **Giao tiếp API** | Native `fetch` trong Background | Tránh vấn đề CORS, xử lý API Key tập trung tại Service Worker. |
 
@@ -94,17 +97,23 @@ eng-chat/
 │   ├── content/           # Content Script tương tác DOM
 │   │   ├── index.ts
 │   │   ├── chat-extractor.ts
-│   │   └── ui/            # Shadow DOM tooltip & loading
+│   │   └── ui/            # React + Shadow DOM tooltip & loading
+│   │       ├── TooltipApp.tsx
+│   │       └── style.css
 │   ├── options/           # Giao diện cài đặt (Options Page)
 │   │   ├── index.html
-│   │   └── main.ts
+│   │   ├── App.tsx
+│   │   └── main.tsx
 │   ├── popup/             # Giao diện popup nhanh
 │   │   ├── index.html
-│   │   └── main.ts
+│   │   ├── App.tsx
+│   │   └── main.tsx
 │   ├── services/          # Gemini API & Chrome Storage
 │   │   ├── gemini.ts
 │   │   ├── storage.ts
 │   │   └── prompt.ts
+│   ├── store/             # Zustand store đồng bộ chrome.storage
+│   │   └── useSettingsStore.ts
 │   └── types/             # Định nghĩa Type / Interface
 │       └── index.ts
 ├── tests/                 # Unit Tests (Vitest)
@@ -112,6 +121,8 @@ eng-chat/
 │   ├── prompt.test.ts
 │   └── chat-extractor.test.ts
 ├── manifest.json          # Manifest V3 configuration
+├── tailwind.config.js     # Cấu hình Tailwind CSS
+├── postcss.config.js      # Cấu hình PostCSS
 ├── vite.config.ts         # Cấu hình đóng gói extension
 └── tsconfig.json
 ```
