@@ -56,15 +56,15 @@ Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, 
 - [x] **Task 4.3**: Unit tests Prompt Builder & Gemini Client (`tests/prompt.test.ts`, `tests/gemini.test.ts`).
 
 ### Giai đoạn 5: DOM Utilities, Chat Extractor & Shadow DOM UI
-- [ ] **Task 5.1**: `src/content/chat-extractor.ts`:
+- [x] **Task 5.1**: `src/content/chat-extractor.ts`:
   - Thuật toán trích xuất 3-5 tin nhắn: Quét container cuộn gần nhất, trích xuất text thuần loại bỏ timestamp/avatar.
-- [ ] **Task 5.2**: `src/content/dom-utils.ts`:
+- [x] **Task 5.2**: `src/content/dom-utils.ts`:
   - `getActiveEditableElement()`: Xác định element đang focus.
   - `replaceTextInElement(el, newText)`: Ghi đè an toàn kèm event dispatch.
-- [ ] **Task 5.3**: `src/content/ui/TooltipApp.tsx`:
+- [x] **Task 5.3**: `src/content/ui/TooltipApp.tsx`:
   - Render trong Shadow DOM: Hiển thị Galaxy Loader, kết quả xem trước, nút Sao chép, nút Chèn và thẻ giải thích từ vựng/ngữ pháp.
-- [ ] **Task 5.4**: `src/content/index.ts`: Lắng nghe message và điều phối luồng.
-- [ ] **Task 5.5**: Unit test DOM Utils & Chat Extractor (`tests/chat-extractor.test.ts`).
+- [x] **Task 5.4**: `src/content/index.ts`: Lắng nghe message và điều phối luồng.
+- [x] **Task 5.5**: Unit test DOM Utils & Chat Extractor (`tests/chat-extractor.test.ts`, `tests/dom-utils.test.ts`).
 
 ### Giai đoạn 6: Background Service Worker & Context Menu
 - [ ] **Task 6.1**: `src/background/index.ts`:
