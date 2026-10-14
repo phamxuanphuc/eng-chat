@@ -11,11 +11,12 @@ Tài liệu này đề xuất giải pháp kiến trúc và kỹ thuật để t
 | **Ngôn ngữ** | TypeScript (Strict mode) | Đảm bảo an toàn kiểu dữ liệu, giảm thiểu bug khi thao tác Chrome APIs và DOM. |
 | **Giao diện (UI)** | React 18 | Xây dựng UI linh hoạt, module hóa cho Popup, Options và Tooltip trong Shadow DOM. |
 | **State Management** | Zustand | State management siêu nhẹ (~1KB), cú pháp đơn giản, đồng bộ mượt mà với `chrome.storage`. |
+| **Data Fetching** | TanStack React Query | Quản lý async state, mutation, retry và caching cho kiểm tra API key và gọi tối ưu text. |
+| **HTTP Client** | Axios | Client gửi HTTP request chuẩn hóa, xử lý timeout, interceptor và bắt lỗi chi tiết từ Gemini API. |
 | **Styling & UI Kit** | Tailwind CSS + Uiverse Galaxy | Thiết kế UI hiện đại, áp dụng các UI elements phong cách Uiverse Galaxy (button, switch, input, loader, cards). |
 | **Công cụ Build** | Vite + Rollup | Tốc độ build siêu nhanh, hỗ trợ đa entrypoint cho Manifest V3 (background, content, popup, options). |
 | **UI Injection** | Shadow DOM | Cách ly 100% CSS (kèm Tailwind reset/utility) với CSS của trang web đích (tránh xung đột style). |
 | **Kiểm thử (Test)** | Vitest + Happy-DOM | Tương thích trực tiếp với Vite, chạy cực nhanh, hỗ trợ test logic DOM và Service Worker. |
-| **Giao tiếp API** | Native `fetch` trong Background | Tránh vấn đề CORS, xử lý API Key tập trung tại Service Worker. |
 
 ---
 
