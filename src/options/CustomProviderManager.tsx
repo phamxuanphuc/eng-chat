@@ -4,8 +4,8 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
-import { callOpenAiApi, CUSTOM_PROVIDER_PRESETS, ProviderPreset } from '../services/openai';
-import { Server, Sparkles, Save, Cpu } from 'lucide-react';
+import { callOpenAiApi } from '../services/openai';
+import { Server, Sparkles, Save } from 'lucide-react';
 
 interface CustomProviderManagerProps {
   baseUrl: string;
@@ -41,11 +41,6 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
     },
   });
 
-  const handleApplyPreset = (preset: ProviderPreset) => {
-    onUpdateBaseUrl(preset.baseUrl);
-    onUpdateModel(preset.defaultModel);
-  };
-
   return (
     <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -55,27 +50,6 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
         <Badge variant={model.trim() ? 'success' : 'warning'} size="sm">
           {model.trim() || 'Chưa chọn Model'}
         </Badge>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-slate-400">Chọn cấu hình mẫu nhanh:</span>
-        <div className="flex flex-wrap items-center gap-2">
-          {CUSTOM_PROVIDER_PRESETS.map((preset) => {
-            const isMatch = baseUrl === preset.baseUrl;
-            return (
-              <Button
-                key={preset.id}
-                type="button"
-                variant={isMatch ? 'primary' : 'secondary'}
-                size="sm"
-                icon={<Cpu size={12} />}
-                onClick={() => handleApplyPreset(preset)}
-              >
-                {preset.name}
-              </Button>
-            );
-          })}
-        </div>
       </div>
 
       <Input

@@ -33,7 +33,7 @@ describe('CustomProviderManager Component', () => {
     expect(screen.getByDisplayValue('gpt-4o-mini')).toBeDefined();
   });
 
-  it('TC-CPM-02: Clicking preset button updates baseUrl and defaultModel', () => {
+  it('TC-CPM-02: Typing in Base URL and Model inputs triggers callbacks', () => {
     const onUpdateBaseUrl = vi.fn();
     const onUpdateApiKey = vi.fn();
     const onUpdateModel = vi.fn();
@@ -49,10 +49,12 @@ describe('CustomProviderManager Component', () => {
       />
     );
 
-    const deepseekBtn = screen.getByRole('button', { name: /deepseek/i });
-    fireEvent.click(deepseekBtn);
-
+    const baseUrlInput = screen.getByLabelText(/base url/i);
+    fireEvent.change(baseUrlInput, { target: { value: 'https://api.deepseek.com/v1' } });
     expect(onUpdateBaseUrl).toHaveBeenCalledWith('https://api.deepseek.com/v1');
+
+    const modelInput = screen.getByLabelText(/tên mô hình/i);
+    fireEvent.change(modelInput, { target: { value: 'deepseek-chat' } });
     expect(onUpdateModel).toHaveBeenCalledWith('deepseek-chat');
   });
 
