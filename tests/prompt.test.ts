@@ -15,6 +15,8 @@ describe('Prompt Builder Service', () => {
 
     const concise = buildSystemInstruction('concise');
     expect(concise).toContain('direct, efficient English');
+    expect(concise).toContain('Write like a real person');
+    expect(concise).toContain('Do not add filler');
   });
 
   it('TC-PR-02: builds JSON schema system instruction for translate_explain', () => {
