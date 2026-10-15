@@ -63,7 +63,7 @@ export const TooltipApp: React.FC<TooltipAppProps> = ({
 
       {isLoading && (
         <div className="py-6 flex justify-center">
-          <Loader size="md" text="Đang tối ưu bằng Gemini..." />
+          <Loader size="md" text="Đang tối ưu..." />
         </div>
       )}
 

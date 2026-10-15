@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TranslateExplainResult, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../../types';
-import { ChevronDown, Sparkles, Loader2, BookOpen, AudioWaveform, Languages } from 'lucide-react';
+import { ChevronDown, Loader2, BookOpen, AudioWaveform, Languages } from 'lucide-react';
 import { TranslatePopupHeader } from './TranslatePopupHeader';
 import { TranslatePopupFooter } from './TranslatePopupFooter';
 import { RewriteOptionsPanel } from './RewriteOptionsPanel';
@@ -107,7 +107,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           {isLoading && (
             <div className="flex items-center justify-center py-6 gap-2 text-xs text-indigo-400">
               <Loader2 size={16} className="animate-spin text-indigo-400" />
-              <span>{mode === 'rewrite' ? 'Đang viết lại với Gemini AI...' : 'Đang dịch với Gemini AI...'}</span>
+              <span>{mode === 'rewrite' ? 'Đang viết lại với AI...' : 'Đang dịch với AI...'}</span>
             </div>
           )}
           {error && <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-800/40 text-xs text-rose-300">{error}</div>}
@@ -166,16 +166,6 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
               </div>
             )}
           </div>
-        )}
-
-        {!isLoading && !error && translationText && (
-          <button
-            type="button" onClick={() => onFollowUp?.('Hãy diễn đạt lại tự nhiên hơn hoặc cung cấp phương án diễn đạt thay thế hay hơn.')}
-            className="flex items-center gap-1.5 text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors w-fit px-1 py-0.5 cursor-pointer group"
-          >
-            <Sparkles size={13} className="text-indigo-400 group-hover:scale-110 transition-transform" />
-            <span>Ask Gemini for a better answer</span>
-          </button>
         )}
 
         {mode === 'rewrite' && (
