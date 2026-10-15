@@ -14,7 +14,7 @@ import { Sparkles, Settings, Monitor, MessageSquare, Sun, Moon } from 'lucide-re
 export const StandaloneApp: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [activeTab, setActiveTab] = useState<'playground' | 'options' | 'popup'>('playground');
-  const [chatInput, setChatInput] = useState('Tôi đồng ý với phương án này, hãy triển khai sớm nhé');
+  const [chatInput, setChatInput] = useState('I agree with this approach; please implement it soon.');
   const [selectedSnippet, setSelectedSnippet] = useState('');
   const [rewriteOptions, setRewriteOptions] = useState<RewriteOptions>(DEFAULT_REWRITE_OPTIONS);
   const [toolbar, setToolbar] = useState({ visible: false, x: 0, y: 0, isLoading: false });
@@ -101,10 +101,10 @@ export const StandaloneApp: React.FC = () => {
           setTooltipState({ isOpen: true, mode, isLoading: false, result: response.data });
         }
       } else {
-        setTooltipState({ isOpen: true, mode, isLoading: false, error: response.error || 'Lỗi xử lý' });
+        setTooltipState({ isOpen: true, mode, isLoading: false, error: response.error || 'Processing error' });
       }
     } catch (err: any) {
-      setTooltipState({ isOpen: true, mode, isLoading: false, error: err?.message || 'Có lỗi xảy ra' });
+      setTooltipState({ isOpen: true, mode, isLoading: false, error: err?.message || 'An error occurred' });
     }
   };
 
@@ -115,15 +115,15 @@ export const StandaloneApp: React.FC = () => {
           <span className="text-2xl">✨</span>
           <div>
             <h1 className="font-bold text-base bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">EngChat AI - Standalone Testbed</h1>
-            <p className="text-xs text-slate-400">Môi trường thử nghiệm trực tiếp & kiểm thử E2E</p>
+            <p className="text-xs text-slate-400">Live playground and E2E testing environment</p>
           </div>
         </div>
 
         <nav className="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
-          <Button variant={activeTab === 'playground' ? 'primary' : 'ghost'} size="sm" icon={<Monitor size={14} />} onClick={() => setActiveTab('playground')}>Trang Thử Nghiệm</Button>
-          <Button variant={activeTab === 'options' ? 'primary' : 'ghost'} size="sm" icon={<Settings size={14} />} onClick={() => setActiveTab('options')}>Cài Đặt (Options)</Button>
-          <Button variant={activeTab === 'popup' ? 'primary' : 'ghost'} size="sm" icon={<MessageSquare size={14} />} onClick={() => setActiveTab('popup')}>Cửa Sổ Popup</Button>
-          <Button variant="ghost" size="sm" icon={theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? 'Sáng' : 'Tối'}</Button>
+          <Button variant={activeTab === 'playground' ? 'primary' : 'ghost'} size="sm" icon={<Monitor size={14} />} onClick={() => setActiveTab('playground')}>Playground</Button>
+          <Button variant={activeTab === 'options' ? 'primary' : 'ghost'} size="sm" icon={<Settings size={14} />} onClick={() => setActiveTab('options')}>Settings (Options)</Button>
+          <Button variant={activeTab === 'popup' ? 'primary' : 'ghost'} size="sm" icon={<MessageSquare size={14} />} onClick={() => setActiveTab('popup')}>Popup Window</Button>
+          <Button variant="ghost" size="sm" icon={theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? 'Light' : 'Dark'}</Button>
         </nav>
       </header>
 
@@ -139,12 +139,12 @@ export const StandaloneApp: React.FC = () => {
         {activeTab === 'playground' && (
           <div className="flex flex-col gap-6">
             <div className="p-4 rounded-xl bg-indigo-950/20 border border-indigo-500/30 text-xs text-indigo-300 flex items-center justify-between">
-              <span>💡 Thử nghiệm tính năng trích xuất đoạn chat (Slack/Discord) và ghi đè tự động.</span>
-              <span className="font-semibold">Mẹo: Cấu hình API Key trong tab Cài đặt để gọi AI trực tiếp!</span>
+              <span>💡 Try chat extraction (Slack/Discord) and automatic replacement.</span>
+              <span className="font-semibold">Tip: Configure an API key in the Settings tab to call AI directly!</span>
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 flex flex-col gap-4">
-              <h2 className="text-sm font-semibold text-slate-200">Kênh Trao Đổi Dự Án (#general-chat)</h2>
+              <h2 className="text-sm font-semibold text-slate-200">Project Discussion Channel (#general-chat)</h2>
               <div role="log" className="flex flex-col gap-3 p-4 rounded-xl bg-slate-950 border border-slate-800/80 max-h-64 overflow-y-auto">
                 {[
                   { sender: 'Sarah (PM)', color: 'text-indigo-400', text: 'Hi team, please review the PRD for the upcoming release.' },
@@ -157,7 +157,7 @@ export const StandaloneApp: React.FC = () => {
 
               <div className="flex flex-col gap-2 pt-2">
                 <label className="text-xs font-medium text-slate-300" htmlFor="standalone-chat-input">
-                  Soạn tin nhắn phản hồi:
+                  Compose a reply:
                 </label>
                 <input
                   id="standalone-chat-input"
@@ -175,11 +175,11 @@ export const StandaloneApp: React.FC = () => {
               </div>
 
               <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800">
-                <span className="text-xs text-slate-400 mr-2">Thao tác nhanh:</span>
-                <Button variant="secondary" size="sm" onClick={() => runOptimize('polite')}>🎩 Lịch sự</Button>
-                <Button variant="secondary" size="sm" onClick={() => runOptimize('professional')}>💼 Chuyên nghiệp</Button>
-                <Button variant="secondary" size="sm" onClick={() => runOptimize('concise')}>⚡ Ngắn gọn</Button>
-                <Button variant="primary" size="sm" icon={<Sparkles size={14} />} onClick={() => runOptimize('translate_explain')}>📖 Dịch & Giải thích</Button>
+                <span className="text-xs text-slate-400 mr-2">Quick actions:</span>
+                <Button variant="secondary" size="sm" onClick={() => runOptimize('polite')}>🎩 Polite</Button>
+                <Button variant="secondary" size="sm" onClick={() => runOptimize('professional')}>💼 Professional</Button>
+                <Button variant="secondary" size="sm" onClick={() => runOptimize('concise')}>⚡ Concise</Button>
+                <Button variant="primary" size="sm" icon={<Sparkles size={14} />} onClick={() => runOptimize('translate_explain')}>📖 Translate & Explain</Button>
               </div>
             </div>
           </div>
@@ -215,13 +215,13 @@ export const StandaloneApp: React.FC = () => {
             setRewriteOptions(opts);
             setTooltipState((p) => ({ ...p, isLoading: true }));
             const parts = [opts.length !== 'Auto' && `Length: ${opts.length}`, opts.formality !== 'Auto' && `Formality: ${opts.formality}`, opts.format !== 'Auto' && `Format: ${opts.format}`, opts.tone !== 'Auto' && `Tone: ${opts.tone}`].filter(Boolean).join(', ');
-            const res = await executeOptimize({ text: parts ? `Văn bản gốc: "${activeText}"\nRewrite requirements: ${parts}.` : activeText, tone: 'professional' }, await loadSettings());
+            const res = await executeOptimize({ text: parts ? `Original text: "${activeText}"\nRewrite requirements: ${parts}.` : activeText, tone: 'professional' }, await loadSettings());
             setTooltipState((p) => ({ ...p, isLoading: false, result: res.data, error: res.error }));
           }}
           onModeChange={(m) => runOptimize(m === 'translate' ? 'translate_explain' : 'professional', m)}
           onFollowUp={async (query) => {
             setTooltipState((p) => ({ ...p, isLoading: true }));
-            const res = await executeOptimize({ text: `Văn bản gốc: "${activeText}"\n\nYêu cầu: ${query}`, tone: tooltipState.mode === 'translate' ? 'translate_explain' : 'professional' }, await loadSettings());
+            const res = await executeOptimize({ text: `Original text: "${activeText}"\n\nRequest: ${query}`, tone: tooltipState.mode === 'translate' ? 'translate_explain' : 'professional' }, await loadSettings());
             setTooltipState({ isOpen: true, mode: tooltipState.mode, isLoading: false, result: res.data, error: res.error });
           }}
           onRegenerate={() => runOptimize(tooltipState.mode === 'translate' ? 'translate_explain' : 'professional', tooltipState.mode)}
@@ -237,7 +237,7 @@ export const StandaloneApp: React.FC = () => {
           }}
           onClose={() => setTooltipState({ isOpen: false, isLoading: false })}
           onTranslateVi={async (text) => {
-            const res = await executeOptimize({ text: `Dịch sang tiếng Việt chuẩn, tự nhiên:\n"${text}"`, tone: 'concise' }, await loadSettings());
+            const res = await executeOptimize({ text: `Translate into natural Vietnamese:\n"${text}"`, tone: 'concise' }, await loadSettings());
             return res.success && res.data ? (typeof res.data === 'string' ? res.data : res.data.translation) : '';
           }}
         />

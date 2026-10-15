@@ -27,7 +27,7 @@ describe('E2E Tooltip & In-place UI Flow', () => {
     expect(screen.getByText('solid')).toBeDefined();
     expect(screen.getByText(/have reviewed/i)).toBeDefined();
 
-    const insertBtn = screen.getByRole('button', { name: /Chèn vào ô/i });
+    const insertBtn = screen.getByRole('button', { name: /Insert into field/i });
     fireEvent.click(insertBtn);
     expect(handleInsert).toHaveBeenCalledWith(
       'Tôi đã xem xét việc triển khai cổng thanh toán và nó rất ổn định.'

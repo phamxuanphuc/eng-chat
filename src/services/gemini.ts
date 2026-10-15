@@ -11,7 +11,7 @@ import { callOpenAiApi } from './openai';
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 export const fetchGeminiModels = async (apiKey: string): Promise<string[]> => {
-  if (!apiKey?.trim()) throw new Error('Chưa cấu hình API Key.');
+  if (!apiKey?.trim()) throw new Error('API key is not configured.');
   try {
     const response = await axios.get(GEMINI_API_BASE, {
       timeout: 15000,
@@ -26,8 +26,8 @@ export const fetchGeminiModels = async (apiKey: string): Promise<string[]> => {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const status = (error as AxiosError).response?.status;
-      if (status === 401 || status === 403) throw new Error(`Gemini API Key không chính xác (${status}).`);
-      if (!(error as AxiosError).response) throw new Error('Không thể kết nối đến Gemini.');
+      if (status === 401 || status === 403) throw new Error(`Gemini API key is invalid (${status}).`);
+      if (!(error as AxiosError).response) throw new Error('Unable to connect to Gemini.');
     }
     throw error;
   }
@@ -42,7 +42,7 @@ export const callGeminiApi = async (params: {
   const { apiKey, model: requestedModel, systemInstruction, prompt } = params;
 
   if (!apiKey || apiKey.trim() === '') {
-    throw new Error('Chưa cấu hình API Key. Vui lòng mở Cài đặt để thêm Gemini API Key.');
+    throw new Error('API key is not configured. Open Settings to add a Gemini API key.');
   }
 
   const cleanKey = apiKey.trim();
@@ -77,12 +77,12 @@ export const callGeminiApi = async (params: {
 
     const candidates = response.data?.candidates;
     if (!candidates || candidates.length === 0) {
-      throw new Error('Gemini không phản hồi dữ liệu.');
+      throw new Error('Gemini returned no data.');
     }
 
     const textResult = candidates[0]?.content?.parts?.[0]?.text;
     if (!textResult) {
-      throw new Error('Dữ liệu phản hồi từ Gemini rỗng.');
+      throw new Error('Gemini returned empty data.');
     }
 
     return textResult.trim();
@@ -93,22 +93,22 @@ export const callGeminiApi = async (params: {
       const serverMessage = axiosErr.response?.data?.error?.message;
 
       if (status === 400) {
-        throw new Error(`Yêu cầu không hợp lệ: ${serverMessage || 'Vui lòng kiểm tra lại dữ liệu.'}`);
+        throw new Error(`Invalid request: ${serverMessage || 'Please check the data.'}`);
       }
       if (status === 401 || status === 403) {
-        throw new Error('Gemini API Key không chính xác hoặc không có quyền truy cập.');
+        throw new Error('Gemini API key is invalid or access is unauthorized.');
       }
       if (status === 404) {
-        throw new Error(`Mô hình "${model}" không tìm thấy (404). Khuyên dùng gemini-3.5-flash-lite.`);
+        throw new Error(`Model "${model}" was not found (404). Recommended: gemini-3.5-flash-lite.`);
       }
       if (status === 429) {
-        throw new Error('Đã vượt quá hạn mức gọi API (Quota Exceeded / Rate Limit). Vui lòng thử lại sau.');
+        throw new Error('API quota or rate limit exceeded. Please try again later.');
       }
       if (axiosErr.code === 'ECONNABORTED') {
-        throw new Error('Thời gian chờ gọi API đã quá hạn (Timeout). Kiểm tra kết nối mạng của bạn.');
+        throw new Error('The API request timed out. Check your network connection.');
       }
       if (!axiosErr.response) {
-        throw new Error('Không thể kết nối đến máy chủ Google Gemini. Vui lòng kiểm tra kết nối mạng.');
+        throw new Error('Unable to connect to Google Gemini. Check your network connection.');
       }
     }
     throw error;
@@ -136,7 +136,7 @@ export const executeOptimize = async (
   settings: AppSettings
 ): Promise<OptimizeResponse> => {
   try {
-    const systemInstruction = buildSystemInstruction(request.tone);
+    const systemInstruction = buildSystemInstruction(request.tone, settings.tonePrompts?.[request.tone]);
     const userPrompt = buildUserPrompt(
       request.text,
       settings.enableChatContext ? request.contextMessages : undefined
@@ -159,7 +159,7 @@ export const executeOptimize = async (
     } else {
       const candidateKeys = extractCandidateKeys(settings);
       if (candidateKeys.length === 0) {
-        throw new Error('Chưa cấu hình API Key. Vui lòng mở Cài đặt để thêm Gemini API Key.');
+        throw new Error('API key is not configured. Open Settings to add a Gemini API key.');
       }
 
       let lastError: any = null;
@@ -190,8 +190,8 @@ export const executeOptimize = async (
           }
 
           const isQuotaOrAuth =
-            msg.includes('hạn mức') ||
-            msg.includes('không chính xác') ||
+            msg.includes('quota') ||
+            msg.includes('invalid') ||
             msg.includes('429') ||
             msg.includes('401') ||
             msg.includes('403');
@@ -224,7 +224,7 @@ export const executeOptimize = async (
             translation: rawResult,
             explanation: {
               vocabulary: [],
-              grammar: 'Không thể phân tích cú pháp chi tiết.',
+              grammar: 'Unable to parse detailed explanation.',
               nuances: '',
             },
           },
@@ -236,7 +236,7 @@ export const executeOptimize = async (
   } catch (err: any) {
     return {
       success: false,
-      error: err?.message || 'Có lỗi xảy ra trong quá trình xử lý.',
+      error: err?.message || 'An error occurred while processing the request.',
     };
   }
 };

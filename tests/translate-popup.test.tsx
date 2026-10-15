@@ -125,7 +125,7 @@ describe('TranslatePopup Component', () => {
       />
     );
 
-    const explainBtn = screen.getByRole('button', { name: /phân tích & từ vựng/i });
+    const explainBtn = screen.getByRole('button', { name: /analysis & vocabulary/i });
     fireEvent.click(explainBtn);
 
     expect(screen.getByText('implementation')).toBeDefined();

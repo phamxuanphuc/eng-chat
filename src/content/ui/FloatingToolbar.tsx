@@ -54,12 +54,12 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           disabled={isLoading}
           onClick={() => handleToneClick('professional', 'improve')}
           className={`group relative p-1.5 rounded-full transition-colors disabled:opacity-50 cursor-pointer ${btnHover}`}
-          title="Cải thiện văn bản"
+          title="Improve text"
           aria-label="Improve text"
         >
           <Wand2 size={15} className="text-indigo-400 hover:scale-110 transition-transform" />
           <span role="tooltip" className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-950 px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-            Cải thiện văn bản
+            Improve text
           </span>
         </button>
 
@@ -68,14 +68,14 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           disabled={isLoading}
           onClick={() => handleToneClick('translate_explain', 'translate')}
           className={`group relative p-1.5 rounded-full transition-colors disabled:opacity-50 cursor-pointer ${btnHover}`}
-          title="Dịch và giải thích"
-          aria-label="Dịch và giải thích"
+          title="Translate and explain"
+          aria-label="Translate and explain"
         >
           <span className="flex items-center justify-center w-5 h-5 rounded bg-indigo-500/20 text-indigo-400 font-bold text-[11px]">
             文A
           </span>
           <span role="tooltip" className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-950 px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-            Dịch và giải thích
+            Translate and explain
           </span>
         </button>
 
@@ -84,12 +84,12 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           disabled={isLoading}
           onClick={() => handleToneClick('professional', 'rewrite')}
           className={`group relative p-1.5 rounded-full transition-colors disabled:opacity-50 cursor-pointer ${btnHover}`}
-          title="Viết lại văn bản"
+          title="Rewrite text"
           aria-label="Rewrite text"
         >
           <PenLine size={15} />
           <span role="tooltip" className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-950 px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-            Viết lại văn bản
+            Rewrite text
           </span>
         </button>
 

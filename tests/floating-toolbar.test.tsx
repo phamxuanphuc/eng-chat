@@ -29,9 +29,9 @@ describe('FloatingToolbar Component', () => {
       />
     );
 
-    expect(screen.getByRole('tooltip', { name: 'Cải thiện văn bản' })).toBeDefined();
-    expect(screen.getByRole('tooltip', { name: 'Dịch và giải thích' })).toBeDefined();
-    expect(screen.getByRole('tooltip', { name: 'Viết lại văn bản' })).toBeDefined();
+    expect(screen.getByRole('tooltip', { name: 'Improve text' })).toBeDefined();
+    expect(screen.getByRole('tooltip', { name: 'Translate and explain' })).toBeDefined();
+    expect(screen.getByRole('tooltip', { name: 'Rewrite text' })).toBeDefined();
 
     const polishBtn = screen.getByRole('button', { name: /rewrite text/i });
     fireEvent.click(polishBtn);
@@ -82,7 +82,7 @@ describe('FloatingToolbar Component', () => {
       />
     );
 
-    const translateBtn = screen.getByRole('button', { name: /dịch và giải thích/i });
+    const translateBtn = screen.getByRole('button', { name: /translate and explain/i });
     fireEvent.click(translateBtn);
     expect(onSelectTone).toHaveBeenCalledWith('translate_explain', 'translate');
   });

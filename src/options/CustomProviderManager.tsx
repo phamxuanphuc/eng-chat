@@ -28,7 +28,7 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
 }) => {
   const testMutation = useMutation({
     mutationFn: async () => {
-      if (!model.trim()) throw new Error('Vui lòng nhập tên mô hình (Model).');
+      if (!model.trim()) throw new Error('Enter a model name.');
       const res = await callOpenAiApi({
         baseUrl: baseUrl.trim() || 'https://api.openai.com/v1',
         apiKey: apiKey.trim(),
@@ -45,10 +45,10 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
     <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-          <Server size={16} className="text-indigo-400" /> Cấu hình Custom LLM (OpenAI Compatible)
+          <Server size={16} className="text-indigo-400" /> Custom LLM Configuration (OpenAI Compatible)
         </h2>
         <Badge variant={model.trim() ? 'success' : 'warning'} size="sm">
-          {model.trim() || 'Chưa chọn Model'}
+          {model.trim() || 'No model selected'}
         </Badge>
       </div>
 
@@ -60,22 +60,22 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
       />
 
       <Input
-        label="API Key (Khóa truy cập)"
+        label="API Key (Access key)"
         type="password"
-        placeholder="sk-... (để trống nếu dùng local Ollama/LM Studio)"
+        placeholder="sk-... (leave blank for local Ollama/LM Studio)"
         value={apiKey}
         onChange={(e) => onUpdateApiKey(e.target.value)}
       />
 
       <Input
-        label="Tên Mô Hình (Model Name)"
-        placeholder="VD: gpt-4o-mini, deepseek-chat, llama3.2..."
+        label="Model Name"
+        placeholder="e.g. gpt-4o-mini, deepseek-chat, llama3.2..."
         value={model}
         onChange={(e) => onUpdateModel(e.target.value)}
       />
 
       <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs text-slate-400 leading-relaxed">
-        💡 Hỗ trợ chuẩn <strong className="text-indigo-300">OpenAI Chat Completions</strong>. Hệ thống sẽ tự động gọi tới <code className="text-slate-300">/chat/completions</code> và truyền Bearer token (nếu có).
+        💡 Supports <strong className="text-indigo-300">OpenAI Chat Completions</strong>. The system automatically calls <code className="text-slate-300">/chat/completions</code> and passes the bearer token (when available).
       </div>
 
       <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
@@ -87,7 +87,7 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
           disabled={!model.trim()}
           onClick={() => testMutation.mutate()}
         >
-          Kiểm tra kết nối
+          Test connection
         </Button>
         {onSave && (
           <Button
@@ -97,17 +97,17 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
             disabled={!model.trim()}
             onClick={onSave}
           >
-            Lưu Cấu Hình
+            Save Configuration
           </Button>
         )}
       </div>
 
       {testMutation.isSuccess && (
-        <Alert variant="success" message="Kết nối thành công! Nhà cung cấp LLM phản hồi tốt." />
+        <Alert variant="success" message="Connection successful! The LLM provider responded." />
       )}
 
       {testMutation.isError && (
-        <Alert variant="error" message="Kiểm tra kết nối thất bại" description={testMutation.error?.message} />
+        <Alert variant="error" message="Connection test failed" description={testMutation.error?.message} />
       )}
     </div>
   );

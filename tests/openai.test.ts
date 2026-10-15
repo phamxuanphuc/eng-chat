@@ -31,7 +31,7 @@ describe('OpenAI Compatible Service', () => {
         systemInstruction: 'sys',
         prompt: 'user',
       })
-    ).rejects.toThrow('Chưa cấu hình Model. Vui lòng nhập tên mô hình.');
+    ).rejects.toThrow('Model is not configured. Enter a model name.');
   });
 
   it('TC-OA-03: callOpenAiApi sends correct headers and payload and returns content', async () => {
@@ -113,7 +113,7 @@ describe('OpenAI Compatible Service', () => {
         systemInstruction: 'sys',
         prompt: 'user',
       })
-    ).rejects.toThrow('API Key không chính xác hoặc không có quyền truy cập (401)');
+    ).rejects.toThrow('The API key is invalid or access is unauthorized (401)');
   });
 
   it('TC-OA-06: executeOptimize routes to openai_compatible when configured', async () => {

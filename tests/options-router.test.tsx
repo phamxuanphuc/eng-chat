@@ -51,14 +51,14 @@ describe('Options Multi-Page React Router', () => {
     expect(screen.getByPlaceholderText('AIzaSy...')).toBeDefined();
     expect(screen.getAllByText('Google Gemini').length).toBeGreaterThan(0);
 
-    const toneTab = screen.getByRole('link', { name: /văn phong/i });
+    const toneTab = screen.getByRole('link', { name: /writing style/i });
     fireEvent.click(toneTab);
-    expect(await screen.findByText('Văn phong mặc định')).toBeDefined();
-    expect(screen.getByText('Lịch sự & Trang trọng')).toBeDefined();
+    expect(await screen.findByText('Default writing style')).toBeDefined();
+    expect(screen.getByText('Polite & Formal')).toBeDefined();
 
-    const contextTab = screen.getByRole('link', { name: /ngữ cảnh/i });
+    const contextTab = screen.getByRole('link', { name: /context/i });
     fireEvent.click(contextTab);
-    expect(await screen.findByText('Bối cảnh hội thoại (Chat Context)')).toBeDefined();
+    expect(await screen.findByText('Conversation context (Chat Context)')).toBeDefined();
 
     const aiTab = screen.getByRole('link', { name: /ai provider/i });
     fireEvent.click(aiTab);
@@ -76,19 +76,19 @@ describe('Options Multi-Page React Router', () => {
     const apiKeyInput = screen.getByPlaceholderText('AIzaSy...');
     fireEvent.change(apiKeyInput, { target: { value: 'AIzaSy-router-test-key' } });
 
-    fireEvent.click(screen.getByRole('link', { name: /văn phong/i }));
-    const friendlyTone = await screen.findByText('Thân thiện & Tự nhiên');
+    fireEvent.click(screen.getByRole('link', { name: /writing style/i }));
+    const friendlyTone = await screen.findByText('Friendly & Natural');
     fireEvent.click(friendlyTone);
 
-    fireEvent.click(screen.getByRole('link', { name: /ngữ cảnh/i }));
-    const maxContextInput = await screen.findByLabelText(/Số lượng tin nhắn ngữ cảnh tối đa/i);
+    fireEvent.click(screen.getByRole('link', { name: /context/i }));
+    const maxContextInput = await screen.findByLabelText(/Maximum context messages/i);
     fireEvent.change(maxContextInput, { target: { value: '8' } });
 
-    const saveBtn = screen.getByRole('button', { name: /Lưu Cài Đặt/i });
+    const saveBtn = screen.getByRole('button', { name: /Save Settings/i });
     fireEvent.click(saveBtn);
 
     await waitFor(() => {
-      expect(screen.getByText('Cài đặt đã được lưu thành công vào trình duyệt!')).toBeDefined();
+      expect(screen.getByText('Settings saved successfully in your browser!')).toBeDefined();
     });
 
     const stored = await loadSettings();

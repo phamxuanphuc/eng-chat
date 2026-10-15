@@ -19,6 +19,8 @@ export interface OptionsContextValue {
   setCustomModel: (m: string) => void;
   tone: ToneType;
   setTone: (t: ToneType) => void;
+  tonePrompts: Partial<Record<ToneType, string>>;
+  setTonePrompt: (prompt: string) => void;
   chatContext: boolean;
   setChatContext: (v: boolean | ((prev: boolean) => boolean)) => void;
   maxContext: number;
@@ -40,6 +42,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [customApiKey, setCustomApiKey] = useState('');
   const [customModel, setCustomModel] = useState('gpt-4o-mini');
   const [tone, setTone] = useState<ToneType>('professional');
+  const [tonePrompts, setTonePrompts] = useState<Partial<Record<ToneType, string>>>({});
   const [chatContext, setChatContext] = useState(true);
   const [maxContext, setMaxContext] = useState(4);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -55,7 +58,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const keys = settings.apiKeys && settings.apiKeys.length > 0
         ? settings.apiKeys
         : settings.geminiApiKey
-        ? [{ id: 'key-1', label: 'Khóa chính', key: settings.geminiApiKey }]
+        ? [{ id: 'key-1', label: 'Primary key', key: settings.geminiApiKey }]
         : [];
       setApiKeys(keys);
       setAutoRotate(settings.autoRotateKeys ?? true);
@@ -64,6 +67,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setCustomApiKey(settings.customApiKey || '');
       setCustomModel(settings.customModel || 'gpt-4o-mini');
       setTone(settings.defaultTone || 'professional');
+      setTonePrompts(settings.tonePrompts || {});
       setChatContext(settings.enableChatContext ?? true);
       setMaxContext(settings.maxContextMessages ?? 4);
       setIsInitialized(true);
@@ -81,6 +85,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       customApiKey,
       customModel,
       defaultTone: tone,
+      tonePrompts,
       enableChatContext: chatContext,
       maxContextMessages: Number(maxContext) || 4,
     });
@@ -99,6 +104,8 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
         customApiKey, setCustomApiKey,
         customModel, setCustomModel,
         tone, setTone,
+        tonePrompts,
+        setTonePrompt: (prompt) => setTonePrompts((current) => ({ ...current, [tone]: prompt })),
         chatContext, setChatContext,
         maxContext, setMaxContext,
         saveSuccess, handleSave,

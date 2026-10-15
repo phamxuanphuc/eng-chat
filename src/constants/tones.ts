@@ -8,9 +8,9 @@ export interface ToneItem {
 }
 
 export const TONES_LIST: ToneItem[] = [
-  { id: 'polite', title: 'Lịch sự & Trang trọng', desc: 'Email đối tác, thư từ trang trọng', icon: '🎩' },
-  { id: 'professional', title: 'Chuyên nghiệp & Công sở', desc: 'Báo cáo kỹ thuật, trao đổi công việc', icon: '💼' },
-  { id: 'friendly', title: 'Thân thiện & Tự nhiên', desc: 'Trò chuyện đồng nghiệp, chat nhóm', icon: '🤝' },
-  { id: 'concise', title: 'Ngắn gọn & Trực diện', desc: 'Rút ngắn câu từ, loại bỏ từ thừa', icon: '⚡' },
-  { id: 'translate_explain', title: 'Dịch & Giải thích chi tiết', desc: 'Dịch 2 chiều kèm ngữ pháp & từ vựng', icon: '📖' },
+  { id: 'polite', title: 'Polite & Formal', desc: 'Partner emails and formal correspondence', icon: '🎩' },
+  { id: 'professional', title: 'Professional & Business', desc: 'Technical reports and workplace communication', icon: '💼' },
+  { id: 'friendly', title: 'Friendly & Natural', desc: 'Colleague conversations and group chats', icon: '🤝' },
+  { id: 'concise', title: 'Concise & Direct', desc: 'Shorten wording and remove filler', icon: '⚡' },
+  { id: 'translate_explain', title: 'Translate & Explain', desc: 'Two-way translation with grammar and vocabulary', icon: '📖' },
 ];

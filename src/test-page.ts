@@ -11,13 +11,13 @@ export const toggleTheme = () => {
 
   const btn = document.getElementById('toggle-theme-btn');
   if (btn) {
-    btn.textContent = isLight ? '🌙 Chế độ Tối' : '☀️ / 🌙 Đổi Theme';
+    btn.textContent = isLight ? '🌙 Dark Mode' : '☀️ / 🌙 Change Theme';
   }
 
   const logEl = document.getElementById('event-log');
   if (logEl) {
     const time = new Date().toLocaleTimeString();
-    logEl.innerHTML = `[${time}] Đã chuyển theme sang: <b>${theme}</b><br/>` + logEl.innerHTML;
+    logEl.innerHTML = `[${time}] Theme changed to: <b>${theme}</b><br/>` + logEl.innerHTML;
   }
 };
 
@@ -36,7 +36,7 @@ const initTestPage = () => {
   const logEl = document.getElementById('event-log');
   if (clearBtn && logEl) {
     clearBtn.onclick = () => {
-      logEl.innerHTML = 'Đã xóa log.';
+      logEl.innerHTML = 'Log cleared.';
     };
   }
 
@@ -53,7 +53,7 @@ const initTestPage = () => {
       el.addEventListener(evt, () => {
         const inputEl = el as HTMLInputElement;
         const val = inputEl.value !== undefined ? inputEl.value : el.innerText;
-        appendLog(`Sự kiện <b>${evt}</b> trên <i>#${id}</i> (Độ dài: ${val.length})`);
+        appendLog(`Event <b>${evt}</b> on <i>#${id}</i> (Length: ${val.length})`);
       });
     });
   });

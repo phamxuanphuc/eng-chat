@@ -93,7 +93,7 @@ const renderApp = () => {
 const handleTranslateVi = async (text: string): Promise<string> => {
   const response: OptimizeResponse = await chrome.runtime.sendMessage({
     action: 'EXECUTE_GEMINI',
-    payload: { text: `Dịch câu tiếng Anh sau sang tiếng Việt chuẩn, tự nhiên:\n"${text}"`, tone: 'concise' },
+    payload: { text: `Translate the following English sentence into natural Vietnamese:\n"${text}"`, tone: 'concise' },
   });
   return response.success && response.data ? (typeof response.data === 'string' ? response.data : response.data.translation) : '';
 };
@@ -110,7 +110,7 @@ const handleTriggerOptimize = async (
 
   if (!targetText) {
     toolbarState = { ...toolbarState, visible: false };
-    tooltipState = { ...tooltipState, visible: true, isLoading: false, error: 'Vui lòng bôi đen hoặc nhập văn bản.', result: null, hasEditableTarget: !!activeEl };
+    tooltipState = { ...tooltipState, visible: true, isLoading: false, error: 'Select or enter text.', result: null, hasEditableTarget: !!activeEl };
     renderApp();
     return;
   }
@@ -144,12 +144,12 @@ const handleTriggerOptimize = async (
         tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, result: response.data, error: null, hasEditableTarget: !!activeEl };
       }
     } else {
-      tooltipState = { ...tooltipState, visible: true, mode, isLoading: false, error: response.error || 'Có lỗi xảy ra khi gọi AI.', result: null, hasEditableTarget: !!activeEl };
+      tooltipState = { ...tooltipState, visible: true, mode, isLoading: false, error: response.error || 'An error occurred while calling AI.', result: null, hasEditableTarget: !!activeEl };
     }
     renderApp();
   } catch (err: any) {
     toolbarState = { ...toolbarState, isLoading: false, visible: false };
-    tooltipState = { ...tooltipState, visible: true, mode, isLoading: false, error: err?.message || 'Lỗi kết nối extension.', result: null, hasEditableTarget: !!activeEl };
+    tooltipState = { ...tooltipState, visible: true, mode, isLoading: false, error: err?.message || 'Connection error extension.', result: null, hasEditableTarget: !!activeEl };
     renderApp();
   }
 };
@@ -166,16 +166,16 @@ const handleFollowUp = async (query: string) => {
   renderApp();
 
   try {
-    const prompt = `Văn bản gốc: "${tooltipState.originalText}"\n\nYêu cầu xử lý tiếp theo: ${query}`;
+    const prompt = `Original text: "${tooltipState.originalText}"\n\nFollow-up request: ${query}`;
     const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
     const response: OptimizeResponse = await chrome.runtime.sendMessage({
       action: 'EXECUTE_GEMINI',
       payload: { text: prompt, tone },
     });
-    tooltipState = { ...tooltipState, isLoading: false, result: response.success ? response.data : null, error: response.success ? null : (response.error || 'Lỗi xử lý') };
+    tooltipState = { ...tooltipState, isLoading: false, result: response.success ? response.data : null, error: response.success ? null : (response.error || 'Processing error') };
     renderApp();
   } catch (err: any) {
-    tooltipState = { ...tooltipState, isLoading: false, error: err?.message || 'Lỗi kết nối' };
+    tooltipState = { ...tooltipState, isLoading: false, error: err?.message || 'Connection error' };
     renderApp();
   }
 };
@@ -189,7 +189,7 @@ const handleRegenerate = () => {
 const handleLanguageChange = async (lang: string) => {
   tooltipState = { ...tooltipState, targetLanguage: lang, isLoading: true, error: null };
   renderApp();
-  const prompt = tooltipState.mode === 'improve' ? `Improve text into ${lang} language.` : `Dịch sang ngôn ngữ: ${lang}`;
+  const prompt = tooltipState.mode === 'improve' ? `Improve text into ${lang} language.` : `Translate to language: ${lang}`;
   await handleFollowUp(prompt);
 };
 

@@ -19,8 +19,8 @@ describe('Popup', () => {
     expect(screen.getByRole('button', { name: 'Open settings' })).toBeDefined();
     expect(screen.getByRole('heading', { name: 'About' })).toBeDefined();
     expect(screen.getByText(/Optimize and translate your messages with AI/i)).toBeDefined();
-    expect(screen.queryByPlaceholderText(/Gõ hoặc dán văn bản/i)).toBeNull();
-    expect(screen.queryByRole('button', { name: /Tối Ưu Ngay/i })).toBeNull();
+    expect(screen.queryByPlaceholderText(/Type or paste text/i)).toBeNull();
+    expect(screen.queryByRole('button', { name: /Optimize Now/i })).toBeNull();
   });
 
   it('opens the configuration page when clicked', () => {

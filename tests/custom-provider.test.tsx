@@ -53,7 +53,7 @@ describe('CustomProviderManager Component', () => {
     fireEvent.change(baseUrlInput, { target: { value: 'https://api.deepseek.com/v1' } });
     expect(onUpdateBaseUrl).toHaveBeenCalledWith('https://api.deepseek.com/v1');
 
-    const modelInput = screen.getByLabelText(/tên mô hình/i);
+    const modelInput = screen.getByLabelText(/model/i);
     fireEvent.change(modelInput, { target: { value: 'deepseek-chat' } });
     expect(onUpdateModel).toHaveBeenCalledWith('deepseek-chat');
   });
@@ -73,7 +73,7 @@ describe('CustomProviderManager Component', () => {
       />
     );
 
-    const saveBtn = screen.getByRole('button', { name: /lưu cấu hình/i });
+    const saveBtn = screen.getByRole('button', { name: /save configuration/i });
     fireEvent.click(saveBtn);
     expect(onSave).toHaveBeenCalled();
   });

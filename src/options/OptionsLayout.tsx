@@ -8,8 +8,8 @@ import { Check, Save, MessageSquare, Palette, Cpu } from 'lucide-react';
 
 const NAV_ITEMS = [
   { path: '/', label: 'AI Provider', icon: Cpu },
-  { path: '/tone', label: 'Văn phong', icon: Palette },
-  { path: '/context', label: 'Ngữ cảnh', icon: MessageSquare },
+  { path: '/tone', label: 'Writing style', icon: Palette },
+  { path: '/context', label: 'Context', icon: MessageSquare },
 ];
 
 export const OptionsLayout: React.FC = () => {
@@ -28,9 +28,9 @@ export const OptionsLayout: React.FC = () => {
                 <h1 className="text-base font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                   EngChat AI
                 </h1>
-                <Badge variant="primary" size="sm">Cài Đặt</Badge>
+                <Badge variant="primary" size="sm">Settings</Badge>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">Trung tâm cấu hình AI & Tối ưu hoá tiếng Anh</p>
+              <p className="text-[11px] text-slate-400 hidden sm:block">AI configuration and English optimization center</p>
             </div>
           </div>
 
@@ -60,7 +60,7 @@ export const OptionsLayout: React.FC = () => {
 
             {saveSuccess && (
               <Badge variant="success" size="sm" icon={<Check size={12} />}>
-                Đã lưu
+                Saved
               </Badge>
             )}
           </div>
@@ -69,15 +69,15 @@ export const OptionsLayout: React.FC = () => {
 
       <main className="max-w-4xl mx-auto py-8 px-6 flex flex-col gap-6">
         {saveSuccess && (
-          <Alert variant="success" message="Cài đặt đã được lưu thành công vào trình duyệt!" />
+          <Alert variant="success" message="Settings saved successfully in your browser!" />
         )}
 
         <Outlet />
 
         <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-indigo-950/40 via-purple-950/20 to-slate-900 border border-slate-800/80 mt-4">
           <div className="flex flex-col text-xs text-slate-400">
-            <span className="font-semibold text-slate-200">Hoàn tất cấu hình</span>
-            <span>Mọi thay đổi trên các trang sẽ có hiệu lực ngay lập tức sau khi lưu.</span>
+            <span className="font-semibold text-slate-200">Finish configuration</span>
+            <span>Changes on every page take effect immediately after saving.</span>
           </div>
           <Button
             variant="primary"
@@ -85,7 +85,7 @@ export const OptionsLayout: React.FC = () => {
             icon={saveSuccess ? <Check size={16} /> : <Save size={16} />}
             onClick={handleSave}
           >
-            {saveSuccess ? 'Đã lưu' : 'Lưu Cài Đặt'}
+            {saveSuccess ? 'Saved' : 'Save Settings'}
           </Button>
         </div>
       </main>

@@ -70,7 +70,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
         data-testid="drag-handle"
         onMouseDown={onDragStart}
         className="w-full pt-0.5 pb-1 -mt-1 cursor-grab active:cursor-grabbing flex items-center justify-center select-none group"
-        title="Kéo để di chuyển"
+        title="Drag to move"
       >
         <div className={`w-9 h-1 rounded-full transition-all group-hover:scale-x-125 group-hover:bg-indigo-400 ${th.bar}`} />
       </div>
@@ -138,7 +138,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
             type="button"
             onClick={onTogglePin}
             className={`p-1 rounded-lg cursor-pointer ${isPinned ? 'text-indigo-400 bg-indigo-500/20' : th.iconBtn}`}
-            title={isPinned ? 'Bỏ ghim popup' : 'Ghim popup'}
+            title={isPinned ? 'Unpin popup' : 'Pin popup'}
           >
             {isPinned ? <PinOff size={14} /> : <Pin size={14} />}
           </button>

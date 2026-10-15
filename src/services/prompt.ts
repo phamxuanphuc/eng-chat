@@ -11,7 +11,7 @@ const COMMON_RULES = [
   'Keep the same approximate length and level of detail as the input. If the input is empty or whitespace-only, return an empty output.',
 ];
 
-export const buildSystemInstruction = (tone: ToneType): string => {
+export const buildSystemInstruction = (tone: ToneType, customPrompt?: string): string => {
   if (tone === 'translate_explain') {
     return [
       'You are an expert English-Vietnamese translator and language teacher.',
@@ -24,6 +24,7 @@ export const buildSystemInstruction = (tone: ToneType): string => {
       '{"translation":"string","explanation":{"vocabulary":[{"word":"string","meaning":"string","note":"string"}],"grammar":"string","nuances":"string"}}',
       'The note field may be omitted when unnecessary. Use JSON strings with escaped quotes and newlines where needed.',
       'Output raw JSON only: no Markdown fences, headings, commentary, or trailing text.',
+      ...(customPrompt?.trim() ? [`Additional user instructions for this style: ${customPrompt.trim()}`] : []),
     ].join('\n');
   }
 
@@ -45,6 +46,7 @@ export const buildSystemInstruction = (tone: ToneType): string => {
     'Correct grammar, spelling, word choice, and unnatural phrasing only when needed.',
     'Do not add an explanation, greeting, preface, quotation marks, sign-off, filler, or generic AI wording.',
     'Return only the final revised English text.',
+    ...(customPrompt?.trim() ? [`Additional user instructions for this style: ${customPrompt.trim()}`] : []),
   ].join('\n');
 };
 

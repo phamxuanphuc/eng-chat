@@ -27,6 +27,7 @@ export interface AppSettings {
   autoRotateKeys?: boolean;
   selectedModel: string;
   defaultTone: ToneType;
+  tonePrompts?: Partial<Record<ToneType, string>>;
   enableChatContext: boolean;
   maxContextMessages: number;
   customBaseUrl?: string;

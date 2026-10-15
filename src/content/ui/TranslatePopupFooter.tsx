@@ -91,7 +91,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           type="button"
           onClick={() => onInsert?.(translationText)}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/40 text-xs font-semibold transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 whitespace-nowrap"
-          title="Thay thế văn bản trong ô nhập liệu"
+          title="Replace text in input"
           aria-label="Replace text in input"
         >
           <CornerDownLeft size={13} className="text-indigo-300" />
@@ -104,7 +104,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           type="button"
           onClick={handleCopy}
           className={iconBtnClass}
-          title={copied ? 'Đã sao chép' : 'Sao chép bản dịch'}
+          title={copied ? 'Copied' : 'Copy translation'}
           aria-label="Copy translation"
         >
           {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
@@ -115,7 +115,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           onClick={onRegenerate}
           disabled={isLoading}
           className={`${iconBtnClass} disabled:opacity-50`}
-          title="Dịch lại (Regenerate)"
+          title="Regenerate translation"
           aria-label="Regenerate"
         >
           <RotateCw size={14} className={isLoading ? 'animate-spin' : ''} />
@@ -127,7 +127,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
             bookmarked ? 'text-amber-500 bg-amber-500/10' : iconBtnClass
           }`}
-          title={bookmarked ? 'Đã lưu' : 'Lưu lại'}
+          title={bookmarked ? 'Saved' : 'Save'}
           aria-label="Bookmark"
         >
           <Bookmark size={14} className={bookmarked ? 'fill-amber-500' : ''} />
@@ -138,7 +138,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
             type="button"
             onClick={() => setMoreMenuOpen((p) => !p)}
             className={iconBtnClass}
-            title="Tùy chọn khác"
+            title="More options"
             aria-label="More actions"
           >
             <MoreVertical size={14} />
@@ -159,7 +159,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
                   className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-left rounded-lg text-indigo-500 hover:bg-indigo-500/10 transition-colors"
                 >
                   <CornerDownLeft size={13} />
-                  <span>Chèn vào ô</span>
+                  <span>Insert into field</span>
                 </button>
               )}
               <button
@@ -172,7 +172,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
                   isLight ? 'text-slate-700 hover:bg-slate-100' : 'text-slate-300 hover:bg-slate-800'
                 }`}
               >
-                <span>Mở Cài đặt</span>
+                <span>Open Settings</span>
               </button>
             </div>
           )}
@@ -182,7 +182,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           type="button"
           onClick={onOpenModelPicker}
           className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[9px] font-bold ring-1 ring-white/20 hover:scale-110 transition-transform cursor-pointer"
-          title="Chọn model AI"
+          title="Choose AI model"
           aria-label="Open model picker"
         >
           ✦

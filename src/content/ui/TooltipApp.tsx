@@ -63,13 +63,13 @@ export const TooltipApp: React.FC<TooltipAppProps> = ({
 
       {isLoading && (
         <div className="py-6 flex justify-center">
-          <Loader size="md" text="Đang tối ưu..." />
+          <Loader size="md" text="Optimizing..." />
         </div>
       )}
 
       {error && (
         <div className="my-2">
-          <Alert variant="error" message="Thao tác thất bại" description={error} />
+          <Alert variant="error" message="Action failed" description={error} />
         </div>
       )}
 
@@ -87,7 +87,7 @@ export const TooltipApp: React.FC<TooltipAppProps> = ({
                 className="flex items-center justify-between text-indigo-400 hover:text-indigo-300 font-medium cursor-pointer"
               >
                 <span className="flex items-center gap-1.5">
-                  <BookOpen size={14} /> Phân tích & Giải thích
+                  <BookOpen size={14} /> Analysis & Explanation
                 </span>
                 <span>{showExplanation ? '▲' : '▼'}</span>
               </button>
@@ -96,7 +96,7 @@ export const TooltipApp: React.FC<TooltipAppProps> = ({
                 <div className="flex flex-col gap-2 pt-1 border-t border-slate-700/50 text-slate-300">
                   {explanation.vocabulary?.length > 0 && (
                     <div>
-                      <span className="font-semibold text-slate-200">Từ vựng:</span>
+                      <span className="font-semibold text-slate-200">Vocabulary:</span>
                       <ul className="list-disc list-inside mt-0.5 space-y-0.5 text-slate-300">
                         {explanation.vocabulary.map((item, idx) => (
                           <li key={idx}>
@@ -108,12 +108,12 @@ export const TooltipApp: React.FC<TooltipAppProps> = ({
                   )}
                   {explanation.grammar && (
                     <div>
-                      <span className="font-semibold text-slate-200">Ngữ pháp:</span> {explanation.grammar}
+                      <span className="font-semibold text-slate-200">Grammar:</span> {explanation.grammar}
                     </div>
                   )}
                   {explanation.nuances && (
                     <div>
-                      <span className="font-semibold text-slate-200">Sắc thái:</span> {explanation.nuances}
+                      <span className="font-semibold text-slate-200">Nuances:</span> {explanation.nuances}
                     </div>
                   )}
                 </div>
@@ -128,7 +128,7 @@ export const TooltipApp: React.FC<TooltipAppProps> = ({
               icon={copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
               onClick={handleCopy}
             >
-              {copied ? 'Đã sao chép' : 'Sao chép'}
+              {copied ? 'Copied' : 'Copy'}
             </Button>
 
             {hasEditableTarget && (
@@ -138,7 +138,7 @@ export const TooltipApp: React.FC<TooltipAppProps> = ({
                 icon={<CornerDownLeft size={14} />}
                 onClick={() => onInsert(translationText)}
               >
-                Chèn vào ô
+                Insert into field
               </Button>
             )}
           </div>

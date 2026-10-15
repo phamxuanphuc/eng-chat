@@ -71,14 +71,14 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
       else if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
         const res = await chrome.runtime.sendMessage({
           action: 'EXECUTE_GEMINI',
-          payload: { text: `Dịch câu sau sang tiếng Việt chuẩn, tự nhiên:\n"${translationText}"`, tone: 'concise' },
+          payload: { text: `Translate the following sentence into natural Vietnamese:\n"${translationText}"`, tone: 'concise' },
         });
-        setViTranslation((res?.success && res.data) ? (typeof res.data === 'string' ? res.data : res.data.translation) : 'Không thể dịch.');
+        setViTranslation((res?.success && res.data) ? (typeof res.data === 'string' ? res.data : res.data.translation) : 'Unable to translate.');
       } else {
         setViTranslation(originalText || 'Vietnamese translation.');
       }
     } catch (err: any) {
-      setViTranslation('Lỗi khi dịch: ' + (err?.message || 'Không thể kết nối.'));
+      setViTranslation('Translation error: ' + (err?.message || 'Unable to connect.'));
     } finally {
       setIsTranslatingVi(false);
     }
@@ -121,13 +121,13 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           {isLoading && (
             <div className="flex items-center justify-center py-6 gap-2 text-xs text-indigo-400">
               <Loader2 size={16} className="animate-spin text-indigo-400" />
-              <span>{mode === 'improve' ? 'Đang cải thiện với AI...' : mode === 'rewrite' ? 'Đang viết lại với AI...' : 'Đang dịch với AI...'}</span>
+              <span>{mode === 'improve' ? 'Improving with AI...' : mode === 'rewrite' ? 'Rewriting with AI...' : 'Translating with AI...'}</span>
             </div>
           )}
           {error && <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-800/40 text-xs text-rose-300">{error}</div>}
           {!isLoading && !error && (
             <div className={`text-sm leading-relaxed whitespace-pre-wrap selection:bg-indigo-500/30 ${th.resText}`}>
-              {translationText || (mode === 'improve' ? 'Chưa có bản cải thiện.' : mode === 'rewrite' ? 'Chưa có bản viết lại.' : 'Chưa có bản dịch.')}
+              {translationText || (mode === 'improve' ? 'No improved text yet.' : mode === 'rewrite' ? 'No rewritten text yet.' : 'No translation yet.')}
             </div>
           )}
           {explanation && mode === 'translate' && (
@@ -136,14 +136,14 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
                 type="button" onClick={() => setShowExplanation((p) => !p)}
                 className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-medium py-1 cursor-pointer"
               >
-                <BookOpen size={13} /><span>Phân tích & Từ vựng</span><span>{showExplanation ? '▲' : '▼'}</span>
+                <BookOpen size={13} /><span>Analysis & Vocabulary</span><span>{showExplanation ? '▲' : '▼'}</span>
               </button>
               {showExplanation && (
                 <div className={`mt-1.5 p-2.5 rounded-lg border space-y-1.5 text-xs ${isLight ? 'bg-slate-50 border-slate-200 text-slate-700' : 'bg-slate-950/70 border-slate-800 text-slate-300'}`}>
                   {explanation.vocabulary?.map((v, i) => (
                     <div key={i}><span className="font-semibold text-indigo-400">{v.word}</span>: {v.meaning}</div>
                   ))}
-                  {explanation.grammar && <div><span className="font-semibold">Ngữ pháp:</span> {explanation.grammar}</div>}
+                  {explanation.grammar && <div><span className="font-semibold">Grammar:</span> {explanation.grammar}</div>}
                 </div>
               )}
             </div>

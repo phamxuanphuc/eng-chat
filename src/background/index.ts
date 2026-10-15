@@ -121,7 +121,7 @@ export const handleRuntimeMessage = async (
     sendResponse({ success: false, error: 'Unknown action' });
     return false;
   } catch (err: any) {
-    sendResponse({ success: false, error: err?.message || 'Lỗi xử lý nội bộ' });
+    sendResponse({ success: false, error: err?.message || 'Internal processing error' });
     return false;
   }
 };

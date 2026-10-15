@@ -24,7 +24,7 @@ describe('Gemini Service & Axios Client', () => {
         systemInstruction: 'test',
         prompt: 'hello',
       })
-    ).rejects.toThrow('Chưa cấu hình API Key');
+    ).rejects.toThrow('API key is not configured');
   });
 
   it('TC-GM-02: returns clean text on successful Gemini call', async () => {
@@ -61,7 +61,7 @@ describe('Gemini Service & Axios Client', () => {
         systemInstruction: 'test',
         prompt: 'hello',
       })
-    ).rejects.toThrow('Gemini API Key không chính xác');
+    ).rejects.toThrow('Gemini API key is invalid');
   });
 
   it('TC-GM-04: maps 429 quota error to friendly message', async () => {
@@ -81,7 +81,7 @@ describe('Gemini Service & Axios Client', () => {
         systemInstruction: 'test',
         prompt: 'hello',
       })
-    ).rejects.toThrow('Đã vượt quá hạn mức gọi API');
+    ).rejects.toThrow('API quota or rate limit exceeded');
   });
 
   it('TC-GM-05: executeOptimize parses JSON for translate_explain', async () => {
@@ -142,7 +142,7 @@ describe('Gemini Service & Axios Client', () => {
 
     expect(response.success).toBe(false);
     expect(axios.post).toHaveBeenCalledTimes(1);
-    expect(response.error).toContain('Đã vượt quá hạn mức gọi API');
+    expect(response.error).toContain('API quota or rate limit exceeded');
   });
 
   it('TC-GM-08: executeOptimize returns error when no API keys configured', async () => {
@@ -152,7 +152,7 @@ describe('Gemini Service & Axios Client', () => {
     );
 
     expect(response.success).toBe(false);
-    expect(response.error).toContain('Chưa cấu hình API Key');
+    expect(response.error).toContain('API key is not configured');
   });
 
   it('TC-GM-09: maps 404 model not found error and fallback occurs', async () => {
@@ -172,6 +172,6 @@ describe('Gemini Service & Axios Client', () => {
         systemInstruction: 'test',
         prompt: 'hello',
       })
-    ).rejects.toThrow('không tìm thấy (404)');
+    ).rejects.toThrow('was not found (404)');
   });
 });

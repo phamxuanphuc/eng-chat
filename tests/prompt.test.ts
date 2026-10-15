@@ -19,7 +19,24 @@ describe('Prompt Builder Service', () => {
     expect(concise).toContain('Do not add filler');
   });
 
-  it('TC-PR-02: builds JSON schema system instruction for translate_explain', () => {
+  it('TC-PR-02: appends a trimmed custom prompt for the selected style', () => {
+    const instruction = buildSystemInstruction('professional', '  Use UK spelling.  ');
+
+    expect(instruction).toContain('Additional user instructions for this style: Use UK spelling.');
+    expect(instruction).not.toContain('  Use UK spelling.  ');
+  });
+
+  it('TC-PR-03: ignores blank custom prompts to preserve default behavior', () => {
+    expect(buildSystemInstruction('friendly', '   ')).toBe(buildSystemInstruction('friendly'));
+  });
+
+  it('TC-PR-04: appends custom prompts to translation instructions', () => {
+    expect(buildSystemInstruction('translate_explain', 'Keep the explanation brief.')).toContain(
+      'Additional user instructions for this style: Keep the explanation brief.'
+    );
+  });
+
+  it('TC-PR-05: builds JSON schema system instruction for translate_explain', () => {
     const instruction = buildSystemInstruction('translate_explain');
     expect(instruction).toContain('translation');
     expect(instruction).toContain('vocabulary');
@@ -28,13 +45,13 @@ describe('Prompt Builder Service', () => {
     expect(instruction).toContain('raw JSON only');
   });
 
-  it('TC-PR-03: formats user prompt without chat context', () => {
+  it('TC-PR-06: formats user prompt without chat context', () => {
     const prompt = buildUserPrompt('  Xin chào bạn  ');
     expect(prompt).not.toContain('<conversation_context>');
     expect(prompt).toContain('<target_text>\nXin chào bạn\n</target_text>');
   });
 
-  it('TC-PR-04: formats user prompt with labeled, delimited chat context', () => {
+  it('TC-PR-07: formats user prompt with labeled, delimited chat context', () => {
     const prompt = buildUserPrompt('I agree with the approach', mockChatContext);
     expect(prompt).toContain('<conversation_context>');
     expect(prompt).toContain('[Alice] Can you please review the PR');
@@ -43,7 +60,7 @@ describe('Prompt Builder Service', () => {
     expect(prompt).toContain('<target_text>\nI agree with the approach\n</target_text>');
   });
 
-  it('TC-PR-05: ignores empty context messages and preserves empty target boundaries', () => {
+  it('TC-PR-08: ignores empty context messages and preserves empty target boundaries', () => {
     const prompt = buildUserPrompt('  ', [
       { sender: 'Ignored', text: '   ' },
       { text: 'Useful context' },

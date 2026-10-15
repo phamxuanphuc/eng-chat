@@ -41,7 +41,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
         setSettings(loaded);
         setProvider(loaded.llmProvider || 'gemini');
       })
-      .catch((err: any) => setError(err?.message || 'Không thể tải cấu hình.'))
+      .catch((err: any) => setError(err?.message || 'Unable to load configuration.'))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -55,9 +55,9 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
         apiKey: settings.customApiKey,
       });
       setCustomModels(models);
-      if (models.length === 0) setError('Nhà cung cấp không trả về model nào.');
+      if (models.length === 0) setError('The provider returned no models.');
     } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách model.');
+      setError(err?.message || 'Unable to load the model list.');
     } finally {
       setIsFetchingModels(false);
     }
@@ -86,12 +86,12 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
     <div className="absolute inset-0 z-50 flex items-end justify-end p-3 pointer-events-none">
       <div className={`pointer-events-auto w-[min(350px,calc(100vw-24px))] rounded-2xl border shadow-2xl p-3 ${panelClass}`} role="dialog" aria-label="LLM model picker">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2 text-sm font-semibold"><Star size={15} className="text-amber-400 fill-amber-400" /> Chọn model AI</div>
+          <div className="flex items-center gap-2 text-sm font-semibold"><Star size={15} className="text-amber-400 fill-amber-400" /> Choose AI model</div>
           <button type="button" onClick={onClose} aria-label="Close model picker" className={`p-1 rounded-lg ${mutedClass} ${itemClass}`}><X size={15} /></button>
         </div>
 
         {isLoading ? (
-          <div className={`flex items-center gap-2 text-xs ${mutedClass}`}><Loader2 size={14} className="animate-spin" /> Đang tải cấu hình...</div>
+          <div className={`flex items-center gap-2 text-xs ${mutedClass}`}><Loader2 size={14} className="animate-spin" /> Loading configuration...</div>
         ) : (
           <>
             <div className={`grid grid-cols-2 gap-1 p-1 rounded-xl mb-3 ${isLight ? 'bg-slate-100' : 'bg-slate-950'}`}>
@@ -119,7 +119,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
             ) : (
               <>
                 <button type="button" onClick={fetchCustomModels} disabled={isFetchingModels} className={`flex items-center gap-1.5 text-xs text-indigo-400 mb-2 disabled:opacity-60`}>
-                  <RefreshCw size={13} className={isFetchingModels ? 'animate-spin' : ''} /> {isFetchingModels ? 'Đang tải model...' : 'Tải danh sách model'}
+                  <RefreshCw size={13} className={isFetchingModels ? 'animate-spin' : ''} /> {isFetchingModels ? 'Loading models...' : 'Load model list'}
                 </button>
                 <div className="flex flex-col gap-1 max-h-40 overflow-y-auto">
                   {customModels.map((model) => (
@@ -129,7 +129,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
                     </button>
                   ))}
                 </div>
-                {!customModels.length && !error && <p className={`text-xs ${mutedClass}`}>Tải danh sách model từ Base URL đã cấu hình.</p>}
+                {!customModels.length && !error && <p className={`text-xs ${mutedClass}`}>Load models from the configured Base URL.</p>}
               </>
             )}
             {error && <p className="mt-2 text-xs text-rose-400">{error}</p>}

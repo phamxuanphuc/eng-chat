@@ -15,33 +15,33 @@ export const GEMINI_MODELS: ModelOption[] = [
   {
     id: 'gemini-3.5-flash-lite',
     name: 'Gemini 3.5 Flash-Lite',
-    tag: 'Khuyên dùng - Siêu tốc',
+    tag: 'Recommended - Ultra fast',
     tagVariant: 'success',
-    description: 'Độ trễ cực thấp, tiết kiệm quota, phản hồi tức thì cho chat & dịch thuật.',
+    description: 'Ultra-low latency, quota efficient, and instant responses for chat and translation.',
     icon: <Zap size={16} className="text-emerald-400" />,
   },
   {
     id: 'gemini-3.5-flash',
     name: 'Gemini 3.5 Flash',
-    tag: 'Chất lượng cao',
+    tag: 'High quality',
     tagVariant: 'primary',
-    description: 'Khả năng suy luận ngữ cảnh sâu sắc, tra cứu từ vựng và diễn đạt chuẩn xác.',
+    description: 'Deep contextual reasoning, vocabulary lookup, and precise wording.',
     icon: <Sparkles size={16} className="text-indigo-400" />,
   },
   {
     id: 'gemini-3.1-flash-lite',
     name: 'Gemini 3.1 Flash-Lite',
-    tag: 'Ổn định',
+    tag: 'Stable',
     tagVariant: 'secondary',
-    description: 'Phiên bản gọn nhẹ, ổn định cho nhu cầu viết email và tin nhắn hàng ngày.',
+    description: 'A lightweight, stable model for everyday emails and messages.',
     icon: <Shield size={16} className="text-blue-400" />,
   },
   {
     id: 'gemini-2.5-flash',
     name: 'Gemini 2.5 Flash',
-    tag: 'Tiêu chuẩn',
+    tag: 'Standard',
     tagVariant: 'secondary',
-    description: 'Thế hệ mô hình tiêu chuẩn với độ tin cậy và sự nhất quán cao.',
+    description: 'A standard model generation with high reliability and consistency.',
     icon: <Cpu size={16} className="text-slate-400" />,
   },
 ];
@@ -59,7 +59,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
     <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-          <Sparkles size={16} className="text-indigo-400" /> Mô hình AI (Gemini Model)
+          <Sparkles size={16} className="text-indigo-400" /> AI Model (Gemini Model)
         </h2>
         <Badge variant="primary" size="sm">
           {GEMINI_MODELS.find((m) => m.id === selectedModel)?.name || selectedModel}

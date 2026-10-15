@@ -7,6 +7,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   autoRotateKeys: true,
   selectedModel: 'gemini-3.5-flash-lite',
   defaultTone: 'professional',
+  tonePrompts: {},
   enableChatContext: true,
   maxContextMessages: 4,
   customBaseUrl: 'https://api.openai.com/v1',
@@ -85,7 +86,7 @@ export const loadSettings = async (): Promise<AppSettings> => {
 
   if (validKeys.length === 0 && loaded.geminiApiKey?.trim()) {
     loaded.apiKeys = [
-      { id: 'key-1', label: 'Khóa 1', key: loaded.geminiApiKey.trim() },
+      { id: 'key-1', label: 'Key 1', key: loaded.geminiApiKey.trim() },
     ];
   } else if (validKeys.length > 0) {
     loaded.apiKeys = validKeys;
@@ -108,7 +109,7 @@ export const saveSettings = async (
 
   if (updated.geminiApiKey && (!updated.apiKeys || updated.apiKeys.length === 0)) {
     updated.apiKeys = [
-      { id: 'key-1', label: 'Khóa chính', key: updated.geminiApiKey.trim() },
+      { id: 'key-1', label: 'Primary key', key: updated.geminiApiKey.trim() },
     ];
   } else if (updated.apiKeys && updated.apiKeys.length > 0 && !updated.geminiApiKey) {
     updated.geminiApiKey = updated.apiKeys[0].key;

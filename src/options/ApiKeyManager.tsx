@@ -35,7 +35,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
     const trimmed = val.trim();
     if (apiKeys.length === 0) {
       if (trimmed) {
-        onUpdateKeys([{ id: 'key-1', label: 'Khóa chính', key: trimmed }]);
+        onUpdateKeys([{ id: 'key-1', label: 'Primary key', key: trimmed }]);
       }
     } else {
       const updated = [...apiKeys];
@@ -49,7 +49,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
     if (!trimmed) return;
     const newItem: ApiKeyItem = {
       id: `key-${Date.now()}`,
-      label: newLabel.trim() || `Khóa dự phòng ${apiKeys.length}`,
+      label: newLabel.trim() || `Backup key ${apiKeys.length}`,
       key: trimmed,
     };
     onUpdateKeys([...apiKeys, newItem]);
@@ -71,7 +71,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
   const testMutation = useMutation({
     mutationFn: async () => {
       const keyToTest = primaryKey || newKey.trim();
-      if (!keyToTest) throw new Error('Vui lòng thêm ít nhất một API Key để kiểm tra.');
+      if (!keyToTest) throw new Error('Add at least one API key to test.');
       const res = await callGeminiApi({
         apiKey: keyToTest,
         model: selectedModel,
@@ -87,15 +87,15 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
     <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-          <KeyRound size={16} className="text-indigo-400" /> Quản lý Google AI API Keys
+          <KeyRound size={16} className="text-indigo-400" /> Google AI API Key Management
         </h2>
         <Badge variant={apiKeys.length > 0 ? 'success' : 'warning'} size="sm">
-          {apiKeys.length} {apiKeys.length <= 1 ? 'Khóa' : 'Khóa'}
+          {apiKeys.length} {apiKeys.length <= 1 ? 'Keys' : 'Keys'}
         </Badge>
       </div>
 
       <Input
-        label="Google Gemini API Key (Khóa chính)"
+        label="Google Gemini API Key (Primary key)"
         type="password"
         placeholder="AIzaSy..."
         value={primaryKey}
@@ -103,21 +103,21 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
       />
 
       <div className="flex items-center justify-between text-xs px-0.5 text-slate-400">
-        <span>Chưa có Google AI Token?</span>
+        <span>No Google AI token yet?</span>
         <a
           href="https://aistudio.google.com/app/apikey"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
         >
-          <span>Lấy token miễn phí tại Google AI Studio</span>
+          <span>Get a free token from Google AI Studio</span>
           <ExternalLink size={12} />
         </a>
       </div>
 
       {apiKeys.length > 1 && (
         <div className="flex flex-col gap-2 pt-1">
-          <span className="text-xs font-medium text-slate-400">Danh sách các khóa đã lưu:</span>
+          <span className="text-xs font-medium text-slate-400">Saved keys:</span>
           {apiKeys.map((item, idx) => (
             <div
               key={item.id}
@@ -125,7 +125,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <Badge variant={idx === 0 ? 'success' : 'secondary'} size="sm">
-                  {idx === 0 ? 'Ưu tiên' : 'Dự phòng'}
+                  {idx === 0 ? 'Primary' : 'Backup'}
                 </Badge>
                 <div className="flex flex-col min-w-0">
                   <span className="text-xs font-semibold text-slate-200 truncate">{item.label}</span>
@@ -142,7 +142,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
                     icon={<Star size={12} className="text-amber-400" />}
                     onClick={() => handleSetPrimary(item.id)}
                   >
-                    Đặt chính
+                    Make primary
                   </Button>
                 )}
                 <Button
@@ -151,7 +151,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
                   icon={<Trash2 size={12} className="text-rose-400" />}
                   onClick={() => handleRemoveKey(item.id)}
                 >
-                  Xóa
+                  Delete
                 </Button>
               </div>
             </div>
@@ -160,18 +160,18 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
       )}
 
       <div className="pt-2 border-t border-slate-800 flex flex-col gap-3">
-        <span className="text-xs font-medium text-slate-300">Thêm khóa dự phòng (Multi-Key Failover)</span>
+        <span className="text-xs font-medium text-slate-300">Add backup key (Multi-Key Failover)</span>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <Input
-            label="Tên khóa"
-            placeholder="VD: Dự phòng 1, Cá nhân..."
+            label="Key name"
+            placeholder="e.g. Backup 1, Personal..."
             value={newLabel}
             onChange={(e) => setNewLabel(e.target.value)}
           />
           <Input
-            label="API Key dự phòng"
+            label="Backup API key"
             type="password"
-            placeholder="Nhập khóa dự phòng..."
+            placeholder="Enter a backup key..."
             value={newKey}
             onChange={(e) => setNewKey(e.target.value)}
           />
@@ -184,14 +184,14 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
             disabled={!newKey.trim()}
             onClick={handleAddBackup}
           >
-            Thêm khóa dự phòng
+            Add backup key
           </Button>
         </div>
       </div>
 
       <Switch
-        label="Tự động luân phiên khóa khi quá hạn mức (Failover 429)"
-        description="Tự động chuyển tiếp sang API key dự phòng tiếp theo nếu key chính gặp lỗi 429 hoặc 401/403."
+        label="Automatically rotate keys after quota errors (Failover 429)"
+        description="Automatically switch to the next backup API key when the primary key returns 429 or 401/403."
         checked={autoRotate}
         onChange={onToggleAutoRotate}
       />
@@ -205,7 +205,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
           disabled={!primaryKey && !newKey.trim()}
           onClick={() => testMutation.mutate()}
         >
-          Kiểm tra kết nối
+          Test connection
         </Button>
         {onSave && (
           <Button
@@ -215,16 +215,16 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
             disabled={!primaryKey && !newKey.trim()}
             onClick={onSave}
           >
-            Lưu Khóa
+            Save keys
           </Button>
         )}
       </div>
       {testMutation.isSuccess && (
-        <Alert variant="success" message="Kết nối thành công! API Key hoạt động bình thường." />
+        <Alert variant="success" message="Connection successful! The API key is working." />
       )}
 
       {testMutation.isError && (
-        <Alert variant="error" message="Kiểm tra kết nối thất bại" description={testMutation.error?.message} />
+        <Alert variant="error" message="Connection test failed" description={testMutation.error?.message} />
       )}
     </div>
   );

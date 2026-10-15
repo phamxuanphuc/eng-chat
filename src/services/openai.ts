@@ -54,9 +54,9 @@ export const fetchOpenAiModels = async (params: { baseUrl?: string; apiKey?: str
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const status = (error as AxiosError).response?.status;
-      if (status === 401 || status === 403) throw new Error(`API Key không chính xác hoặc không có quyền truy cập (${status}).`);
-      if (status === 404) throw new Error('Không tìm thấy endpoint danh sách model (404).');
-      if (!(error as AxiosError).response) throw new Error('Không thể kết nối đến máy chủ model.');
+      if (status === 401 || status === 403) throw new Error(`The API key is invalid or access is unauthorized (${status}).`);
+      if (status === 404) throw new Error('The model list endpoint was not found (404).');
+      if (!(error as AxiosError).response) throw new Error('Unable to connect to the model server.');
     }
     throw error;
   }
@@ -66,7 +66,7 @@ export const callOpenAiApi = async (params: OpenAiApiParams): Promise<string> =>
   const { baseUrl, apiKey, model, systemInstruction, prompt } = params;
 
   if (!model || model.trim() === '') {
-    throw new Error('Chưa cấu hình Model. Vui lòng nhập tên mô hình.');
+    throw new Error('Model is not configured. Enter a model name.');
   }
 
   const endpoint = formatOpenAiEndpoint(baseUrl);
@@ -95,12 +95,12 @@ export const callOpenAiApi = async (params: OpenAiApiParams): Promise<string> =>
 
     const choices = response.data?.choices;
     if (!choices || choices.length === 0) {
-      throw new Error('Mô hình không phản hồi dữ liệu.');
+      throw new Error('The model returned no data.');
     }
 
     const content = choices[0]?.message?.content;
     if (content === undefined || content === null) {
-      throw new Error('Dữ liệu phản hồi từ mô hình rỗng.');
+      throw new Error('The model returned empty data.');
     }
 
     return content.trim();
@@ -111,22 +111,22 @@ export const callOpenAiApi = async (params: OpenAiApiParams): Promise<string> =>
       const serverMessage = axiosErr.response?.data?.error?.message;
 
       if (status === 400) {
-        throw new Error(`Yêu cầu không hợp lệ: ${serverMessage || 'Vui lòng kiểm tra lại tham số.'}`);
+        throw new Error(`Invalid request: ${serverMessage || 'Please check the parameters.'}`);
       }
       if (status === 401 || status === 403) {
-        throw new Error(`API Key không chính xác hoặc không có quyền truy cập (${status}). ${serverMessage || ''}`.trim());
+        throw new Error(`The API key is invalid or access is unauthorized (${status}). ${serverMessage || ''}`.trim());
       }
       if (status === 404) {
-        throw new Error(`Không tìm thấy endpoint hoặc model "${model}" (404). Vui lòng kiểm tra lại Base URL và Model name.`);
+        throw new Error(`Endpoint or model "${model}" (404). Check the Base URL and model name.`);
       }
       if (status === 429) {
-        throw new Error(`Đã vượt quá hạn mức gọi API (Rate Limit / Quota Exceeded). ${serverMessage || ''}`.trim());
+        throw new Error(`API rate limit or quota exceeded. ${serverMessage || ''}`.trim());
       }
       if (axiosErr.code === 'ECONNABORTED') {
-        throw new Error('Thời gian chờ gọi API đã quá hạn (Timeout). Kiểm tra kết nối mạng hoặc phản hồi từ máy chủ.');
+        throw new Error('The API request timed out. Check your network connection or the server response.');
       }
       if (!axiosErr.response) {
-        throw new Error(`Không thể kết nối đến máy chủ ${baseUrl || 'OpenAI'}. Vui lòng kiểm tra lại URL hoặc kết nối mạng.`);
+        throw new Error(`Unable to connect to the server ${baseUrl || 'OpenAI'}. Check the URL or network connection.`);
       }
     }
     throw error;

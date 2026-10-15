@@ -19,7 +19,7 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
     <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-          <Sparkles size={16} className="text-indigo-400" /> Chọn Nhà Cung Cấp LLM (AI Provider)
+          <Sparkles size={16} className="text-indigo-400" /> Choose LLM Provider (AI Provider)
         </h2>
         <Badge variant={isGemini ? 'success' : 'primary'} size="sm">
           {isGemini ? 'Google Gemini' : 'OpenAI Compatible'}
@@ -62,10 +62,10 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
             )}
           </div>
           <p className="text-xs text-slate-400 leading-relaxed">
-            API Key từ Google AI Studio với hạn mức miễn phí cao, hỗ trợ Gemini 3.5 Flash-Lite siêu nhanh.
+            Google AI Studio API key with a generous free quota and fast Gemini 3.5 Flash-Lite support.
           </p>
           <div className="flex items-center gap-1.5 pt-1">
-            <Badge variant="success" size="sm">Miễn phí</Badge>
+            <Badge variant="success" size="sm">Free</Badge>
             <Badge variant="secondary" size="sm">Multi-Key</Badge>
           </div>
         </div>
@@ -105,7 +105,7 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
             )}
           </div>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Kết nối linh hoạt tới DeepSeek, Groq, OpenRouter, OpenAI hoặc mô hình nội bộ qua Ollama.
+            Connect to DeepSeek, Groq, OpenRouter, OpenAI, or local models through Ollama.
           </p>
           <div className="flex items-center gap-1.5 pt-1">
             <Badge variant="primary" size="sm">DeepSeek / Groq</Badge>
