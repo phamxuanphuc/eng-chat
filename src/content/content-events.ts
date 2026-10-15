@@ -20,7 +20,37 @@ export const computeToolbarPos = (rect: DOMRect) => {
 };
 
 export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
-  const checkInputSelection = (target?: HTMLElement | null) => {
+  let isMouseDown = false;
+
+  const isEditable = (el?: HTMLElement | null): boolean => {
+    if (!el) return false;
+    return (
+      el.tagName === 'INPUT' ||
+      el.tagName === 'TEXTAREA' ||
+      el.isContentEditable ||
+      el.getAttribute('contenteditable') === 'true' ||
+      !!el.closest?.('[contenteditable="true"]')
+    );
+  };
+
+  const checkSelection = (target?: HTMLElement | null) => {
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
+      try {
+        const range = sel.getRangeAt(0);
+        let rect = range.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) {
+          const rects = range.getClientRects();
+          if (rects.length > 0) rect = rects[0];
+        }
+        if (rect && rect.width > 0 && rect.height > 0) {
+          const anchorEl = sel.anchorNode instanceof HTMLElement ? sel.anchorNode : sel.anchorNode?.parentElement;
+          callbacks.onSelect(rect, isEditable(anchorEl));
+          return true;
+        }
+      } catch {}
+    }
+
     const active =
       target && (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)
         ? target
@@ -41,15 +71,7 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
 
   document.addEventListener('focusin', (e) => {
     const target = e.target as HTMLElement;
-    if (!target) return;
-    const isEditable =
-      target.tagName === 'INPUT' ||
-      target.tagName === 'TEXTAREA' ||
-      target.isContentEditable ||
-      target.getAttribute('contenteditable') === 'true' ||
-      target.closest('[contenteditable="true"]');
-
-    if (isEditable) {
+    if (target && isEditable(target)) {
       const rect = target.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) {
         callbacks.onFocus(rect, target);
@@ -58,38 +80,36 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
   });
 
   document.addEventListener('select', (e) => {
-    checkInputSelection(e.target as HTMLElement);
+    checkSelection(e.target as HTMLElement);
   }, true);
-
-  document.addEventListener('keyup', (e) => {
-    if (e.shiftKey || e.key === 'Shift' || e.key.startsWith('Arrow') || e.ctrlKey || e.metaKey) {
-      checkInputSelection();
-    }
-  });
-
-  document.addEventListener('mouseup', (e) => {
-    setTimeout(() => {
-      if (checkInputSelection(e.target as HTMLElement)) return;
-      const sel = window.getSelection();
-      if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
-        try {
-          const range = sel.getRangeAt(0);
-          const rect = range.getBoundingClientRect();
-          if (rect.width > 0 && rect.height > 0) {
-            callbacks.onSelect(rect, false);
-          }
-        } catch {}
-      }
-    }, 10);
-  });
 
   document.addEventListener('mousedown', (e) => {
     const target = e.target as HTMLElement;
     if (!target) return;
-
     const host = document.getElementById('engchat-root-host');
     if (host && (host === target || host.contains(target))) return;
-
+    isMouseDown = true;
     callbacks.onClickOutside();
+  });
+
+  document.addEventListener('mouseup', (e) => {
+    isMouseDown = false;
+    const target = e.target as HTMLElement;
+    const host = document.getElementById('engchat-root-host');
+    if (host && (host === target || host.contains(target))) return;
+    setTimeout(() => checkSelection(target), 10);
+  });
+
+  document.addEventListener('keyup', (e) => {
+    const target = e.target as HTMLElement;
+    const host = document.getElementById('engchat-root-host');
+    if (host && (host === target || host.contains(target))) return;
+    checkSelection(target);
+  });
+
+  document.addEventListener('selectionchange', () => {
+    if (!isMouseDown) {
+      setTimeout(checkSelection, 20);
+    }
   });
 };

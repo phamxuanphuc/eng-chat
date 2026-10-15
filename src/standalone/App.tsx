@@ -25,34 +25,49 @@ export const StandaloneApp: React.FC = () => {
   const activeText = selectedSnippet || chatInput;
 
   const checkSelection = () => {
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed && sel.toString().trim()) {
+      setSelectedSnippet(sel.toString().trim());
+      let rect = sel.getRangeAt(0).getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) {
+        const rects = sel.getRangeAt(0).getClientRects();
+        if (rects.length > 0) rect = rects[0];
+      }
+      if (rect.width > 0 && rect.height > 0) {
+        setTooltipState((p) => ({ ...p, isOpen: false }));
+        setToolbar({ visible: true, x: Math.round(rect.left + rect.width / 2 - 100), y: Math.round(rect.bottom + 8), isLoading: false });
+        return;
+      }
+    }
     const inputEl = document.getElementById('standalone-chat-input') as HTMLInputElement | null;
     if (inputEl && inputEl.selectionStart !== inputEl.selectionEnd) {
       const s = inputEl.value.slice(inputEl.selectionStart || 0, inputEl.selectionEnd || 0).trim();
       if (s) {
         setSelectedSnippet(s);
         const rect = inputEl.getBoundingClientRect();
-        setToolbar({ visible: true, x: Math.round(rect.left + rect.width / 2 - 90), y: Math.round(rect.bottom + 8), isLoading: false });
-        return;
-      }
-    }
-    const sel = window.getSelection();
-    if (sel && !sel.isCollapsed && sel.toString().trim()) {
-      setSelectedSnippet(sel.toString().trim());
-      const rect = sel.getRangeAt(0).getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        setToolbar({ visible: true, x: Math.round(rect.left + rect.width / 2 - 90), y: Math.round(rect.bottom + 8), isLoading: false });
+        setTooltipState((p) => ({ ...p, isOpen: false }));
+        setToolbar({ visible: true, x: Math.round(rect.left + rect.width / 2 - 100), y: Math.round(rect.bottom + 8), isLoading: false });
       }
     }
   };
 
   useEffect(() => {
+    const onMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target?.closest('[role="toolbar"]') || target?.closest('[role="dialog"]')) return;
+      setToolbar((p) => ({ ...p, visible: false }));
+    };
     const onMouseUp = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (target?.closest('[role="toolbar"]') || target?.closest('[role="dialog"]')) return;
-      setTimeout(checkSelection, 20);
+      setTimeout(checkSelection, 15);
     };
+    document.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mouseup', onMouseUp);
-    return () => document.removeEventListener('mouseup', onMouseUp);
+    return () => {
+      document.removeEventListener('mousedown', onMouseDown);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
   }, []);
 
   const runOptimize = async (tone: ToneType, forcedMode?: 'translate' | 'rewrite' | 'improve') => {
@@ -132,10 +147,7 @@ export const StandaloneApp: React.FC = () => {
                   { sender: 'David (Tech Lead)', color: 'text-purple-400', text: 'The architecture proposal is ready. Are there any blockers?' },
                   { sender: 'Alex (Designer)', color: 'text-pink-400', text: 'The Uiverse Galaxy components look clean. Please proceed.' },
                 ].map((m, i) => (
-                  <div key={i} className="c-message__body flex flex-col text-xs">
-                    <span className={`font-semibold ${m.color}`}>{m.sender}:</span>
-                    <span className="text-slate-300 mt-0.5">{m.text}</span>
-                  </div>
+                  <div key={i} className="c-message__body flex flex-col text-xs"><span className={`font-semibold ${m.color}`}>{m.sender}:</span><span className="text-slate-300 mt-0.5">{m.text}</span></div>
                 ))}
               </div>
 
@@ -200,14 +212,8 @@ export const StandaloneApp: React.FC = () => {
           onRewriteOptionsChange={async (opts) => {
             setRewriteOptions(opts);
             setTooltipState((p) => ({ ...p, isLoading: true }));
-            const parts = [
-              opts.length !== 'Auto' && `Length: ${opts.length}`,
-              opts.formality !== 'Auto' && `Formality: ${opts.formality}`,
-              opts.format !== 'Auto' && `Format: ${opts.format}`,
-              opts.tone !== 'Auto' && `Tone: ${opts.tone}`,
-            ].filter(Boolean).join(', ');
-            const prompt = parts ? `Văn bản gốc: "${activeText}"\nRewrite requirements: ${parts}.` : activeText;
-            const res = await executeOptimize({ text: prompt, tone: 'professional' }, await loadSettings());
+            const parts = [opts.length !== 'Auto' && `Length: ${opts.length}`, opts.formality !== 'Auto' && `Formality: ${opts.formality}`, opts.format !== 'Auto' && `Format: ${opts.format}`, opts.tone !== 'Auto' && `Tone: ${opts.tone}`].filter(Boolean).join(', ');
+            const res = await executeOptimize({ text: parts ? `Văn bản gốc: "${activeText}"\nRewrite requirements: ${parts}.` : activeText, tone: 'professional' }, await loadSettings());
             setTooltipState((p) => ({ ...p, isLoading: false, result: res.data, error: res.error }));
           }}
           onModeChange={(m) => runOptimize(m === 'translate' ? 'translate_explain' : 'professional', m)}
@@ -226,12 +232,7 @@ export const StandaloneApp: React.FC = () => {
           }}
           onInsert={(text) => {
             const inputEl = document.getElementById('standalone-chat-input') as HTMLInputElement | null;
-            if (inputEl) {
-              replaceTextInElement(inputEl, text);
-              setChatInput(inputEl.value);
-            } else {
-              setChatInput(text);
-            }
+            if (inputEl) { replaceTextInElement(inputEl, text); setChatInput(inputEl.value); } else setChatInput(text);
             setTooltipState({ isOpen: false, isLoading: false });
           }}
           onClose={() => setTooltipState({ isOpen: false, isLoading: false })}

@@ -74,4 +74,35 @@ describe('content-events', () => {
     div.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
     expect(onClickOutside).toHaveBeenCalled();
   });
+
+  it('TC-CE-06: setupDOMEvents triggers onSelect when webpage text is selected on mouseup', async () => {
+    const onFocus = vi.fn();
+    const onSelect = vi.fn();
+    const onClickOutside = vi.fn();
+
+    setupDOMEvents({ onFocus, onSelect, onClickOutside });
+
+    const p = document.createElement('p');
+    p.textContent = 'Sample text selection on web page';
+    document.body.appendChild(p);
+
+    const range = {
+      getBoundingClientRect: () => ({ left: 100, top: 100, right: 200, bottom: 120, width: 100, height: 20 } as DOMRect),
+      getClientRects: () => [],
+    };
+
+    const mockSelection = {
+      isCollapsed: false,
+      toString: () => 'Sample text',
+      getRangeAt: () => range,
+      anchorNode: p,
+    };
+
+    vi.spyOn(window, 'getSelection').mockReturnValue(mockSelection as any);
+
+    document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(onSelect).toHaveBeenCalledWith(expect.anything(), false);
+  });
 });
