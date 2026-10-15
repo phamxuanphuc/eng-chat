@@ -75,7 +75,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         });
         setViTranslation((res?.success && res.data) ? (typeof res.data === 'string' ? res.data : res.data.translation) : 'Không thể dịch.');
       } else {
-        setViTranslation(originalText || 'Bản dịch tiếng Việt.');
+        setViTranslation(originalText || 'Vietnamese translation.');
       }
     } catch (err: any) {
       setViTranslation('Lỗi khi dịch: ' + (err?.message || 'Không thể kết nối.'));
@@ -155,20 +155,20 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
             <button
               type="button" onClick={handleToggleViTranslation}
               className="flex items-center justify-between w-full text-left cursor-pointer group"
-              aria-label={showViTranslation ? 'Thu gọn bản dịch tiếng Việt' : (mode === 'improve' ? 'Dịch câu cải thiện sang tiếng Việt' : 'Dịch câu viết lại sang tiếng Việt')}
+              aria-label={showViTranslation ? 'Collapse Vietnamese translation' : (mode === 'improve' ? 'Translate improved sentence to Vietnamese' : 'Translate rewritten sentence to Vietnamese')}
             >
               <div className="flex items-center gap-1.5 font-medium text-indigo-400 group-hover:text-indigo-300">
                 <Languages size={13} />
-                <span>{mode === 'improve' ? 'Dịch câu cải thiện sang tiếng Việt' : 'Dịch câu viết lại sang tiếng Việt'}</span>
+                <span>{mode === 'improve' ? 'Translate improved sentence to Vietnamese' : 'Translate rewritten sentence to Vietnamese'}</span>
               </div>
               <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${showViTranslation ? 'rotate-180' : ''}`} />
             </button>
             {showViTranslation && (
               <div className={`pt-2 mt-1 border-t text-xs leading-relaxed ${isLight ? 'border-slate-200 text-slate-700' : 'border-slate-800 text-slate-300'}`}>
                 {isTranslatingVi ? (
-                  <div className="flex items-center gap-2 py-1 text-indigo-400"><Loader2 size={13} className="animate-spin" /><span>Đang dịch sang tiếng Việt...</span></div>
+                  <div className="flex items-center gap-2 py-1 text-indigo-400"><Loader2 size={13} className="animate-spin" /><span>Translating to Vietnamese...</span></div>
                 ) : (
-                  <div className="whitespace-pre-wrap selection:bg-indigo-500/30">{viTranslation || 'Chưa có bản dịch tiếng Việt.'}</div>
+                  <div className="whitespace-pre-wrap selection:bg-indigo-500/30">{viTranslation || 'No Vietnamese translation yet.'}</div>
                 )}
               </div>
             )}

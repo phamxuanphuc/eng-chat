@@ -147,7 +147,7 @@ describe('TranslatePopup Component', () => {
 
     expect(screen.getByText('Rewrite')).toBeDefined();
     expect(screen.getByText('While section navigation functions correctly...')).toBeDefined();
-    expect(screen.queryByRole('button', { name: /vietnamese/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /select language/i })).not.toBeNull();
     expect(screen.queryByText(/engchat translation are based/i)).toBeNull();
 
     const modeBtn = screen.getByText('Rewrite');
@@ -204,7 +204,7 @@ describe('TranslatePopup Component', () => {
       />
     );
 
-    const toggleBtn = screen.getByRole('button', { name: /dịch câu viết lại sang tiếng việt/i });
+    const toggleBtn = screen.getByRole('button', { name: /translate rewritten sentence to vietnamese/i });
     expect(toggleBtn).toBeDefined();
 
     await React.act(async () => {
@@ -237,10 +237,10 @@ describe('TranslatePopup Component', () => {
     expect(screen.getByRole('button', { name: /length & format/i })).toBeDefined();
     const langBtn = screen.getByRole('button', { name: /select language/i });
     expect(langBtn).toBeDefined();
-    expect(screen.getByText('English')).toBeDefined();
+    expect(screen.getByRole('button', { name: /select language/i }).textContent).toContain('English');
 
     fireEvent.click(langBtn);
-    const vnOption = screen.getByRole('button', { name: /vietnamese/i });
+    const vnOption = screen.getByRole('button', { name: /^vietnamese$/i });
     fireEvent.click(vnOption);
 
     expect(handleLanguageChange).toHaveBeenCalledWith('Vietnamese');
