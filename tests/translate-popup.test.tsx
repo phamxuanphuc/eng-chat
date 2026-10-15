@@ -166,4 +166,21 @@ describe('TranslatePopup Component', () => {
     const card = container.querySelector('.bg-white');
     expect(card).not.toBeNull();
   });
+
+  it('TC-TP-09: Header remains sticky on top with scrollable content body', () => {
+    const { container } = render(
+      <TranslatePopup
+        originalText="Hello world"
+        result="Xin chào thế giới"
+        isLoading={false}
+        onClose={() => {}}
+      />
+    );
+
+    const stickyHeader = container.querySelector('.sticky.top-0');
+    expect(stickyHeader).not.toBeNull();
+
+    const scrollBody = container.querySelector('.overflow-y-auto');
+    expect(scrollBody).not.toBeNull();
+  });
 });

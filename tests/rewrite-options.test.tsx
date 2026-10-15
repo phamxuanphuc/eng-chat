@@ -136,4 +136,21 @@ describe('RewriteOptionsPanel Component', () => {
       length: 'Short',
     });
   });
+
+  it('TC-RO-06: Header remains sticky on top with scrollable chip body', () => {
+    const { container } = render(
+      <RewriteOptionsPanel
+        options={DEFAULT_REWRITE_OPTIONS}
+        onChange={() => {}}
+        onClose={() => {}}
+      />
+    );
+
+    const stickyHeader = container.querySelector('.sticky.top-0');
+    expect(stickyHeader).not.toBeNull();
+    expect(stickyHeader?.textContent).toContain('Tùy chọn văn phong & định dạng');
+
+    const scrollBody = container.querySelector('.overflow-y-auto');
+    expect(scrollBody).not.toBeNull();
+  });
 });

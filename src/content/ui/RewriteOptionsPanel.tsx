@@ -81,10 +81,10 @@ export const RewriteOptionsPanel: React.FC<RewriteOptionsPanelProps> = ({
     <div
       role="region"
       aria-label="Rewrite style options"
-      className={`absolute inset-0 z-50 backdrop-blur-2xl rounded-2xl p-4 overflow-y-auto flex flex-col gap-4 border ${panelStyle}`}
+      className={`absolute inset-0 z-50 backdrop-blur-2xl rounded-2xl flex flex-col border overflow-hidden ${panelStyle}`}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <div className={`flex items-center justify-between pb-1 border-b ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
+      <div className={`sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b backdrop-blur-md ${isLight ? 'bg-white/95 border-slate-200' : 'bg-slate-900/95 border-slate-800'}`}>
         <span className={`text-xs font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Tùy chọn văn phong & định dạng</span>
         <button
           type="button"
@@ -96,7 +96,8 @@ export const RewriteOptionsPanel: React.FC<RewriteOptionsPanelProps> = ({
         </button>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
         <div className={`flex items-center gap-2 text-sm ${headingStyle}`}>
           <FileText size={15} className="text-indigo-400" />
           <span>Length</span>
@@ -150,6 +151,7 @@ export const RewriteOptionsPanel: React.FC<RewriteOptionsPanelProps> = ({
             </button>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

@@ -86,8 +86,8 @@ export const App: React.FC = () => {
     : (resultData as string) || '';
 
   return (
-    <div className="w-[380px] p-4 flex flex-col gap-4 font-sans bg-slate-950 text-slate-100">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+    <div className="w-[380px] max-h-[580px] overflow-y-auto p-4 flex flex-col gap-4 font-sans bg-slate-950 text-slate-100">
+      <div className="sticky top-0 z-20 backdrop-blur-md bg-slate-950/95 -mt-4 -mx-4 px-4 pt-4 pb-3 flex items-center justify-between border-b border-slate-800">
         <div className="flex items-center gap-2">
           <span className="text-xl">✨</span>
           <span className="font-bold text-sm bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
