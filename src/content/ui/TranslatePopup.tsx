@@ -1,55 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TranslateExplainResult, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../../types';
-import { ChevronDown, Sparkles, Loader2, BookOpen, AudioWaveform } from 'lucide-react';
+import { ChevronDown, Sparkles, Loader2, BookOpen, AudioWaveform, Languages } from 'lucide-react';
 import { TranslatePopupHeader } from './TranslatePopupHeader';
 import { TranslatePopupFooter } from './TranslatePopupFooter';
 import { RewriteOptionsPanel } from './RewriteOptionsPanel';
 import { getPopupTheme } from './popup-theme';
 
 export interface TranslatePopupProps {
-  mode?: 'translate' | 'rewrite';
-  originalText: string;
+  mode?: 'translate' | 'rewrite'; originalText: string;
   result?: string | TranslateExplainResult | null;
-  isLoading: boolean;
-  error?: string | null;
-  targetLanguage?: string;
-  rewriteOptions?: RewriteOptions;
-  theme?: 'light' | 'dark';
-  isPinned?: boolean;
-  hasEditableTarget?: boolean;
-  onTogglePin?: () => void;
-  onLanguageChange?: (lang: string) => void;
+  isLoading: boolean; error?: string | null; targetLanguage?: string;
+  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark';
+  isPinned?: boolean; hasEditableTarget?: boolean;
+  onTogglePin?: () => void; onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite') => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void;
-  onFollowUp?: (query: string) => void;
-  onRegenerate?: () => void;
-  onInsert?: (text: string) => void;
-  onClose: () => void;
+  onFollowUp?: (query: string) => void; onRegenerate?: () => void;
+  onInsert?: (text: string) => void; onClose: () => void;
+  onTranslateVi?: (text: string) => Promise<string>;
 }
 
 export const TranslatePopup: React.FC<TranslatePopupProps> = ({
-  mode = 'translate',
-  originalText,
-  result,
-  isLoading,
-  error,
-  targetLanguage = 'Vietnamese',
-  rewriteOptions,
-  theme = 'dark',
-  isPinned = false,
-  hasEditableTarget = false,
-  onTogglePin,
-  onLanguageChange,
-  onModeChange,
-  onRewriteOptionsChange,
-  onFollowUp,
-  onRegenerate,
-  onInsert,
-  onClose,
+  mode = 'translate', originalText, result, isLoading, error,
+  targetLanguage = 'Vietnamese', rewriteOptions, theme = 'dark',
+  isPinned = false, hasEditableTarget = false, onTogglePin,
+  onLanguageChange, onModeChange, onRewriteOptionsChange,
+  onFollowUp, onRegenerate, onInsert, onClose, onTranslateVi,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [showRewriteOptions, setShowRewriteOptions] = useState(false);
+  const [showViTranslation, setShowViTranslation] = useState(false);
+  const [viTranslation, setViTranslation] = useState<string | null>(null);
+  const [isTranslatingVi, setIsTranslatingVi] = useState(false);
 
   const isLight = theme === 'light';
   const th = getPopupTheme(theme);
@@ -57,6 +40,36 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   const isExplain = result && typeof result === 'object' && 'translation' in result;
   const translationText = isExplain ? (result as TranslateExplainResult).translation : (result as string) || '';
   const explanation = isExplain ? (result as TranslateExplainResult).explanation : null;
+
+  useEffect(() => {
+    setViTranslation(null);
+    setShowViTranslation(false);
+  }, [translationText]);
+
+  const handleToggleViTranslation = async () => {
+    const next = !showViTranslation;
+    setShowViTranslation(next);
+    if (!next || viTranslation || isTranslatingVi || !translationText) return;
+    setIsTranslatingVi(true);
+    try {
+      if (onTranslateVi) {
+        setViTranslation(await onTranslateVi(translationText));
+      } else if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+        const res = await chrome.runtime.sendMessage({
+          action: 'EXECUTE_GEMINI',
+          payload: { text: `Dịch câu sau sang tiếng Việt chuẩn, tự nhiên:\n"${translationText}"`, tone: 'concise' },
+        });
+        const text = res?.success && res.data ? (typeof res.data === 'string' ? res.data : res.data.translation) : '';
+        setViTranslation(text || 'Không thể dịch nội dung này.');
+      } else {
+        setViTranslation(originalText || 'Bản dịch tiếng Việt.');
+      }
+    } catch (err: any) {
+      setViTranslation('Lỗi khi dịch: ' + (err?.message || 'Không thể kết nối.'));
+    } finally {
+      setIsTranslatingVi(false);
+    }
+  };
 
   return (
     <div
@@ -66,14 +79,8 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
       onMouseDown={(e) => e.stopPropagation()}
     >
       <TranslatePopupHeader
-        mode={mode}
-        targetLanguage={targetLanguage}
-        isPinned={isPinned}
-        theme={theme}
-        onTogglePin={onTogglePin}
-        onLanguageChange={onLanguageChange}
-        onModeChange={onModeChange}
-        onClose={onClose}
+        mode={mode} targetLanguage={targetLanguage} isPinned={isPinned} theme={theme}
+        onTogglePin={onTogglePin} onLanguageChange={onLanguageChange} onModeChange={onModeChange} onClose={onClose}
       />
 
       <div className="p-4 pt-3 overflow-y-auto flex-1 flex flex-col gap-3">
@@ -81,8 +88,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           <div className={`border rounded-xl p-2.5 text-xs flex items-start justify-between gap-2 ${th.origBox}`}>
             <div className={`flex-1 ${!isExpanded ? 'line-clamp-2' : 'max-h-28 overflow-y-auto pr-1'}`}>{originalText}</div>
             <button
-              type="button"
-              onClick={() => setIsExpanded((p) => !p)}
+              type="button" onClick={() => setIsExpanded((p) => !p)}
               className="p-1 text-slate-400 hover:text-slate-600 flex-shrink-0 cursor-pointer"
               aria-label={isExpanded ? 'Collapse' : 'Expand'}
             >
@@ -113,8 +119,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           {explanation && mode !== 'rewrite' && (
             <div className={`mt-1 pt-1 border-t text-xs ${isLight ? 'border-slate-200' : 'border-slate-800/60'}`}>
               <button
-                type="button"
-                onClick={() => setShowExplanation((p) => !p)}
+                type="button" onClick={() => setShowExplanation((p) => !p)}
                 className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-medium py-1 cursor-pointer"
               >
                 <BookOpen size={13} />
@@ -133,10 +138,39 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           )}
         </div>
 
+        {mode === 'rewrite' && !isLoading && !error && translationText && (
+          <div className={`border rounded-xl p-2.5 text-xs flex flex-col gap-1.5 ${th.origBox}`}>
+            <button
+              type="button" onClick={handleToggleViTranslation}
+              className="flex items-center justify-between w-full text-left cursor-pointer group"
+              aria-label={showViTranslation ? 'Thu gọn bản dịch tiếng Việt' : 'Dịch câu viết lại sang tiếng Việt'}
+            >
+              <div className="flex items-center gap-1.5 font-medium text-indigo-400 group-hover:text-indigo-300">
+                <Languages size={13} />
+                <span>Dịch câu viết lại sang tiếng Việt</span>
+              </div>
+              <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${showViTranslation ? 'rotate-180' : ''}`} />
+            </button>
+            {showViTranslation && (
+              <div className={`pt-2 mt-1 border-t text-xs leading-relaxed ${isLight ? 'border-slate-200 text-slate-700' : 'border-slate-800 text-slate-300'}`}>
+                {isTranslatingVi ? (
+                  <div className="flex items-center gap-2 py-1 text-indigo-400">
+                    <Loader2 size={13} className="animate-spin" />
+                    <span>Đang dịch sang tiếng Việt...</span>
+                  </div>
+                ) : (
+                  <div className="whitespace-pre-wrap selection:bg-indigo-500/30">
+                    {viTranslation || 'Chưa có bản dịch tiếng Việt.'}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {!isLoading && !error && translationText && (
           <button
-            type="button"
-            onClick={() => onFollowUp?.('Hãy diễn đạt lại tự nhiên hơn hoặc cung cấp phương án diễn đạt thay thế hay hơn.')}
+            type="button" onClick={() => onFollowUp?.('Hãy diễn đạt lại tự nhiên hơn hoặc cung cấp phương án diễn đạt thay thế hay hơn.')}
             className="flex items-center gap-1.5 text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors w-fit px-1 py-0.5 cursor-pointer group"
           >
             <Sparkles size={13} className="text-indigo-400 group-hover:scale-110 transition-transform" />
@@ -147,8 +181,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         {mode === 'rewrite' && (
           <div className="flex items-center gap-2 px-0.5">
             <button
-              type="button"
-              onClick={() => setShowRewriteOptions((p) => !p)}
+              type="button" onClick={() => setShowRewriteOptions((p) => !p)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border cursor-pointer transition-colors ${th.pill}`}
             >
               <AudioWaveform size={14} className="text-indigo-400" />
@@ -158,22 +191,16 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         )}
 
         <TranslatePopupFooter
-          translationText={translationText}
-          isLoading={isLoading}
-          theme={theme}
-          hasEditableTarget={hasEditableTarget}
-          onFollowUp={onFollowUp}
-          onRegenerate={onRegenerate}
-          onInsert={onInsert}
+          translationText={translationText} isLoading={isLoading} theme={theme}
+          hasEditableTarget={hasEditableTarget} onFollowUp={onFollowUp}
+          onRegenerate={onRegenerate} onInsert={onInsert}
         />
       </div>
 
       {showRewriteOptions && mode === 'rewrite' && (
         <RewriteOptionsPanel
-          options={rewriteOptions || DEFAULT_REWRITE_OPTIONS}
-          theme={theme}
-          onChange={(opts) => onRewriteOptionsChange?.(opts)}
-          onClose={() => setShowRewriteOptions(false)}
+          options={rewriteOptions || DEFAULT_REWRITE_OPTIONS} theme={theme}
+          onChange={(opts) => onRewriteOptionsChange?.(opts)} onClose={() => setShowRewriteOptions(false)}
         />
       )}
     </div>

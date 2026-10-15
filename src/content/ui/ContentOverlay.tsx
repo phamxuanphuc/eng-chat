@@ -33,6 +33,7 @@ export interface ContentOverlayProps {
   onRegenerate?: () => void;
   onInsertText: (text: string) => void;
   onCloseTooltip: () => void;
+  onTranslateVi?: (text: string) => Promise<string>;
 }
 
 export const ContentOverlay: React.FC<ContentOverlayProps> = ({
@@ -49,6 +50,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
   onRegenerate,
   onInsertText,
   onCloseTooltip,
+  onTranslateVi,
 }) => {
   return (
     <>
@@ -82,6 +84,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
           onRegenerate={onRegenerate}
           onInsert={onInsertText}
           onClose={onCloseTooltip}
+          onTranslateVi={onTranslateVi}
         />
       )}
     </>

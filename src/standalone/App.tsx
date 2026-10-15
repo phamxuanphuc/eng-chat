@@ -220,18 +220,19 @@ export const StandaloneApp: React.FC = () => {
           onModeChange={(m) => runOptimize(m === 'rewrite' ? 'professional' : 'translate_explain', m)}
           onFollowUp={async (query) => {
             setTooltipState((p) => ({ ...p, isLoading: true }));
-            const prompt = `Văn bản gốc: "${chatInput}"\n\nYêu cầu: ${query}`;
             const settings = await loadSettings();
             const tone: ToneType = tooltipState.mode === 'rewrite' ? 'professional' : 'translate_explain';
-            const res = await executeOptimize({ text: prompt, tone }, settings);
+            const res = await executeOptimize({ text: `Văn bản gốc: "${chatInput}"\n\nYêu cầu: ${query}`, tone }, settings);
             setTooltipState({ isOpen: true, mode: tooltipState.mode, isLoading: false, result: res.data, error: res.error });
           }}
           onRegenerate={() => runOptimize(tooltipState.mode === 'rewrite' ? 'professional' : 'translate_explain', tooltipState.mode)}
-          onInsert={(text) => {
-            setChatInput(text);
-            setTooltipState({ isOpen: false, isLoading: false });
-          }}
+          onInsert={(text) => { setChatInput(text); setTooltipState({ isOpen: false, isLoading: false }); }}
           onClose={() => setTooltipState({ isOpen: false, isLoading: false })}
+          onTranslateVi={async (text) => {
+            const settings = await loadSettings();
+            const res = await executeOptimize({ text: `Dịch sang tiếng Việt chuẩn, tự nhiên:\n"${text}"`, tone: 'concise' }, settings);
+            return res.success && res.data ? (typeof res.data === 'string' ? res.data : res.data.translation) : '';
+          }}
         />
       )}
     </div>

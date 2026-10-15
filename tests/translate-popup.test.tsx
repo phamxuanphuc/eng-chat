@@ -183,4 +183,34 @@ describe('TranslatePopup Component', () => {
     const scrollBody = container.querySelector('.overflow-y-auto');
     expect(scrollBody).not.toBeNull();
   });
+
+  it('TC-TP-10: Renders and toggles Vietnamese translation collapse in rewrite mode', async () => {
+    const handleTranslateVi = vi.fn().mockResolvedValue('Tất cả các API thanh toán đã được kiểm tra.');
+
+    render(
+      <TranslatePopup
+        mode="rewrite"
+        originalText="Tôi đã kiểm tra kỹ rồi."
+        result="All payment APIs have been thoroughly tested."
+        isLoading={false}
+        onTranslateVi={handleTranslateVi}
+        onClose={() => {}}
+      />
+    );
+
+    const toggleBtn = screen.getByRole('button', { name: /dịch câu viết lại sang tiếng việt/i });
+    expect(toggleBtn).toBeDefined();
+
+    await React.act(async () => {
+      fireEvent.click(toggleBtn);
+    });
+
+    expect(handleTranslateVi).toHaveBeenCalledWith('All payment APIs have been thoroughly tested.');
+    expect(screen.getByText('Tất cả các API thanh toán đã được kiểm tra.')).toBeDefined();
+
+    await React.act(async () => {
+      fireEvent.click(toggleBtn);
+    });
+    expect(screen.queryByText('Tất cả các API thanh toán đã được kiểm tra.')).toBeNull();
+  });
 });

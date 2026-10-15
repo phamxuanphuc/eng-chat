@@ -67,35 +67,31 @@ const renderApp = () => {
       theme={currentTheme}
       toolbar={toolbarState}
       tooltip={tooltipState}
-      onSelectTone={(tone, mode) => {
-        handleTriggerOptimize(tone, undefined, undefined, mode);
-      }}
-      onCloseToolbar={() => {
-        toolbarState = { ...toolbarState, visible: false };
-        renderApp();
-      }}
-      onTogglePin={() => {
-        tooltipState = { ...tooltipState, isPinned: !tooltipState.isPinned };
-        renderApp();
-      }}
+      onSelectTone={(tone, mode) => handleTriggerOptimize(tone, undefined, undefined, mode)}
+      onCloseToolbar={() => { toolbarState = { ...toolbarState, visible: false }; renderApp(); }}
+      onTogglePin={() => { tooltipState = { ...tooltipState, isPinned: !tooltipState.isPinned }; renderApp(); }}
       onLanguageChange={handleLanguageChange}
       onModeChange={handleModeChange}
       onRewriteOptionsChange={handleRewriteOptionsChange}
       onFollowUp={handleFollowUp}
       onRegenerate={handleRegenerate}
       onInsertText={(text) => {
-        if (currentEditableEl) {
-          replaceTextInElement(currentEditableEl, text);
-          tooltipState = { ...tooltipState, visible: false };
-          renderApp();
-        }
-      }}
-      onCloseTooltip={() => {
+        if (currentEditableEl) replaceTextInElement(currentEditableEl, text);
         tooltipState = { ...tooltipState, visible: false };
         renderApp();
       }}
+      onCloseTooltip={() => { tooltipState = { ...tooltipState, visible: false }; renderApp(); }}
+      onTranslateVi={handleTranslateVi}
     />
   );
+};
+
+const handleTranslateVi = async (text: string): Promise<string> => {
+  const response: OptimizeResponse = await chrome.runtime.sendMessage({
+    action: 'EXECUTE_GEMINI',
+    payload: { text: `Dịch câu tiếng Anh sau sang tiếng Việt chuẩn, tự nhiên:\n"${text}"`, tone: 'concise' },
+  });
+  return response.success && response.data ? (typeof response.data === 'string' ? response.data : response.data.translation) : '';
 };
 
 const handleTriggerOptimize = async (
