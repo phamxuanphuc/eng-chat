@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useSettingsStore } from '../store/useSettingsStore';
-import { ApiKeyItem, ToneType, LLMProvider } from '../types';
+import { ApiKeyItem, ToneType, LLMProvider, Language } from '../types';
 
 export interface OptionsContextValue {
+  language: Language;
+  setLanguage: (language: Language) => void;
   provider: LLMProvider;
   setProvider: (p: LLMProvider) => void;
   apiKeys: ApiKeyItem[];
@@ -34,6 +36,7 @@ const OptionsContext = createContext<OptionsContextValue | null>(null);
 export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { settings, fetchSettings, updateSettings } = useSettingsStore();
 
+  const [language, setLanguage] = useState<Language>('en');
   const [provider, setProvider] = useState<LLMProvider>('gemini');
   const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([]);
   const [autoRotate, setAutoRotate] = useState(true);
@@ -54,6 +57,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     if (settings && !isInitialized) {
+      setLanguage(settings.language || 'en');
       setProvider(settings.llmProvider || 'gemini');
       const keys = settings.apiKeys && settings.apiKeys.length > 0
         ? settings.apiKeys
@@ -76,6 +80,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const handleSave = async () => {
     await updateSettings({
+      language,
       llmProvider: provider,
       geminiApiKey: apiKeys[0]?.key || '',
       apiKeys,
@@ -96,6 +101,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   return (
     <OptionsContext.Provider
       value={{
+        language, setLanguage,
         provider, setProvider,
         apiKeys, setApiKeys,
         autoRotate, setAutoRotate,

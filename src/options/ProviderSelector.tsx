@@ -2,24 +2,29 @@ import React from 'react';
 import { LLMProvider } from '../types';
 import { Badge } from '../components/ui/Badge';
 import { Check, Sparkles, Globe } from 'lucide-react';
+import { Language } from '../types';
+import { getTranslator } from '../i18n';
 
 interface ProviderSelectorProps {
+  language?: Language;
   provider: LLMProvider;
   onSelectProvider: (provider: LLMProvider) => void;
 }
 
 export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
+  language,
   provider,
   onSelectProvider,
 }) => {
   const isGemini = provider === 'gemini';
   const isOpenAi = provider === 'openai_compatible';
+  const t = getTranslator(language || 'en');
 
   return (
     <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-          <Sparkles size={16} className="text-indigo-400" /> Choose LLM Provider (AI Provider)
+          <Sparkles size={16} className="text-indigo-400" /> {t('provider.choose')}
         </h2>
         <Badge variant={isGemini ? 'success' : 'primary'} size="sm">
           {isGemini ? 'Google Gemini' : 'OpenAI Compatible'}
@@ -52,7 +57,7 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
                 <span className={`text-sm font-bold ${isGemini ? 'text-indigo-200' : 'text-slate-200'}`}>
                   Google Gemini
                 </span>
-                <span className="text-[11px] text-slate-400">Google AI Studio</span>
+                <span className="text-[11px] text-slate-400">{t('provider.googleStudio')}</span>
               </div>
             </div>
             {isGemini && (
@@ -62,11 +67,11 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
             )}
           </div>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Google AI Studio API key with a generous free quota and fast Gemini 3.5 Flash-Lite support.
+            {t('provider.geminiDescription')}
           </p>
           <div className="flex items-center gap-1.5 pt-1">
-            <Badge variant="success" size="sm">Free</Badge>
-            <Badge variant="secondary" size="sm">Multi-Key</Badge>
+            <Badge variant="success" size="sm">{t('provider.free')}</Badge>
+            <Badge variant="secondary" size="sm">{t('provider.multiKey')}</Badge>
           </div>
         </div>
 
@@ -93,9 +98,9 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
               </div>
               <div className="flex flex-col">
                 <span className={`text-sm font-bold ${isOpenAi ? 'text-indigo-200' : 'text-slate-200'}`}>
-                  Custom LLM
+                  {t('provider.custom')}
                 </span>
-                <span className="text-[11px] text-slate-400">OpenAI Compatible</span>
+                <span className="text-[11px] text-slate-400">{t('provider.openai')}</span>
               </div>
             </div>
             {isOpenAi && (
@@ -105,11 +110,11 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
             )}
           </div>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Connect to DeepSeek, Groq, OpenRouter, OpenAI, or local models through Ollama.
+            {t('provider.customDescription')}
           </p>
           <div className="flex items-center gap-1.5 pt-1">
-            <Badge variant="primary" size="sm">DeepSeek / Groq</Badge>
-            <Badge variant="secondary" size="sm">Ollama Local</Badge>
+            <Badge variant="primary" size="sm">{t('provider.deepseekGroq')}</Badge>
+            <Badge variant="secondary" size="sm">{t('provider.ollamaLocal')}</Badge>
           </div>
         </div>
       </div>

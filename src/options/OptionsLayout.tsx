@@ -4,16 +4,18 @@ import { useOptions } from './OptionsContext';
 import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
-import { Check, Save, MessageSquare, Palette, Cpu } from 'lucide-react';
+import { Check, Save, MessageSquare, Palette, Cpu, Languages } from 'lucide-react';
+import { getTranslator, languageOptions } from '../i18n';
 
 const NAV_ITEMS = [
-  { path: '/', label: 'AI Provider', icon: Cpu },
-  { path: '/tone', label: 'Writing style', icon: Palette },
-  { path: '/context', label: 'Context', icon: MessageSquare },
+  { path: '/', labelKey: 'options.aiProvider' as const, icon: Cpu },
+  { path: '/tone', labelKey: 'options.writingStyle' as const, icon: Palette },
+  { path: '/context', labelKey: 'options.context' as const, icon: MessageSquare },
 ];
 
 export const OptionsLayout: React.FC = () => {
-  const { saveSuccess, handleSave } = useOptions();
+  const { language, setLanguage, saveSuccess, handleSave } = useOptions();
+  const t = getTranslator(language);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-16">
@@ -28,13 +30,20 @@ export const OptionsLayout: React.FC = () => {
                 <h1 className="text-base font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                   EngChat AI
                 </h1>
-                <Badge variant="primary" size="sm">Settings</Badge>
+                <Badge variant="primary" size="sm">{t('app.settings')}</Badge>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">AI configuration and English optimization center</p>
+              <p className="text-[11px] text-slate-400 hidden sm:block">{t('options.subtitle')}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
+            <label className="flex items-center gap-1.5 text-xs text-slate-400" htmlFor="language-select">
+              <Languages size={14} />
+              <span className="sr-only">{t('options.language')}</span>
+              <select id="language-select" value={language} onChange={(event) => setLanguage(event.target.value as 'en' | 'vi')} className="rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-200">
+                {languageOptions.map((option) => <option key={option.value} value={option.value}>{t(option.labelKey)}</option>)}
+              </select>
+            </label>
             <nav className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
               {NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
@@ -52,7 +61,7 @@ export const OptionsLayout: React.FC = () => {
                     }
                   >
                     <Icon size={14} />
-                    <span>{item.label}</span>
+                    <span>{t(item.labelKey)}</span>
                   </NavLink>
                 );
               })}
@@ -60,7 +69,7 @@ export const OptionsLayout: React.FC = () => {
 
             {saveSuccess && (
               <Badge variant="success" size="sm" icon={<Check size={12} />}>
-                Saved
+                {t('options.saved')}
               </Badge>
             )}
           </div>
@@ -69,15 +78,15 @@ export const OptionsLayout: React.FC = () => {
 
       <main className="max-w-4xl mx-auto py-8 px-6 flex flex-col gap-6">
         {saveSuccess && (
-          <Alert variant="success" message="Settings saved successfully in your browser!" />
+          <Alert variant="success" message={t('options.savedBrowser', { settings: t('app.settings') })} />
         )}
 
         <Outlet />
 
         <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-indigo-950/40 via-purple-950/20 to-slate-900 border border-slate-800/80 mt-4">
           <div className="flex flex-col text-xs text-slate-400">
-            <span className="font-semibold text-slate-200">Finish configuration</span>
-            <span>Changes on every page take effect immediately after saving.</span>
+            <span className="font-semibold text-slate-200">{t('options.finish')}</span>
+            <span>{t('options.saveHint')}</span>
           </div>
           <Button
             variant="primary"
@@ -85,7 +94,7 @@ export const OptionsLayout: React.FC = () => {
             icon={saveSuccess ? <Check size={16} /> : <Save size={16} />}
             onClick={handleSave}
           >
-            {saveSuccess ? 'Saved' : 'Save Settings'}
+            {saveSuccess ? t('options.saved') : t('options.saveSettings')}
           </Button>
         </div>
       </main>

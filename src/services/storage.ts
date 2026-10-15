@@ -1,6 +1,7 @@
 import { AppSettings } from '../types';
 
 export const DEFAULT_SETTINGS: AppSettings = {
+  language: 'en',
   llmProvider: 'gemini',
   geminiApiKey: '',
   apiKeys: [],
@@ -68,6 +69,8 @@ export const loadSettings = async (): Promise<AppSettings> => {
   if (!loaded.selectedModel || loaded.selectedModel.includes('2.0-flash')) {
     loaded.selectedModel = 'gemini-3.5-flash-lite';
   }
+
+  loaded.language = loaded.language === 'vi' ? 'vi' : 'en';
 
   if (!loaded.llmProvider) {
     loaded.llmProvider = 'gemini';

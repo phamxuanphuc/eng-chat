@@ -19,8 +19,10 @@ export interface ApiKeyItem {
 }
 
 export type LLMProvider = 'gemini' | 'openai_compatible';
+export type Language = 'en' | 'vi';
 
 export interface AppSettings {
+  language?: Language;
   llmProvider?: LLMProvider;
   geminiApiKey: string;
   apiKeys?: ApiKeyItem[];

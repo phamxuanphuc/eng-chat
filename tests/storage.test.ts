@@ -26,6 +26,13 @@ describe('Storage & Settings Store', () => {
     expect(settings.enableChatContext).toBe(true);
   });
 
+  it('persists the selected language and falls back to English for invalid values', async () => {
+    await saveSettings({ language: 'vi' });
+    expect((await loadSettings()).language).toBe('vi');
+    await saveSettings({ language: 'fr' as any });
+    expect((await loadSettings()).language).toBe('en');
+  });
+
   it('TC-ST-02: saves and retrieves new settings', async () => {
     await saveSettings({ geminiApiKey: 'ai-key-abc-123', defaultTone: 'polite' });
     const settings = await loadSettings();

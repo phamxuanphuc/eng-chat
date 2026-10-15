@@ -7,11 +7,15 @@ import { computeToolbarPos, setupDOMEvents } from './content-events';
 import { ContentOverlay } from './ui/ContentOverlay';
 import { detectPageTheme, observePageTheme } from './theme-detector';
 import styles from '../styles/index.css?inline';
+import { getTranslator } from '../i18n';
+import { loadSettings } from '../services/storage';
 
 let shadowRoot: ShadowRoot | null = null;
 let reactRoot: ReactDOM.Root | null = null;
 let currentEditableEl: HTMLElement | null = null;
 let currentTheme: 'light' | 'dark' = 'dark';
+let currentLanguage: 'en' | 'vi' = 'en';
+loadSettings().then((settings) => { currentLanguage = settings.language || 'en'; renderApp(); }).catch(() => {});
 
 try {
   currentTheme = detectPageTheme();
@@ -64,6 +68,7 @@ const renderApp = () => {
 
   reactRoot.render(
     <ContentOverlay
+      language={currentLanguage}
       theme={currentTheme}
       toolbar={toolbarState}
       tooltip={tooltipState}

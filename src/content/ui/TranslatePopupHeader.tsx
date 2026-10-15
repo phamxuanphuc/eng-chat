@@ -3,8 +3,11 @@ import { Languages, PenLine, Wand2, ChevronDown, Pin, PinOff, X } from 'lucide-r
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
 import { Badge } from '../../components/ui/Badge';
 import { loadSelectedStyle } from './style-preference';
+import { Language } from '../../types';
+import { getTranslator } from '../../i18n';
 
 export interface TranslatePopupHeaderProps {
+  language?: Language;
   mode: 'translate' | 'rewrite' | 'improve';
   targetLanguage: string;
   isPinned: boolean;
@@ -17,6 +20,7 @@ export interface TranslatePopupHeaderProps {
 }
 
 export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
+  language = 'en',
   mode,
   targetLanguage,
   isPinned,
@@ -31,6 +35,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState(loadSelectedStyle);
   const isLight = theme === 'light';
+  const t = getTranslator(language);
   const th = getPopupTheme(theme);
 
   const handleHeaderMouseDown = (e: React.MouseEvent) => {
@@ -42,9 +47,9 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   };
 
   const getModeTitle = () => {
-    if (mode === 'improve') return 'Improve it';
-    if (mode === 'rewrite') return 'Rewrite';
-    return 'Translate';
+    if (mode === 'improve') return t('content.improveIt');
+    if (mode === 'rewrite') return t('content.rewriteMode');
+    return t('content.translateMode');
   };
 
   const getModeIcon = () => {
@@ -70,7 +75,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
         data-testid="drag-handle"
         onMouseDown={onDragStart}
         className="w-full pt-0.5 pb-1 -mt-1 cursor-grab active:cursor-grabbing flex items-center justify-center select-none group"
-        title="Drag to move"
+        title={t('content.dragToMove')}
       >
         <div className={`w-9 h-1 rounded-full transition-all group-hover:scale-x-125 group-hover:bg-indigo-400 ${th.bar}`} />
       </div>
@@ -99,7 +104,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
                   {m === 'improve' && <Wand2 size={13} />}
                   {m === 'rewrite' && <PenLine size={13} />}
                   {m === 'translate' && <Languages size={13} />}
-                  <span>{m === 'improve' ? 'Improve it' : m === 'rewrite' ? 'Rewrite' : 'Translate'}</span>
+                  <span>{m === 'improve' ? t('content.improveIt') : m === 'rewrite' ? t('content.rewriteMode') : t('content.translateMode')}</span>
                 </button>
               ))}
             </div>
@@ -138,7 +143,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
             type="button"
             onClick={onTogglePin}
             className={`p-1 rounded-lg cursor-pointer ${isPinned ? 'text-indigo-400 bg-indigo-500/20' : th.iconBtn}`}
-            title={isPinned ? 'Unpin popup' : 'Pin popup'}
+            title={isPinned ? t('content.unpin') : t('content.pin')}
           >
             {isPinned ? <PinOff size={14} /> : <Pin size={14} />}
           </button>
@@ -146,7 +151,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
             type="button"
             onClick={onClose}
             className={`p-1 rounded-lg cursor-pointer ${th.iconBtn}`}
-            aria-label="Close"
+            aria-label={t('content.close')}
           >
             <X size={15} />
           </button>

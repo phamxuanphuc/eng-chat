@@ -1,5 +1,7 @@
 import React from 'react';
 import { CheckCircle2, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import { useSettingsStore } from '../../store/useSettingsStore';
+import { getTranslator } from '../../i18n';
 
 export interface AlertProps {
   variant?: 'success' | 'error' | 'info' | 'warning';
@@ -16,6 +18,8 @@ export const Alert: React.FC<AlertProps> = ({
   className = '',
   onClose,
 }) => {
+  const language = useSettingsStore((state) => state.settings.language);
+  const t = getTranslator(language);
   const styles = {
     success: {
       container:
@@ -58,7 +62,7 @@ export const Alert: React.FC<AlertProps> = ({
           type="button"
           onClick={onClose}
           className="text-slate-400 hover:text-white transition-colors p-1"
-          aria-label="Close alert"
+          aria-label={t('common.closeAlert')}
         >
           &times;
         </button>

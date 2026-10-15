@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Language } from '../../types';
+import { getTranslator } from '../../i18n';
 import {
   Copy,
   Check,
@@ -9,6 +11,7 @@ import {
 } from 'lucide-react';
 
 export interface TranslatePopupFooterProps {
+  language?: Language;
   translationText: string;
   isLoading: boolean;
   theme?: 'light' | 'dark';
@@ -21,6 +24,7 @@ export interface TranslatePopupFooterProps {
 }
 
 export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
+  language = 'en',
   translationText,
   isLoading,
   theme = 'dark',
@@ -37,16 +41,17 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
   const [followUpText, setFollowUpText] = useState('');
 
   const isLight = theme === 'light';
+  const t = getTranslator(language);
   const iconBtnClass = isLight
     ? 'p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer'
     : 'p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer';
 
   const placeholderText =
     mode === 'improve'
-      ? 'Tell me how to improve... ↵'
+      ? t('content.askImprove')
       : mode === 'rewrite'
-      ? 'Ask follow-up or rewrite ↵'
-      : 'Ask follow-up ↵';
+      ? t('content.askRewrite')
+      : t('content.askFollowUp');
 
   const handleCopy = async () => {
     if (!translationText) return;
@@ -91,11 +96,11 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           type="button"
           onClick={() => onInsert?.(translationText)}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/40 text-xs font-semibold transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 whitespace-nowrap"
-          title="Replace text in input"
-          aria-label="Replace text in input"
+          title={t('content.replaceInput')}
+          aria-label={t('content.replaceInput')}
         >
           <CornerDownLeft size={13} className="text-indigo-300" />
-          <span>Replace</span>
+          <span>{t('content.replace')}</span>
         </button>
       )}
 
@@ -104,8 +109,8 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           type="button"
           onClick={handleCopy}
           className={iconBtnClass}
-          title={copied ? 'Copied' : 'Copy translation'}
-          aria-label="Copy translation"
+          title={copied ? t('content.copied') : t('content.copy')}
+          aria-label={t('content.copy')}
         >
           {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
         </button>
@@ -115,8 +120,8 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           onClick={onRegenerate}
           disabled={isLoading}
           className={`${iconBtnClass} disabled:opacity-50`}
-          title="Regenerate translation"
-          aria-label="Regenerate"
+          title={t('content.regenerate')}
+          aria-label={t('content.regenerate')}
         >
           <RotateCw size={14} className={isLoading ? 'animate-spin' : ''} />
         </button>
@@ -127,8 +132,8 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
             bookmarked ? 'text-amber-500 bg-amber-500/10' : iconBtnClass
           }`}
-          title={bookmarked ? 'Saved' : 'Save'}
-          aria-label="Bookmark"
+          title={bookmarked ? t('options.saved') : t('content.save')}
+          aria-label={t('content.save')}
         >
           <Bookmark size={14} className={bookmarked ? 'fill-amber-500' : ''} />
         </button>
@@ -138,8 +143,8 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
             type="button"
             onClick={() => setMoreMenuOpen((p) => !p)}
             className={iconBtnClass}
-            title="More options"
-            aria-label="More actions"
+            title={t('content.more')}
+            aria-label={t('content.moreActions')}
           >
             <MoreVertical size={14} />
           </button>
@@ -159,7 +164,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
                   className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-left rounded-lg text-indigo-500 hover:bg-indigo-500/10 transition-colors"
                 >
                   <CornerDownLeft size={13} />
-                  <span>Insert into field</span>
+                  <span>{t('content.insert')}</span>
                 </button>
               )}
               <button
@@ -172,7 +177,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
                   isLight ? 'text-slate-700 hover:bg-slate-100' : 'text-slate-300 hover:bg-slate-800'
                 }`}
               >
-                <span>Open Settings</span>
+                <span>{t('content.openSettings')}</span>
               </button>
             </div>
           )}
@@ -182,8 +187,8 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           type="button"
           onClick={onOpenModelPicker}
           className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[9px] font-bold ring-1 ring-white/20 hover:scale-110 transition-transform cursor-pointer"
-          title="Choose AI model"
-          aria-label="Open model picker"
+          title={t('content.chooseModel')}
+          aria-label={t('common.openModelPicker')}
         >
           ✦
         </button>

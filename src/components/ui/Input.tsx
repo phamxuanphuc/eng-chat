@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { useSettingsStore } from '../../store/useSettingsStore';
+import { getTranslator } from '../../i18n';
 
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
@@ -17,6 +19,8 @@ export const Input: React.FC<InputProps> = ({
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const language = useSettingsStore((state) => state.settings.language);
+  const t = getTranslator(language);
   const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
   const isPassword = type === 'password';
   const effectiveType = isPassword ? (showPassword ? 'text' : 'password') : type;

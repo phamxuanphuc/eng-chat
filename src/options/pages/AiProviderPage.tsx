@@ -7,6 +7,7 @@ import { CustomProviderManager } from '../CustomProviderManager';
 
 export const AiProviderPage: React.FC = () => {
   const {
+    language,
     provider,
     setProvider,
     apiKeys,
@@ -26,11 +27,12 @@ export const AiProviderPage: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6 animate-fadeIn">
-      <ProviderSelector provider={provider} onSelectProvider={setProvider} />
+      <ProviderSelector language={language} provider={provider} onSelectProvider={setProvider} />
 
       {provider === 'gemini' ? (
         <>
           <ApiKeyManager
+            language={language}
             apiKeys={apiKeys}
             onUpdateKeys={setApiKeys}
             autoRotate={autoRotate}
@@ -38,10 +40,11 @@ export const AiProviderPage: React.FC = () => {
             selectedModel={model}
             onSave={handleSave}
           />
-          <ModelSelector selectedModel={model} onSelectModel={setModel} />
+          <ModelSelector language={language} selectedModel={model} onSelectModel={setModel} />
         </>
       ) : (
         <CustomProviderManager
+          language={language}
           baseUrl={customBaseUrl}
           onUpdateBaseUrl={setCustomBaseUrl}
           apiKey={customApiKey}

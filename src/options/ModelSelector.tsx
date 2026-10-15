@@ -1,6 +1,8 @@
 import React from 'react';
 import { Badge } from '../components/ui/Badge';
 import { Check, Sparkles, Zap, Shield, Cpu } from 'lucide-react';
+import { Language } from '../types';
+import { getTranslator } from '../i18n';
 
 export interface ModelOption {
   id: string;
@@ -47,19 +49,29 @@ export const GEMINI_MODELS: ModelOption[] = [
 ];
 
 interface ModelSelectorProps {
+  language?: Language;
   selectedModel: string;
   onSelectModel: (model: string) => void;
 }
 
 export const ModelSelector: React.FC<ModelSelectorProps> = ({
+  language,
   selectedModel,
   onSelectModel,
 }) => {
+  const t = getTranslator(language || 'en');
+  const modelText = {
+    'gemini-3.5-flash-lite': ['model.recommended', 'model.flashLiteDescription'],
+    'gemini-3.5-flash': ['model.highQuality', 'model.flashDescription'],
+    'gemini-3.1-flash-lite': ['model.stable', 'model.stableDescription'],
+    'gemini-2.5-flash': ['model.standard', 'model.standardDescription'],
+  } as const;
+
   return (
     <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-          <Sparkles size={16} className="text-indigo-400" /> AI Model (Gemini Model)
+          <Sparkles size={16} className="text-indigo-400" /> {t('model.title')}
         </h2>
         <Badge variant="primary" size="sm">
           {GEMINI_MODELS.find((m) => m.id === selectedModel)?.name || selectedModel}
@@ -98,7 +110,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <Badge variant={m.tagVariant} size="sm">
-                    {m.tag}
+                    {t(modelText[m.id as keyof typeof modelText]?.[0] || 'model.standard')}
                   </Badge>
                   {isSelected && (
                     <div className="w-5 h-5 rounded-full bg-indigo-500 text-white flex items-center justify-center shrink-0 shadow-sm">
@@ -108,7 +120,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                 </div>
               </div>
               <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
-                {m.description}
+                {t(modelText[m.id as keyof typeof modelText]?.[1] || 'model.standardDescription')}
               </p>
             </div>
           );

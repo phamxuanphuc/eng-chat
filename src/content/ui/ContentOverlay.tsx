@@ -1,9 +1,10 @@
 import React from 'react';
 import { FloatingToolbar } from './FloatingToolbar';
 import { TranslatePopup } from './TranslatePopup';
-import { ToneType, RewriteOptions } from '../../types';
+import { ToneType, RewriteOptions, Language } from '../../types';
 
 export interface ContentOverlayProps {
+  language?: Language;
   theme?: 'light' | 'dark';
   toolbar: {
     visible: boolean;
@@ -38,6 +39,7 @@ export interface ContentOverlayProps {
 }
 
 export const ContentOverlay: React.FC<ContentOverlayProps> = ({
+  language = 'en',
   theme = 'dark',
   toolbar,
   tooltip,
@@ -60,6 +62,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
         x={toolbar.x}
         y={toolbar.y}
         isLoading={toolbar.isLoading}
+        language={language}
         theme={theme}
         isEditable={toolbar.isEditable}
         onSelectTone={onSelectTone}
@@ -68,6 +71,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
 
       {tooltip.visible && (
         <TranslatePopup
+          language={language}
           theme={theme}
           mode={tooltip.mode}
           originalText={tooltip.originalText}

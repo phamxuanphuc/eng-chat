@@ -4,8 +4,11 @@ import { AppSettings, LLMProvider } from '../../types';
 import { GEMINI_MODELS } from '../../options/ModelSelector';
 import { fetchOpenAiModels } from '../../services/openai';
 import { loadSettings, saveSettings } from '../../services/storage';
+import { Language } from '../../types';
+import { getTranslator } from '../../i18n';
 
 interface ModelPickerProps {
+  language?: Language;
   theme: 'light' | 'dark';
   onClose: () => void;
 }
@@ -26,7 +29,7 @@ const persistSettings = async (partial: Partial<AppSettings>) => {
   return saveSettings(partial);
 };
 
-export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
+export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', theme, onClose }) => {
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [provider, setProvider] = useState<LLMProvider>('gemini');
   const [customModels, setCustomModels] = useState<string[]>([]);
@@ -34,6 +37,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
   const [isFetchingModels, setIsFetchingModels] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isLight = theme === 'light';
+  const t = getTranslator(language);
 
   useEffect(() => {
     getSettings()
@@ -41,7 +45,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
         setSettings(loaded);
         setProvider(loaded.llmProvider || 'gemini');
       })
-      .catch((err: any) => setError(err?.message || 'Unable to load configuration.'))
+      .catch((err: any) => setError(err?.message || t('content.unableLoadConfig')))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -55,9 +59,9 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
         apiKey: settings.customApiKey,
       });
       setCustomModels(models);
-      if (models.length === 0) setError('The provider returned no models.');
+      if (models.length === 0) setError(t('content.noModels'));
     } catch (err: any) {
-      setError(err?.message || 'Unable to load the model list.');
+      setError(err?.message || t('content.unableLoadModels'));
     } finally {
       setIsFetchingModels(false);
     }
@@ -84,14 +88,14 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
 
   return (
     <div className="absolute inset-0 z-50 flex items-end justify-end p-3 pointer-events-none">
-      <div className={`pointer-events-auto w-[min(350px,calc(100vw-24px))] rounded-2xl border shadow-2xl p-3 ${panelClass}`} role="dialog" aria-label="LLM model picker">
+      <div className={`pointer-events-auto w-[min(350px,calc(100vw-24px))] rounded-2xl border shadow-2xl p-3 ${panelClass}`} role="dialog" aria-label={t('content.modelPickerDialog')}>
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2 text-sm font-semibold"><Star size={15} className="text-amber-400 fill-amber-400" /> Choose AI model</div>
-          <button type="button" onClick={onClose} aria-label="Close model picker" className={`p-1 rounded-lg ${mutedClass} ${itemClass}`}><X size={15} /></button>
+          <div className="flex items-center gap-2 text-sm font-semibold"><Star size={15} className="text-amber-400 fill-amber-400" /> {t('content.chooseModelTitle')}</div>
+          <button type="button" onClick={onClose} aria-label={t('content.close')} className={`p-1 rounded-lg ${mutedClass} ${itemClass}`}><X size={15} /></button>
         </div>
 
         {isLoading ? (
-          <div className={`flex items-center gap-2 text-xs ${mutedClass}`}><Loader2 size={14} className="animate-spin" /> Loading configuration...</div>
+          <div className={`flex items-center gap-2 text-xs ${mutedClass}`}><Loader2 size={14} className="animate-spin" /> {t('content.loading')}</div>
         ) : (
           <>
             <div className={`grid grid-cols-2 gap-1 p-1 rounded-xl mb-3 ${isLight ? 'bg-slate-100' : 'bg-slate-950'}`}>
@@ -102,7 +106,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
                   onClick={() => { setProvider(item); setError(null); }}
                   className={`rounded-lg px-2 py-1.5 text-xs font-medium ${provider === item ? 'bg-indigo-600 text-white' : mutedClass}`}
                 >
-                  {item === 'gemini' ? 'Gemini' : 'Custom provider'}
+                  {item === 'gemini' ? 'Gemini' : t('content.customProvider')}
                 </button>
               ))}
             </div>
@@ -119,7 +123,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
             ) : (
               <>
                 <button type="button" onClick={fetchCustomModels} disabled={isFetchingModels} className={`flex items-center gap-1.5 text-xs text-indigo-400 mb-2 disabled:opacity-60`}>
-                  <RefreshCw size={13} className={isFetchingModels ? 'animate-spin' : ''} /> {isFetchingModels ? 'Loading models...' : 'Load model list'}
+                  <RefreshCw size={13} className={isFetchingModels ? 'animate-spin' : ''} /> {isFetchingModels ? t('content.loadingModels') : t('content.loadModels')}
                 </button>
                 <div className="flex flex-col gap-1 max-h-40 overflow-y-auto">
                   {customModels.map((model) => (
@@ -129,7 +133,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ theme, onClose }) => {
                     </button>
                   ))}
                 </div>
-                {!customModels.length && !error && <p className={`text-xs ${mutedClass}`}>Load models from the configured Base URL.</p>}
+                {!customModels.length && !error && <p className={`text-xs ${mutedClass}`}>{t('content.loadBaseUrl')}</p>}
               </>
             )}
             {error && <p className="mt-2 text-xs text-rose-400">{error}</p>}

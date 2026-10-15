@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { ApiKeyItem } from '../types';
+import { ApiKeyItem, Language } from '../types';
+import { getTranslator } from '../i18n';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Switch } from '../components/ui/Switch';
@@ -10,6 +11,7 @@ import { callGeminiApi } from '../services/gemini';
 import { KeyRound, Sparkles, Plus, Trash2, Star, ExternalLink, Save } from 'lucide-react';
 
 interface ApiKeyManagerProps {
+  language: Language;
   apiKeys: ApiKeyItem[];
   onUpdateKeys: (keys: ApiKeyItem[]) => void;
   autoRotate: boolean;
@@ -19,6 +21,7 @@ interface ApiKeyManagerProps {
 }
 
 export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
+  language,
   apiKeys,
   onUpdateKeys,
   autoRotate,
@@ -28,6 +31,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
 }) => {
   const [newLabel, setNewLabel] = useState('');
   const [newKey, setNewKey] = useState('');
+  const t = getTranslator(language);
 
   const primaryKey = apiKeys[0]?.key || '';
 
@@ -71,7 +75,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
   const testMutation = useMutation({
     mutationFn: async () => {
       const keyToTest = primaryKey || newKey.trim();
-      if (!keyToTest) throw new Error('Add at least one API key to test.');
+      if (!keyToTest) throw new Error(t('api.missingKey'));
       const res = await callGeminiApi({
         apiKey: keyToTest,
         model: selectedModel,
@@ -87,15 +91,15 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
     <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-          <KeyRound size={16} className="text-indigo-400" /> Google AI API Key Management
+          <KeyRound size={16} className="text-indigo-400" /> {t('api.googleKeyManagement')}
         </h2>
         <Badge variant={apiKeys.length > 0 ? 'success' : 'warning'} size="sm">
-          {apiKeys.length} {apiKeys.length <= 1 ? 'Keys' : 'Keys'}
+          {apiKeys.length} {t('api.keys')}
         </Badge>
       </div>
 
       <Input
-        label="Google Gemini API Key (Primary key)"
+        label={t('api.primaryLabel')}
         type="password"
         placeholder="AIzaSy..."
         value={primaryKey}
@@ -103,21 +107,21 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
       />
 
       <div className="flex items-center justify-between text-xs px-0.5 text-slate-400">
-        <span>No Google AI token yet?</span>
+        <span>{t('api.noToken')}</span>
         <a
           href="https://aistudio.google.com/app/apikey"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
         >
-          <span>Get a free token from Google AI Studio</span>
+          <span>{t('api.getToken')}</span>
           <ExternalLink size={12} />
         </a>
       </div>
 
       {apiKeys.length > 1 && (
         <div className="flex flex-col gap-2 pt-1">
-          <span className="text-xs font-medium text-slate-400">Saved keys:</span>
+          <span className="text-xs font-medium text-slate-400">{t('api.savedKeys')}</span>
           {apiKeys.map((item, idx) => (
             <div
               key={item.id}
@@ -125,7 +129,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <Badge variant={idx === 0 ? 'success' : 'secondary'} size="sm">
-                  {idx === 0 ? 'Primary' : 'Backup'}
+                  {idx === 0 ? t('api.primary') : t('api.backup')}
                 </Badge>
                 <div className="flex flex-col min-w-0">
                   <span className="text-xs font-semibold text-slate-200 truncate">{item.label}</span>
@@ -142,7 +146,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
                     icon={<Star size={12} className="text-amber-400" />}
                     onClick={() => handleSetPrimary(item.id)}
                   >
-                    Make primary
+                    {t('api.makePrimary')}
                   </Button>
                 )}
                 <Button
@@ -151,7 +155,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
                   icon={<Trash2 size={12} className="text-rose-400" />}
                   onClick={() => handleRemoveKey(item.id)}
                 >
-                  Delete
+                  {t('api.delete')}
                 </Button>
               </div>
             </div>
@@ -160,16 +164,16 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
       )}
 
       <div className="pt-2 border-t border-slate-800 flex flex-col gap-3">
-        <span className="text-xs font-medium text-slate-300">Add backup key (Multi-Key Failover)</span>
+        <span className="text-xs font-medium text-slate-300">{t('api.addBackup')}</span>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <Input
-            label="Key name"
+            label={t('api.keyName')}
             placeholder="e.g. Backup 1, Personal..."
             value={newLabel}
             onChange={(e) => setNewLabel(e.target.value)}
           />
           <Input
-            label="Backup API key"
+            label={t('api.backupKey')}
             type="password"
             placeholder="Enter a backup key..."
             value={newKey}
@@ -184,14 +188,14 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
             disabled={!newKey.trim()}
             onClick={handleAddBackup}
           >
-            Add backup key
+            {t('api.addBackupButton')}
           </Button>
         </div>
       </div>
 
       <Switch
-        label="Automatically rotate keys after quota errors (Failover 429)"
-        description="Automatically switch to the next backup API key when the primary key returns 429 or 401/403."
+        label={t('api.rotateLabel')}
+        description={t('api.rotateDescription')}
         checked={autoRotate}
         onChange={onToggleAutoRotate}
       />
@@ -205,7 +209,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
           disabled={!primaryKey && !newKey.trim()}
           onClick={() => testMutation.mutate()}
         >
-          Test connection
+          {t('api.testConnection')}
         </Button>
         {onSave && (
           <Button
@@ -215,16 +219,16 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
             disabled={!primaryKey && !newKey.trim()}
             onClick={onSave}
           >
-            Save keys
+            {t('api.saveKeys')}
           </Button>
         )}
       </div>
       {testMutation.isSuccess && (
-        <Alert variant="success" message="Connection successful! The API key is working." />
+        <Alert variant="success" message={t('api.connectionSuccess')} />
       )}
 
       {testMutation.isError && (
-        <Alert variant="error" message="Connection test failed" description={testMutation.error?.message} />
+        <Alert variant="error" message={t('api.connectionFailed')} description={testMutation.error?.message} />
       )}
     </div>
   );

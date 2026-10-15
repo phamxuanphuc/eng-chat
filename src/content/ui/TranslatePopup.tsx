@@ -5,11 +5,13 @@ import { TranslatePopupHeader } from './TranslatePopupHeader';
 import { TranslatePopupFooter } from './TranslatePopupFooter';
 import { RewriteOptionsPanel } from './RewriteOptionsPanel';
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
+import { Language } from '../../types';
+import { getTranslator } from '../../i18n';
 import { useDraggable } from './useDraggable';
 import { ModelPicker } from './ModelPicker';
 
 export interface TranslatePopupProps {
-  mode?: 'translate' | 'rewrite' | 'improve'; originalText: string;
+  language?: Language; mode?: 'translate' | 'rewrite' | 'improve'; originalText: string;
   result?: string | TranslateExplainResult | null;
   isLoading: boolean; error?: string | null; targetLanguage?: string;
   rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark';
@@ -23,7 +25,7 @@ export interface TranslatePopupProps {
 }
 
 export const TranslatePopup: React.FC<TranslatePopupProps> = ({
-  mode = 'translate', originalText, result, isLoading, error,
+  language = 'en', mode = 'translate', originalText, result, isLoading, error,
   targetLanguage, rewriteOptions, theme = 'dark',
   isPinned = false, hasEditableTarget = false, onTogglePin,
   onLanguageChange, onModeChange, onRewriteOptionsChange,
@@ -42,6 +44,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   const langDropdownRef = useRef<HTMLDivElement>(null);
   const { position, isDragging, handleMouseDown } = useDraggable(popupRef, 'engchat_popup_position');
 
+  const t = getTranslator(language);
   const isLight = theme === 'light';
   const th = getPopupTheme(theme);
   const currentLang = targetLanguage || (mode === 'improve' ? 'English' : 'Vietnamese');
@@ -75,10 +78,10 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         });
         setViTranslation((res?.success && res.data) ? (typeof res.data === 'string' ? res.data : res.data.translation) : 'Unable to translate.');
       } else {
-        setViTranslation(originalText || 'Vietnamese translation.');
+        setViTranslation(originalText || t('content.noVietnameseTranslation'));
       }
     } catch (err: any) {
-      setViTranslation('Translation error: ' + (err?.message || 'Unable to connect.'));
+      setViTranslation(t('content.translationError', { error: err?.message || t('common.unableConnect') }));
     } finally {
       setIsTranslatingVi(false);
     }
@@ -88,12 +91,13 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
     <div
       ref={popupRef}
       role="dialog"
-      aria-label={mode === 'rewrite' ? 'EngChat Rewrite Popup' : 'EngChat Translate Popup'}
+    aria-label={mode === 'rewrite' ? `${t('app.name')} Rewrite Popup` : `${t('app.name')} Translate Popup`}
       style={position ? { left: `${position.x}px`, top: `${position.y}px`, bottom: 'auto', right: 'auto' } : undefined}
       className={`fixed ${!position ? 'bottom-6 right-6' : ''} z-[2147483647] w-[460px] max-w-[94vw] min-h-[360px] max-h-[88vh] rounded-2xl border backdrop-blur-2xl font-sans flex flex-col overflow-hidden ${isDragging ? 'select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)]' : ''} ${th.card}`}
       onMouseDown={(e) => e.stopPropagation()}
     >
       <TranslatePopupHeader
+        language={language}
         mode={mode} targetLanguage={currentLang} isPinned={isPinned} theme={theme}
         onTogglePin={onTogglePin} onLanguageChange={onLanguageChange} onModeChange={onModeChange} onClose={onClose}
         onDragStart={handleMouseDown}
@@ -106,7 +110,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
             <button
               type="button" onClick={() => setIsExpanded((p) => !p)}
               className="p-1 text-slate-400 hover:text-slate-600 flex-shrink-0 cursor-pointer"
-              aria-label={isExpanded ? 'Collapse' : 'Expand'}
+              aria-label={isExpanded ? t('common.collapse') : t('common.expand')}
             >
               <ChevronDown size={14} className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
             </button>
@@ -114,20 +118,20 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         )}
 
         {mode === 'translate' && (
-          <div className={`text-[11px] font-normal px-0.5 ${th.subText}`}>EngChat translation are based on web content and context</div>
+          <div className={`text-[11px] font-normal px-0.5 ${th.subText}`}>{t('content.translationDisclaimer')}</div>
         )}
 
         <div className="min-h-[70px] max-h-56 overflow-y-auto px-0.5 flex flex-col gap-2">
           {isLoading && (
             <div className="flex items-center justify-center py-6 gap-2 text-xs text-indigo-400">
               <Loader2 size={16} className="animate-spin text-indigo-400" />
-              <span>{mode === 'improve' ? 'Improving with AI...' : mode === 'rewrite' ? 'Rewriting with AI...' : 'Translating with AI...'}</span>
+              <span>{mode === 'improve' ? t('content.improving') : mode === 'rewrite' ? t('content.rewriting') : t('content.translating')}</span>
             </div>
           )}
           {error && <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-800/40 text-xs text-rose-300">{error}</div>}
           {!isLoading && !error && (
             <div className={`text-sm leading-relaxed whitespace-pre-wrap selection:bg-indigo-500/30 ${th.resText}`}>
-              {translationText || (mode === 'improve' ? 'No improved text yet.' : mode === 'rewrite' ? 'No rewritten text yet.' : 'No translation yet.')}
+              {translationText || (mode === 'improve' ? t('content.noImprovedText') : mode === 'rewrite' ? t('content.noRewrittenText') : t('content.noTranslation'))}
             </div>
           )}
           {explanation && mode === 'translate' && (
@@ -136,14 +140,14 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
                 type="button" onClick={() => setShowExplanation((p) => !p)}
                 className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-medium py-1 cursor-pointer"
               >
-                <BookOpen size={13} /><span>Analysis & Vocabulary</span><span>{showExplanation ? '▲' : '▼'}</span>
+                <BookOpen size={13} /><span>{t('content.analysis')}</span><span>{showExplanation ? '▲' : '▼'}</span>
               </button>
               {showExplanation && (
                 <div className={`mt-1.5 p-2.5 rounded-lg border space-y-1.5 text-xs ${isLight ? 'bg-slate-50 border-slate-200 text-slate-700' : 'bg-slate-950/70 border-slate-800 text-slate-300'}`}>
                   {explanation.vocabulary?.map((v, i) => (
                     <div key={i}><span className="font-semibold text-indigo-400">{v.word}</span>: {v.meaning}</div>
                   ))}
-                  {explanation.grammar && <div><span className="font-semibold">Grammar:</span> {explanation.grammar}</div>}
+                  {explanation.grammar && <div><span className="font-semibold">{t('content.grammar')}</span> {explanation.grammar}</div>}
                 </div>
               )}
             </div>
@@ -155,20 +159,20 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
             <button
               type="button" onClick={handleToggleViTranslation}
               className="flex items-center justify-between w-full text-left cursor-pointer group"
-              aria-label={showViTranslation ? 'Collapse Vietnamese translation' : (mode === 'improve' ? 'Translate improved sentence to Vietnamese' : 'Translate rewritten sentence to Vietnamese')}
+              aria-label={showViTranslation ? t('common.collapse') : (mode === 'improve' ? t('content.translateImprovedToVietnamese') : t('content.translateRewrittenToVietnamese'))}
             >
               <div className="flex items-center gap-1.5 font-medium text-indigo-400 group-hover:text-indigo-300">
                 <Languages size={13} />
-                <span>{mode === 'improve' ? 'Translate improved sentence to Vietnamese' : 'Translate rewritten sentence to Vietnamese'}</span>
+                <span>{mode === 'improve' ? t('content.translateImprovedToVietnamese') : t('content.translateRewrittenToVietnamese')}</span>
               </div>
               <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${showViTranslation ? 'rotate-180' : ''}`} />
             </button>
             {showViTranslation && (
               <div className={`pt-2 mt-1 border-t text-xs leading-relaxed ${isLight ? 'border-slate-200 text-slate-700' : 'border-slate-800 text-slate-300'}`}>
                 {isTranslatingVi ? (
-                  <div className="flex items-center gap-2 py-1 text-indigo-400"><Loader2 size={13} className="animate-spin" /><span>Translating to Vietnamese...</span></div>
+                  <div className="flex items-center gap-2 py-1 text-indigo-400"><Loader2 size={13} className="animate-spin" /><span>{t('content.translateVietnamese')}</span></div>
                 ) : (
-                  <div className="whitespace-pre-wrap selection:bg-indigo-500/30">{viTranslation || 'No Vietnamese translation yet.'}</div>
+                  <div className="whitespace-pre-wrap selection:bg-indigo-500/30">{viTranslation || t('content.noVietnameseTranslation')}</div>
                 )}
               </div>
             )}
@@ -183,10 +187,10 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
               type="button"
               onClick={() => setShowRewriteOptions((p) => !p)}
               className={`flex items-center gap-1.5 transition-colors cursor-pointer font-medium py-0.5 ${isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-300 hover:text-white'}`}
-              aria-label="Length & format"
+              aria-label={t('common.lengthFormat')}
             >
               <AudioWaveform size={14} className="text-indigo-400" />
-              <span>Length & format</span>
+              <span>{t('content.rewrite')}</span>
             </button>
             <span className={isLight ? 'text-slate-300' : 'text-slate-600'}>|</span>
             <div ref={langDropdownRef} className="relative">
@@ -194,7 +198,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
                 type="button"
                 onClick={() => setLangMenuOpen((p) => !p)}
                 className={`flex items-center gap-1.5 transition-colors cursor-pointer font-medium py-0.5 ${isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-300 hover:text-white'}`}
-                aria-label="Select language"
+                aria-label={t('content.selectLanguage')}
               >
                 <Languages size={14} className="text-indigo-400" />
                 <span>{currentLang}</span>
@@ -219,6 +223,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         )}
 
         <TranslatePopupFooter
+          language={language}
           translationText={translationText} isLoading={isLoading} theme={theme}
           mode={mode} hasEditableTarget={hasEditableTarget} onFollowUp={onFollowUp}
           onRegenerate={onRegenerate} onInsert={onInsert}
@@ -227,11 +232,12 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
       </div>
 
       {showModelPicker && (
-        <ModelPicker theme={theme} onClose={() => setShowModelPicker(false)} />
+        <ModelPicker language={language} theme={theme} onClose={() => setShowModelPicker(false)} />
       )}
 
       {showRewriteOptions && (mode === 'rewrite' || mode === 'improve') && (
         <RewriteOptionsPanel
+          language={language}
           options={rewriteOptions || DEFAULT_REWRITE_OPTIONS} theme={theme}
           onChange={(opts) => onRewriteOptionsChange?.(opts)} onClose={() => setShowRewriteOptions(false)}
         />

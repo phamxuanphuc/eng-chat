@@ -7,11 +7,15 @@ import { extractChatContext } from '../content/chat-extractor';
 import { replaceTextInElement } from '../content/dom-utils';
 import { executeOptimize } from '../services/gemini';
 import { loadSettings } from '../services/storage';
+import { useSettingsStore } from '../store/useSettingsStore';
+import { getTranslator } from '../i18n';
 import { ToneType, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../types';
 import { Button } from '../components/ui/Button';
 import { Sparkles, Settings, Monitor, MessageSquare, Sun, Moon } from 'lucide-react';
 
 export const StandaloneApp: React.FC = () => {
+  const language = useSettingsStore((state) => state.settings.language);
+  const t = getTranslator(language);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [activeTab, setActiveTab] = useState<'playground' | 'options' | 'popup'>('playground');
   const [chatInput, setChatInput] = useState('I agree with this approach; please implement it soon.');
@@ -25,6 +29,8 @@ export const StandaloneApp: React.FC = () => {
   tooltipRef.current = tooltipState;
 
   const activeText = selectedSnippet || chatInput;
+
+  useEffect(() => { useSettingsStore.getState().fetchSettings(); }, []);
 
   const checkSelection = () => {
     if (tooltipRef.current.isOpen) return;
@@ -101,10 +107,10 @@ export const StandaloneApp: React.FC = () => {
           setTooltipState({ isOpen: true, mode, isLoading: false, result: response.data });
         }
       } else {
-        setTooltipState({ isOpen: true, mode, isLoading: false, error: response.error || 'Processing error' });
+        setTooltipState({ isOpen: true, mode, isLoading: false, error: response.error || t('standalone.processingError') });
       }
     } catch (err: any) {
-      setTooltipState({ isOpen: true, mode, isLoading: false, error: err?.message || 'An error occurred' });
+      setTooltipState({ isOpen: true, mode, isLoading: false, error: err?.message || t('standalone.unexpectedError') });
     }
   };
 
@@ -114,16 +120,16 @@ export const StandaloneApp: React.FC = () => {
         <div className="flex items-center gap-3">
           <span className="text-2xl">✨</span>
           <div>
-            <h1 className="font-bold text-base bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">EngChat AI - Standalone Testbed</h1>
-            <p className="text-xs text-slate-400">Live playground and E2E testing environment</p>
+            <h1 className="font-bold text-base bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">{t('standalone.title')}</h1>
+            <p className="text-xs text-slate-400">{t('standalone.subtitle')}</p>
           </div>
         </div>
 
         <nav className="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
-          <Button variant={activeTab === 'playground' ? 'primary' : 'ghost'} size="sm" icon={<Monitor size={14} />} onClick={() => setActiveTab('playground')}>Playground</Button>
-          <Button variant={activeTab === 'options' ? 'primary' : 'ghost'} size="sm" icon={<Settings size={14} />} onClick={() => setActiveTab('options')}>Settings (Options)</Button>
-          <Button variant={activeTab === 'popup' ? 'primary' : 'ghost'} size="sm" icon={<MessageSquare size={14} />} onClick={() => setActiveTab('popup')}>Popup Window</Button>
-          <Button variant="ghost" size="sm" icon={theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? 'Light' : 'Dark'}</Button>
+          <Button variant={activeTab === 'playground' ? 'primary' : 'ghost'} size="sm" icon={<Monitor size={14} />} onClick={() => setActiveTab('playground')}>{t('standalone.playground')}</Button>
+          <Button variant={activeTab === 'options' ? 'primary' : 'ghost'} size="sm" icon={<Settings size={14} />} onClick={() => setActiveTab('options')}>{t('standalone.settings')}</Button>
+          <Button variant={activeTab === 'popup' ? 'primary' : 'ghost'} size="sm" icon={<MessageSquare size={14} />} onClick={() => setActiveTab('popup')}>{t('standalone.popup')}</Button>
+          <Button variant="ghost" size="sm" icon={theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? t('standalone.light') : t('standalone.dark')}</Button>
         </nav>
       </header>
 
@@ -139,17 +145,17 @@ export const StandaloneApp: React.FC = () => {
         {activeTab === 'playground' && (
           <div className="flex flex-col gap-6">
             <div className="p-4 rounded-xl bg-indigo-950/20 border border-indigo-500/30 text-xs text-indigo-300 flex items-center justify-between">
-              <span>💡 Try chat extraction (Slack/Discord) and automatic replacement.</span>
-              <span className="font-semibold">Tip: Configure an API key in the Settings tab to call AI directly!</span>
+              <span>{t('standalone.tryExtraction')}</span>
+              <span className="font-semibold">{t('standalone.tip')}</span>
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 flex flex-col gap-4">
-              <h2 className="text-sm font-semibold text-slate-200">Project Discussion Channel (#general-chat)</h2>
+              <h2 className="text-sm font-semibold text-slate-200">{t('standalone.channel')}</h2>
               <div role="log" className="flex flex-col gap-3 p-4 rounded-xl bg-slate-950 border border-slate-800/80 max-h-64 overflow-y-auto">
                 {[
-                  { sender: 'Sarah (PM)', color: 'text-indigo-400', text: 'Hi team, please review the PRD for the upcoming release.' },
-                  { sender: 'David (Tech Lead)', color: 'text-purple-400', text: 'The architecture proposal is ready. Are there any blockers?' },
-                  { sender: 'Alex (Designer)', color: 'text-pink-400', text: 'The Uiverse Galaxy components look clean. Please proceed.' },
+                  { sender: t('standalone.sarah'), color: 'text-indigo-400', text: t('standalone.sarahMessage') },
+                  { sender: t('standalone.david'), color: 'text-purple-400', text: t('standalone.davidMessage') },
+                  { sender: t('standalone.alex'), color: 'text-pink-400', text: t('standalone.alexMessage') },
                 ].map((m, i) => (
                   <div key={i} className="c-message__body flex flex-col text-xs"><span className={`font-semibold ${m.color}`}>{m.sender}:</span><span className="text-slate-300 mt-0.5">{m.text}</span></div>
                 ))}
@@ -157,7 +163,7 @@ export const StandaloneApp: React.FC = () => {
 
               <div className="flex flex-col gap-2 pt-2">
                 <label className="text-xs font-medium text-slate-300" htmlFor="standalone-chat-input">
-                  Compose a reply:
+                  {t('standalone.compose')}
                 </label>
                 <input
                   id="standalone-chat-input"
@@ -175,11 +181,11 @@ export const StandaloneApp: React.FC = () => {
               </div>
 
               <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800">
-                <span className="text-xs text-slate-400 mr-2">Quick actions:</span>
-                <Button variant="secondary" size="sm" onClick={() => runOptimize('polite')}>🎩 Polite</Button>
-                <Button variant="secondary" size="sm" onClick={() => runOptimize('professional')}>💼 Professional</Button>
-                <Button variant="secondary" size="sm" onClick={() => runOptimize('concise')}>⚡ Concise</Button>
-                <Button variant="primary" size="sm" icon={<Sparkles size={14} />} onClick={() => runOptimize('translate_explain')}>📖 Translate & Explain</Button>
+                <span className="text-xs text-slate-400 mr-2">{t('standalone.quickActions')}</span>
+                <Button variant="secondary" size="sm" onClick={() => runOptimize('polite')}>🎩 {t('standalone.polite')}</Button>
+                <Button variant="secondary" size="sm" onClick={() => runOptimize('professional')}>💼 {t('standalone.professional')}</Button>
+                <Button variant="secondary" size="sm" onClick={() => runOptimize('concise')}>⚡ {t('standalone.concise')}</Button>
+                <Button variant="primary" size="sm" icon={<Sparkles size={14} />} onClick={() => runOptimize('translate_explain')}>📖 {t('standalone.translateExplain')}</Button>
               </div>
             </div>
           </div>
@@ -187,6 +193,7 @@ export const StandaloneApp: React.FC = () => {
       </main>
 
       <FloatingToolbar
+        language={language}
         theme={theme}
         visible={toolbar.visible && !tooltipState.isOpen}
         x={toolbar.x}
@@ -203,6 +210,7 @@ export const StandaloneApp: React.FC = () => {
 
       {tooltipState.isOpen && (
         <TranslatePopup
+          language={language}
           theme={theme}
           mode={tooltipState.mode}
           originalText={activeText}
