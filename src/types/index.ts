@@ -63,6 +63,7 @@ export interface OptimizeResponse {
 export interface ContextMenuActionMessage {
   action: 'TRIGGER_OPTIMIZE';
   tone: ToneType;
+  mode?: 'translate' | 'rewrite' | 'improve';
 }
 
 export interface ContentScriptQueryPayload {

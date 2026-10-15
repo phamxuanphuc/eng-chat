@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { RewriteOptions } from '../../types';
 import { FileText, Sparkles, Smile, X, Plus, Check } from 'lucide-react';
+import { saveSelectedStyle } from './style-preference';
 
 export interface RewriteOptionsPanelProps {
   options: RewriteOptions;
@@ -44,6 +45,7 @@ export const RewriteOptionsPanel: React.FC<RewriteOptionsPanelProps> = ({
 
   const handleSelect = (key: keyof RewriteOptions, value: string) => {
     onChange({ ...options, [key]: value });
+    if (key === 'tone') saveSelectedStyle(value);
   };
 
   const handleAddCustom = (key: 'format' | 'tone', value: string, reset: () => void) => {
@@ -85,7 +87,7 @@ export const RewriteOptionsPanel: React.FC<RewriteOptionsPanelProps> = ({
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div className={`sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b backdrop-blur-md ${isLight ? 'bg-white/95 border-slate-200' : 'bg-slate-900/95 border-slate-800'}`}>
-        <span className={`text-xs font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Tùy chọn văn phong & định dạng</span>
+        <span className={`text-xs font-semibold ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>Style & Format Options</span>
         <button
           type="button"
           onClick={onClose}

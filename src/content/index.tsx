@@ -232,7 +232,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message?.action === 'TRIGGER_OPTIMIZE') {
       toolbarState = { ...toolbarState, visible: false };
-      handleTriggerOptimize(message.tone, message.settings);
+      handleTriggerOptimize(message.tone, message.settings, undefined, message.mode);
       sendResponse({ received: true });
       return true;
     }

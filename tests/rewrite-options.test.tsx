@@ -148,7 +148,7 @@ describe('RewriteOptionsPanel Component', () => {
 
     const stickyHeader = container.querySelector('.sticky.top-0');
     expect(stickyHeader).not.toBeNull();
-    expect(stickyHeader?.textContent).toContain('Tùy chọn văn phong & định dạng');
+    expect(stickyHeader?.textContent).toContain('Style & Format Options');
 
     const scrollBody = container.querySelector('.overflow-y-auto');
     expect(scrollBody).not.toBeNull();

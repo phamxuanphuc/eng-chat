@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Languages, PenLine, Wand2, ChevronDown, Pin, PinOff, X } from 'lucide-react';
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
+import { Badge } from '../../components/ui/Badge';
+import { loadSelectedStyle } from './style-preference';
 
 export interface TranslatePopupHeaderProps {
   mode: 'translate' | 'rewrite' | 'improve';
@@ -27,6 +29,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
 }) => {
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState(loadSelectedStyle);
   const isLight = theme === 'light';
   const th = getPopupTheme(theme);
 
@@ -49,6 +52,12 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
     if (mode === 'rewrite') return <PenLine size={15} className="text-indigo-400" />;
     return <Languages size={15} className="text-indigo-400" />;
   };
+
+  React.useEffect(() => {
+    const syncStyle = () => setSelectedStyle(loadSelectedStyle());
+    window.addEventListener('engchat-style-preference-changed', syncStyle);
+    return () => window.removeEventListener('engchat-style-preference-changed', syncStyle);
+  }, []);
 
   return (
     <div
@@ -75,6 +84,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
           >
             {getModeIcon()}
             <span>{getModeTitle()}</span>
+            <Badge variant="primary" size="sm">{selectedStyle}</Badge>
             <ChevronDown size={13} className="text-slate-400" />
           </button>
           {modeMenuOpen && (
