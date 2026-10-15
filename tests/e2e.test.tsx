@@ -10,21 +10,12 @@ import { extractChatContext } from '../src/content/chat-extractor';
 import { executeOptimize } from '../src/services/gemini';
 import { loadSettings, DEFAULT_SETTINGS } from '../src/services/storage';
 import { useSettingsStore } from '../src/store/useSettingsStore';
-import {
-  mockGeminiSuccessRawResponse,
-  mockGeminiJsonRawResponse,
-} from './mocks/gemini.mock';
-
+import { mockGeminiSuccessRawResponse } from './mocks/gemini.mock';
 
 vi.mock('axios');
 
 const createTestQueryClient = () =>
-  new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
+  new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
 
 describe('E2E User Flow Tests', () => {
   let mockStorageData: Record<string, any> = {};
@@ -64,10 +55,16 @@ describe('E2E User Flow Tests', () => {
     const apiKeyInput = screen.getByPlaceholderText('AIzaSy...') as HTMLInputElement;
     fireEvent.change(apiKeyInput, { target: { value: 'AIzaSy-e2e-live-key' } });
 
-    const conciseTone = screen.getByText('Ngắn gọn & Trực diện');
+    const toneTab = screen.getByRole('link', { name: /văn phong/i });
+    fireEvent.click(toneTab);
+
+    const conciseTone = await screen.findByText('Ngắn gọn & Trực diện');
     fireEvent.click(conciseTone);
 
-    const maxContextInput = screen.getByLabelText(/Số lượng tin nhắn ngữ cảnh tối đa/i);
+    const contextTab = screen.getByRole('link', { name: /ngữ cảnh/i });
+    fireEvent.click(contextTab);
+
+    const maxContextInput = await screen.findByLabelText(/Số lượng tin nhắn ngữ cảnh tối đa/i);
     fireEvent.change(maxContextInput, { target: { value: '6' } });
 
     const saveBtn = screen.getByRole('button', { name: /Lưu Cài Đặt/i });
@@ -120,16 +117,11 @@ describe('E2E User Flow Tests', () => {
       enableChatContext: true,
       maxContextMessages: 4,
     };
-
     mockStorageData['engchat_settings'] = testSettings;
     useSettingsStore.setState({ settings: testSettings });
 
     const queryClient = createTestQueryClient();
-    render(
-      <QueryClientProvider client={queryClient}>
-        <PopupApp />
-      </QueryClientProvider>
-    );
+    render(<QueryClientProvider client={queryClient}><PopupApp /></QueryClientProvider>);
 
     const textarea = screen.getByPlaceholderText(/Gõ hoặc dán văn bản/i);
     fireEvent.change(textarea, { target: { value: 'Tôi đã xem xét cổng thanh toán' } });
@@ -139,9 +131,7 @@ describe('E2E User Flow Tests', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(
-          'I have reviewed the payment gateway implementation and it looks solid.'
-        )
+        screen.getByText('I have reviewed the payment gateway implementation and it looks solid.')
       ).toBeDefined();
     });
   });
@@ -172,48 +162,26 @@ describe('E2E User Flow Tests', () => {
 
     vi.mocked(axios.post).mockResolvedValueOnce({
       data: {
-        candidates: [
-          {
-            content: {
-              parts: [{ text: 'Certainly, I will ensure everything is finished on schedule.' }],
-            },
-          },
-        ],
+        candidates: [{ content: { parts: [{ text: 'Certainly, I will ensure everything is finished on schedule.' }] } }],
       },
     });
 
     const aiResponse = await executeOptimize(
-      {
-        text: chatInput.value,
-        tone: 'professional',
-        contextMessages: extracted,
-      },
-      {
-        geminiApiKey: 'test-chat-key',
-        selectedModel: 'gemini-3.5-flash-lite',
-        defaultTone: 'professional',
-        enableChatContext: true,
-        maxContextMessages: 4,
-      }
+      { text: chatInput.value, tone: 'professional', contextMessages: extracted },
+      { geminiApiKey: 'test-chat-key', selectedModel: 'gemini-3.5-flash-lite', defaultTone: 'professional', enableChatContext: true, maxContextMessages: 4 }
     );
 
     expect(aiResponse.success).toBe(true);
 
     const replaced = replaceTextInElement(chatInput, aiResponse.data as string);
     expect(replaced).toBe(true);
-    expect(chatInput.value).toBe(
-      'Certainly, I will ensure everything is finished on schedule.'
-    );
+    expect(chatInput.value).toBe('Certainly, I will ensure everything is finished on schedule.');
   });
 
   it('E2E-05: Error handling and user alert when API key is invalid', async () => {
-
     vi.mocked(axios.post).mockRejectedValueOnce({
       isAxios: true,
-      response: {
-        status: 401,
-        data: { error: { message: 'API_KEY_INVALID' } },
-      },
+      response: { status: 401, data: { error: { message: 'API_KEY_INVALID' } } },
     });
 
     const invalidSettings = {
@@ -223,16 +191,11 @@ describe('E2E User Flow Tests', () => {
       enableChatContext: true,
       maxContextMessages: 4,
     };
-
     mockStorageData['engchat_settings'] = invalidSettings;
     useSettingsStore.setState({ settings: invalidSettings });
 
     const queryClient = createTestQueryClient();
-    render(
-      <QueryClientProvider client={queryClient}>
-        <PopupApp />
-      </QueryClientProvider>
-    );
+    render(<QueryClientProvider client={queryClient}><PopupApp /></QueryClientProvider>);
 
     const textarea = screen.getByPlaceholderText(/Gõ hoặc dán văn bản/i);
     fireEvent.change(textarea, { target: { value: 'Xin chào' } });
