@@ -18,7 +18,7 @@ describe('FloatingToolbar Component', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('TC-FT-02: Renders toolbar and triggers quick polish and AI optimize', () => {
+  it('TC-FT-02: Renders toolbar with tooltips and triggers quick polish', () => {
     const onSelectTone = vi.fn();
     render(
       <FloatingToolbar
@@ -28,33 +28,28 @@ describe('FloatingToolbar Component', () => {
         onSelectTone={onSelectTone}
       />
     );
+
+    expect(screen.getByRole('tooltip', { name: 'Cải thiện văn bản' })).toBeDefined();
+    expect(screen.getByRole('tooltip', { name: 'Dịch và giải thích' })).toBeDefined();
+    expect(screen.getByRole('tooltip', { name: 'Viết lại văn bản' })).toBeDefined();
 
     const polishBtn = screen.getByRole('button', { name: /rewrite text/i });
     fireEvent.click(polishBtn);
     expect(onSelectTone).toHaveBeenCalledWith('professional', 'rewrite');
-
-    const optimizeBtn = screen.getByRole('button', { name: /ai optimize/i });
-    fireEvent.click(optimizeBtn);
-    expect(onSelectTone).toHaveBeenCalledWith('polite');
   });
 
-  it('TC-FT-03: Opens tone dropdown and selects specific tone', () => {
-    const onSelectTone = vi.fn();
+  it('TC-FT-03: Removes the overflow and standalone optimize buttons', () => {
     render(
       <FloatingToolbar
         visible={true}
         x={150}
         y={250}
-        onSelectTone={onSelectTone}
+        onSelectTone={() => {}}
       />
     );
 
-    const dropdownBtn = screen.getByRole('button', { name: /more options/i });
-    fireEvent.click(dropdownBtn);
-
-    const conciseOption = screen.getByText(/ngắn gọn \(concise\)/i);
-    fireEvent.click(conciseOption);
-    expect(onSelectTone).toHaveBeenCalledWith('concise');
+    expect(screen.queryByRole('button', { name: /more options/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /ai optimize/i })).toBeNull();
   });
 
   it('TC-FT-04: Disables buttons when isLoading is true', () => {
@@ -72,8 +67,8 @@ describe('FloatingToolbar Component', () => {
     const polishBtn = screen.getByRole('button', { name: /rewrite text/i });
     expect(polishBtn.hasAttribute('disabled')).toBe(true);
 
-    const optimizeBtn = screen.getByRole('button', { name: /ai optimize/i });
-    expect(optimizeBtn.hasAttribute('disabled')).toBe(true);
+    const improveBtn = screen.getByRole('button', { name: /improve text/i });
+    expect(improveBtn.hasAttribute('disabled')).toBe(true);
   });
 
   it('TC-FT-05: Clicking translate button directly triggers translate_explain to open popup', () => {
@@ -87,7 +82,7 @@ describe('FloatingToolbar Component', () => {
       />
     );
 
-    const translateBtn = screen.getByRole('button', { name: /dịch & giải thích/i });
+    const translateBtn = screen.getByRole('button', { name: /dịch và giải thích/i });
     fireEvent.click(translateBtn);
     expect(onSelectTone).toHaveBeenCalledWith('translate_explain', 'translate');
   });
