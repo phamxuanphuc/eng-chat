@@ -209,13 +209,13 @@ const handleRewriteOptionsChange = async (opts: RewriteOptions) => {
 setupDOMEvents({
   onFocus: (rect, element) => {
     currentEditableEl = element;
-    if (tooltipState.visible) tooltipState = { ...tooltipState, visible: false };
+    if (tooltipState.visible) return;
     const pos = computeToolbarPos(rect);
     toolbarState = { visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: true };
     renderApp();
   },
   onSelect: (rect, isEditable) => {
-    if (tooltipState.visible) tooltipState = { ...tooltipState, visible: false };
+    if (tooltipState.visible) return;
     const pos = computeToolbarPos(rect);
     toolbarState = { visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: !!isEditable };
     renderApp();

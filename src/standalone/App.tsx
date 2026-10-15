@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { App as OptionsApp } from '../options/App';
 import { App as PopupApp } from '../popup/App';
 import { TranslatePopup } from '../content/ui/TranslatePopup';
@@ -21,10 +21,13 @@ export const StandaloneApp: React.FC = () => {
   const [tooltipState, setTooltipState] = useState<{
     isOpen: boolean; mode?: 'translate' | 'rewrite' | 'improve'; isLoading: boolean; result?: any; error?: string | null;
   }>({ isOpen: false, mode: 'translate', isLoading: false });
+  const tooltipRef = useRef(tooltipState);
+  tooltipRef.current = tooltipState;
 
   const activeText = selectedSnippet || chatInput;
 
   const checkSelection = () => {
+    if (tooltipRef.current.isOpen) return;
     const sel = window.getSelection();
     if (sel && !sel.isCollapsed && sel.toString().trim()) {
       setSelectedSnippet(sel.toString().trim());
@@ -34,7 +37,6 @@ export const StandaloneApp: React.FC = () => {
         if (rects.length > 0) rect = rects[0];
       }
       if (rect.width > 0 && rect.height > 0) {
-        setTooltipState((p) => ({ ...p, isOpen: false }));
         setToolbar({ visible: true, x: Math.round(rect.left + rect.width / 2 - 100), y: Math.round(rect.bottom + 8), isLoading: false });
         return;
       }
@@ -45,7 +47,6 @@ export const StandaloneApp: React.FC = () => {
       if (s) {
         setSelectedSnippet(s);
         const rect = inputEl.getBoundingClientRect();
-        setTooltipState((p) => ({ ...p, isOpen: false }));
         setToolbar({ visible: true, x: Math.round(rect.left + rect.width / 2 - 100), y: Math.round(rect.bottom + 8), isLoading: false });
       }
     }
@@ -56,6 +57,7 @@ export const StandaloneApp: React.FC = () => {
       const target = e.target as HTMLElement;
       if (target?.closest('[role="toolbar"]') || target?.closest('[role="dialog"]')) return;
       setToolbar((p) => ({ ...p, visible: false }));
+      if (tooltipRef.current.isOpen) setTooltipState((p) => ({ ...p, isOpen: false }));
     };
     const onMouseUp = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -106,9 +108,7 @@ export const StandaloneApp: React.FC = () => {
         <div className="flex items-center gap-3">
           <span className="text-2xl">✨</span>
           <div>
-            <h1 className="font-bold text-base bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              EngChat AI - Standalone Testbed
-            </h1>
+            <h1 className="font-bold text-base bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">EngChat AI - Standalone Testbed</h1>
             <p className="text-xs text-slate-400">Môi trường thử nghiệm trực tiếp & kiểm thử E2E</p>
           </div>
         </div>
@@ -117,9 +117,7 @@ export const StandaloneApp: React.FC = () => {
           <Button variant={activeTab === 'playground' ? 'primary' : 'ghost'} size="sm" icon={<Monitor size={14} />} onClick={() => setActiveTab('playground')}>Trang Thử Nghiệm</Button>
           <Button variant={activeTab === 'options' ? 'primary' : 'ghost'} size="sm" icon={<Settings size={14} />} onClick={() => setActiveTab('options')}>Cài Đặt (Options)</Button>
           <Button variant={activeTab === 'popup' ? 'primary' : 'ghost'} size="sm" icon={<MessageSquare size={14} />} onClick={() => setActiveTab('popup')}>Cửa Sổ Popup</Button>
-          <Button variant="ghost" size="sm" icon={theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-            {theme === 'dark' ? 'Sáng' : 'Tối'}
-          </Button>
+          <Button variant="ghost" size="sm" icon={theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? 'Sáng' : 'Tối'}</Button>
         </nav>
       </header>
 
@@ -162,7 +160,7 @@ export const StandaloneApp: React.FC = () => {
                   onChange={(e) => setChatInput(e.target.value)}
                   onSelect={checkSelection}
                   onFocus={(e) => {
-                    if (tooltipState.isOpen) setTooltipState((p) => ({ ...p, isOpen: false }));
+                    if (tooltipRef.current.isOpen) return;
                     const rect = e.currentTarget.getBoundingClientRect();
                     setToolbar({ visible: true, x: Math.round(rect.left + rect.width / 2 - 90), y: Math.round(rect.bottom + 8), isLoading: false });
                   }}
@@ -175,9 +173,7 @@ export const StandaloneApp: React.FC = () => {
                 <Button variant="secondary" size="sm" onClick={() => runOptimize('polite')}>🎩 Lịch sự</Button>
                 <Button variant="secondary" size="sm" onClick={() => runOptimize('professional')}>💼 Chuyên nghiệp</Button>
                 <Button variant="secondary" size="sm" onClick={() => runOptimize('concise')}>⚡ Ngắn gọn</Button>
-                <Button variant="primary" size="sm" icon={<Sparkles size={14} />} onClick={() => runOptimize('translate_explain')}>
-                  📖 Dịch & Giải thích
-                </Button>
+                <Button variant="primary" size="sm" icon={<Sparkles size={14} />} onClick={() => runOptimize('translate_explain')}>📖 Dịch & Giải thích</Button>
               </div>
             </div>
           </div>
