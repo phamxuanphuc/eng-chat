@@ -106,7 +106,7 @@ export const StandaloneApp: React.FC = () => {
         </nav>
       </header>
 
-      <main className="flex-1 p-6 max-w-5xl mx-auto w-full">
+      <main className={`flex-1 ${activeTab === 'options' ? 'p-0 w-full' : 'p-6 max-w-5xl mx-auto w-full'}`}>
         {activeTab === 'options' && <OptionsApp />}
 
         {activeTab === 'popup' && (
