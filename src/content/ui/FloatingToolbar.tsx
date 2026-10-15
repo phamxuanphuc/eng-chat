@@ -3,6 +3,7 @@ import { ToneType } from '../../types';
 import {
   Sparkles,
   PenLine,
+  Wand2,
   MoreVertical,
   Check,
   Loader2,
@@ -19,7 +20,8 @@ export interface FloatingToolbarProps {
   y: number;
   isLoading?: boolean;
   theme?: 'light' | 'dark';
-  onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite') => void;
+  isEditable?: boolean;
+  onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve') => void;
   onClose?: () => void;
 }
 
@@ -37,6 +39,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   y,
   isLoading = false,
   theme = 'dark',
+  isEditable = false,
   onSelectTone,
   onClose,
 }) => {
@@ -53,7 +56,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
 
   if (!visible) return null;
 
-  const handleToneClick = (tone: ToneType, mode?: 'translate' | 'rewrite') => {
+  const handleToneClick = (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve') => {
     setMenuOpen(false);
     if (mode) {
       onSelectTone(tone, mode);
@@ -87,6 +90,22 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       onMouseDown={(e) => e.preventDefault()}
     >
       <div className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full border backdrop-blur-xl transition-all ${barStyle}`}>
+        <button
+          type="button"
+          disabled={isLoading}
+          onClick={() => handleToneClick('professional', 'improve')}
+          className={`flex items-center gap-1 px-2 py-1 rounded-full transition-all disabled:opacity-50 cursor-pointer ${
+            isEditable
+              ? 'bg-gradient-to-r from-indigo-500/30 to-purple-500/30 border border-indigo-500/50 text-indigo-300 font-semibold shadow-sm hover:scale-105 active:scale-95'
+              : btnHover
+          }`}
+          title="Cải thiện văn bản (Improve it)"
+          aria-label="Improve text"
+        >
+          <Wand2 size={14} className="text-indigo-400" />
+          <span className="text-xs font-medium">Improve</span>
+        </button>
+
         <button
           type="button"
           disabled={isLoading}

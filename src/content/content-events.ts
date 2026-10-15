@@ -2,12 +2,12 @@ import { getActiveEditableElement } from './dom-utils';
 
 export interface ContentEventCallbacks {
   onFocus: (rect: DOMRect, element: HTMLElement) => void;
-  onSelect: (rect: DOMRect) => void;
+  onSelect: (rect: DOMRect, isEditable?: boolean) => void;
   onClickOutside: () => void;
 }
 
 export const computeToolbarPos = (rect: DOMRect) => {
-  const width = 180;
+  const width = 240;
   const height = 40;
   let x = rect.left + rect.width / 2 - width / 2;
   let y = rect.bottom + 8;
@@ -20,6 +20,22 @@ export const computeToolbarPos = (rect: DOMRect) => {
 };
 
 export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
+  const checkInputSelection = () => {
+    const active = getActiveEditableElement();
+    if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) {
+      const start = active.selectionStart ?? 0;
+      const end = active.selectionEnd ?? 0;
+      if (start !== end && active.value.substring(start, end).trim().length > 0) {
+        const rect = active.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          callbacks.onSelect(rect, true);
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
   document.addEventListener('focusin', (e) => {
     const target = e.target as HTMLElement;
     if (!target) return;
@@ -38,15 +54,26 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
     }
   });
 
+  document.addEventListener('select', () => {
+    checkInputSelection();
+  });
+
+  document.addEventListener('keyup', (e) => {
+    if (e.shiftKey || e.key === 'Shift' || e.key.startsWith('Arrow') || e.ctrlKey || e.metaKey) {
+      checkInputSelection();
+    }
+  });
+
   document.addEventListener('mouseup', () => {
     setTimeout(() => {
+      if (checkInputSelection()) return;
       const sel = window.getSelection();
       if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
         try {
           const range = sel.getRangeAt(0);
           const rect = range.getBoundingClientRect();
           if (rect.width > 0 && rect.height > 0) {
-            callbacks.onSelect(rect);
+            callbacks.onSelect(rect, false);
           }
         } catch {}
       }
@@ -62,6 +89,12 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
 
     const active = getActiveEditableElement();
     if (target === active || (active && active.contains(target))) return;
+
+    if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) {
+      const start = active.selectionStart ?? 0;
+      const end = active.selectionEnd ?? 0;
+      if (start !== end) return;
+    }
 
     const sel = window.getSelection();
     if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) return;

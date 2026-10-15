@@ -8,13 +8,13 @@ import { getPopupTheme } from './popup-theme';
 import { useDraggable } from './useDraggable';
 
 export interface TranslatePopupProps {
-  mode?: 'translate' | 'rewrite'; originalText: string;
+  mode?: 'translate' | 'rewrite' | 'improve'; originalText: string;
   result?: string | TranslateExplainResult | null;
   isLoading: boolean; error?: string | null; targetLanguage?: string;
   rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark';
   isPinned?: boolean; hasEditableTarget?: boolean;
   onTogglePin?: () => void; onLanguageChange?: (lang: string) => void;
-  onModeChange?: (mode: 'translate' | 'rewrite') => void;
+  onModeChange?: (mode: 'translate' | 'rewrite' | 'improve') => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void;
   onFollowUp?: (query: string) => void; onRegenerate?: () => void;
   onInsert?: (text: string) => void; onClose: () => void;
@@ -108,7 +108,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           </div>
         )}
 
-        {mode !== 'rewrite' && (
+        {mode === 'translate' && (
           <div className={`text-[11px] font-normal px-0.5 ${th.subText}`}>
             EngChat translation are based on web content and context
           </div>
@@ -118,16 +118,16 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           {isLoading && (
             <div className="flex items-center justify-center py-6 gap-2 text-xs text-indigo-400">
               <Loader2 size={16} className="animate-spin text-indigo-400" />
-              <span>{mode === 'rewrite' ? 'Đang viết lại với AI...' : 'Đang dịch với AI...'}</span>
+              <span>{mode === 'improve' ? 'Đang cải thiện với AI...' : mode === 'rewrite' ? 'Đang viết lại với AI...' : 'Đang dịch với AI...'}</span>
             </div>
           )}
           {error && <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-800/40 text-xs text-rose-300">{error}</div>}
           {!isLoading && !error && (
             <div className={`text-sm leading-relaxed whitespace-pre-wrap selection:bg-indigo-500/30 ${th.resText}`}>
-              {translationText || (mode === 'rewrite' ? 'Chưa có bản viết lại.' : 'Chưa có bản dịch.')}
+              {translationText || (mode === 'improve' ? 'Chưa có bản cải thiện.' : mode === 'rewrite' ? 'Chưa có bản viết lại.' : 'Chưa có bản dịch.')}
             </div>
           )}
-          {explanation && mode !== 'rewrite' && (
+          {explanation && mode === 'translate' && (
             <div className={`mt-1 pt-1 border-t text-xs ${isLight ? 'border-slate-200' : 'border-slate-800/60'}`}>
               <button
                 type="button" onClick={() => setShowExplanation((p) => !p)}
@@ -149,16 +149,16 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           )}
         </div>
 
-        {mode === 'rewrite' && !isLoading && !error && translationText && (
+        {(mode === 'rewrite' || mode === 'improve') && !isLoading && !error && translationText && (
           <div className={`border rounded-xl p-2.5 text-xs flex flex-col gap-1.5 ${th.origBox}`}>
             <button
               type="button" onClick={handleToggleViTranslation}
               className="flex items-center justify-between w-full text-left cursor-pointer group"
-              aria-label={showViTranslation ? 'Thu gọn bản dịch tiếng Việt' : 'Dịch câu viết lại sang tiếng Việt'}
+              aria-label={showViTranslation ? 'Thu gọn bản dịch tiếng Việt' : (mode === 'improve' ? 'Dịch câu cải thiện sang tiếng Việt' : 'Dịch câu viết lại sang tiếng Việt')}
             >
               <div className="flex items-center gap-1.5 font-medium text-indigo-400 group-hover:text-indigo-300">
                 <Languages size={13} />
-                <span>Dịch câu viết lại sang tiếng Việt</span>
+                <span>{mode === 'improve' ? 'Dịch câu cải thiện sang tiếng Việt' : 'Dịch câu viết lại sang tiếng Việt'}</span>
               </div>
               <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${showViTranslation ? 'rotate-180' : ''}`} />
             </button>
@@ -179,7 +179,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           </div>
         )}
 
-        {mode === 'rewrite' && (
+        {(mode === 'rewrite' || mode === 'improve') && (
           <div className="flex items-center gap-2 px-0.5">
             <button
               type="button" onClick={() => setShowRewriteOptions((p) => !p)}
@@ -193,12 +193,13 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
 
         <TranslatePopupFooter
           translationText={translationText} isLoading={isLoading} theme={theme}
+          mode={mode}
           hasEditableTarget={hasEditableTarget} onFollowUp={onFollowUp}
           onRegenerate={onRegenerate} onInsert={onInsert}
         />
       </div>
 
-      {showRewriteOptions && mode === 'rewrite' && (
+      {showRewriteOptions && (mode === 'rewrite' || mode === 'improve') && (
         <RewriteOptionsPanel
           options={rewriteOptions || DEFAULT_REWRITE_OPTIONS} theme={theme}
           onChange={(opts) => onRewriteOptionsChange?.(opts)} onClose={() => setShowRewriteOptions(false)}

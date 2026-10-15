@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { Languages, PenLine, ChevronDown, Pin, PinOff, X } from 'lucide-react';
+import { Languages, PenLine, Wand2, ChevronDown, Pin, PinOff, X } from 'lucide-react';
 import { getPopupTheme } from './popup-theme';
 
 export interface TranslatePopupHeaderProps {
-  mode: 'translate' | 'rewrite';
+  mode: 'translate' | 'rewrite' | 'improve';
   targetLanguage: string;
   isPinned: boolean;
   theme: 'light' | 'dark';
   onTogglePin?: () => void;
   onLanguageChange?: (lang: string) => void;
-  onModeChange?: (mode: 'translate' | 'rewrite') => void;
+  onModeChange?: (mode: 'translate' | 'rewrite' | 'improve') => void;
   onClose: () => void;
   onDragStart?: (e: React.MouseEvent) => void;
 }
@@ -40,6 +40,18 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
     onDragStart?.(e);
   };
 
+  const getModeTitle = () => {
+    if (mode === 'improve') return 'Improve it';
+    if (mode === 'rewrite') return 'Rewrite';
+    return 'Translate';
+  };
+
+  const getModeIcon = () => {
+    if (mode === 'improve') return <Wand2 size={15} className="text-indigo-400" />;
+    if (mode === 'rewrite') return <PenLine size={15} className="text-indigo-400" />;
+    return <Languages size={15} className="text-indigo-400" />;
+  };
+
   return (
     <div
       onMouseDown={handleHeaderMouseDown}
@@ -63,21 +75,23 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
             onClick={() => setModeMenuOpen((p) => !p)}
             className={`flex items-center gap-1.5 py-1 px-1.5 -ml-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${th.title}`}
           >
-            {mode === 'rewrite' ? <PenLine size={15} className="text-indigo-400" /> : <Languages size={15} className="text-indigo-400" />}
-            <span>{mode === 'rewrite' ? 'Rewrite' : 'Translate'}</span>
+            {getModeIcon()}
+            <span>{getModeTitle()}</span>
             <ChevronDown size={13} className="text-slate-400" />
           </button>
           {modeMenuOpen && (
             <div className={`absolute left-0 top-full mt-1.5 w-32 rounded-xl border shadow-xl p-1 z-50 flex flex-col gap-0.5 ${th.menu}`}>
-              {(['rewrite', 'translate'] as const).map((m) => (
+              {(['improve', 'rewrite', 'translate'] as const).map((m) => (
                 <button
                   key={m}
                   type="button"
                   onClick={() => { setModeMenuOpen(false); onModeChange?.(m); }}
                   className={`flex items-center gap-2 px-2.5 py-1.5 text-xs rounded-lg capitalize ${mode === m ? th.menuActive : th.menuItem}`}
                 >
-                  {m === 'rewrite' ? <PenLine size={13} /> : <Languages size={13} />}
-                  <span>{m === 'rewrite' ? 'Rewrite' : 'Translate'}</span>
+                  {m === 'improve' && <Wand2 size={13} />}
+                  {m === 'rewrite' && <PenLine size={13} />}
+                  {m === 'translate' && <Languages size={13} />}
+                  <span>{m === 'improve' ? 'Improve it' : m === 'rewrite' ? 'Rewrite' : 'Translate'}</span>
                 </button>
               ))}
             </div>
@@ -85,7 +99,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-1">
-          {mode !== 'rewrite' && (
+          {mode === 'translate' && (
             <div className="relative">
               <button
                 type="button"

@@ -10,10 +10,11 @@ export interface ContentOverlayProps {
     x: number;
     y: number;
     isLoading?: boolean;
+    isEditable?: boolean;
   };
   tooltip: {
     visible: boolean;
-    mode?: 'translate' | 'rewrite';
+    mode?: 'translate' | 'rewrite' | 'improve';
     isLoading: boolean;
     originalText: string;
     result?: any;
@@ -23,11 +24,11 @@ export interface ContentOverlayProps {
     isPinned?: boolean;
     hasEditableTarget: boolean;
   };
-  onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite') => void;
+  onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve') => void;
   onCloseToolbar: () => void;
   onTogglePin?: () => void;
   onLanguageChange?: (lang: string) => void;
-  onModeChange?: (mode: 'translate' | 'rewrite') => void;
+  onModeChange?: (mode: 'translate' | 'rewrite' | 'improve') => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void;
   onFollowUp?: (query: string) => void;
   onRegenerate?: () => void;
@@ -60,6 +61,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
         y={toolbar.y}
         isLoading={toolbar.isLoading}
         theme={theme}
+        isEditable={toolbar.isEditable}
         onSelectTone={onSelectTone}
         onClose={onCloseToolbar}
       />

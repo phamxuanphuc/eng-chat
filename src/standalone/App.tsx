@@ -24,14 +24,14 @@ export const StandaloneApp: React.FC = () => {
   }>({ visible: false, x: 0, y: 0, isLoading: false });
   const [tooltipState, setTooltipState] = useState<{
     isOpen: boolean;
-    mode?: 'translate' | 'rewrite';
+    mode?: 'translate' | 'rewrite' | 'improve';
     isLoading: boolean;
     result?: any;
     error?: string | null;
   }>({ isOpen: false, mode: 'translate', isLoading: false });
 
-  const runOptimize = async (tone: ToneType, forcedMode?: 'translate' | 'rewrite') => {
-    const isModal = forcedMode === 'rewrite' || forcedMode === 'translate' || tone === 'translate_explain';
+  const runOptimize = async (tone: ToneType, forcedMode?: 'translate' | 'rewrite' | 'improve') => {
+    const isModal = forcedMode === 'improve' || forcedMode === 'rewrite' || forcedMode === 'translate' || tone === 'translate_explain';
     const mode = forcedMode || (tone === 'translate_explain' ? 'translate' : 'rewrite');
 
     if (isModal) {
@@ -217,15 +217,15 @@ export const StandaloneApp: React.FC = () => {
             const res = await executeOptimize({ text: prompt, tone: 'professional' }, settings);
             setTooltipState((p) => ({ ...p, isLoading: false, result: res.data, error: res.error }));
           }}
-          onModeChange={(m) => runOptimize(m === 'rewrite' ? 'professional' : 'translate_explain', m)}
+          onModeChange={(m) => runOptimize(m === 'translate' ? 'translate_explain' : 'professional', m)}
           onFollowUp={async (query) => {
             setTooltipState((p) => ({ ...p, isLoading: true }));
             const settings = await loadSettings();
-            const tone: ToneType = tooltipState.mode === 'rewrite' ? 'professional' : 'translate_explain';
+            const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
             const res = await executeOptimize({ text: `Văn bản gốc: "${chatInput}"\n\nYêu cầu: ${query}`, tone }, settings);
             setTooltipState({ isOpen: true, mode: tooltipState.mode, isLoading: false, result: res.data, error: res.error });
           }}
-          onRegenerate={() => runOptimize(tooltipState.mode === 'rewrite' ? 'professional' : 'translate_explain', tooltipState.mode)}
+          onRegenerate={() => runOptimize(tooltipState.mode === 'translate' ? 'translate_explain' : 'professional', tooltipState.mode)}
           onInsert={(text) => { setChatInput(text); setTooltipState({ isOpen: false, isLoading: false }); }}
           onClose={() => setTooltipState({ isOpen: false, isLoading: false })}
           onTranslateVi={async (text) => {

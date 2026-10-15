@@ -121,4 +121,22 @@ describe('FloatingToolbar Component', () => {
     const toolbarEl = container.querySelector('.bg-slate-900');
     expect(toolbarEl).not.toBeNull();
   });
+
+  it('TC-FT-08: Renders improve button and triggers improve mode', () => {
+    const onSelectTone = vi.fn();
+    render(
+      <FloatingToolbar
+        visible={true}
+        x={150}
+        y={250}
+        isEditable={true}
+        onSelectTone={onSelectTone}
+      />
+    );
+
+    const improveBtn = screen.getByRole('button', { name: /improve text/i });
+    expect(improveBtn).toBeDefined();
+    fireEvent.click(improveBtn);
+    expect(onSelectTone).toHaveBeenCalledWith('professional', 'improve');
+  });
 });

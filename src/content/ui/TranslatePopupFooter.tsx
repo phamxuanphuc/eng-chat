@@ -12,6 +12,7 @@ export interface TranslatePopupFooterProps {
   translationText: string;
   isLoading: boolean;
   theme?: 'light' | 'dark';
+  mode?: 'translate' | 'rewrite' | 'improve';
   hasEditableTarget?: boolean;
   onFollowUp?: (query: string) => void;
   onRegenerate?: () => void;
@@ -22,6 +23,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
   translationText,
   isLoading,
   theme = 'dark',
+  mode = 'translate',
   hasEditableTarget = false,
   onFollowUp,
   onRegenerate,
@@ -36,6 +38,13 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
   const iconBtnClass = isLight
     ? 'p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer'
     : 'p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer';
+
+  const placeholderText =
+    mode === 'improve'
+      ? 'Tell me how to improve... ↵'
+      : mode === 'rewrite'
+      ? 'Ask follow-up or rewrite ↵'
+      : 'Ask follow-up ↵';
 
   const handleCopy = async () => {
     if (!translationText) return;
@@ -68,12 +77,25 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           type="text"
           value={followUpText}
           onChange={(e) => setFollowUpText(e.target.value)}
-          placeholder="Ask follow-up ↵"
+          placeholder={placeholderText}
           className={`w-full bg-transparent border-none outline-none text-xs ${
             isLight ? 'text-slate-800 placeholder:text-slate-400' : 'text-slate-200 placeholder:text-slate-500'
           }`}
         />
       </form>
+
+      {hasEditableTarget && (
+        <button
+          type="button"
+          onClick={() => onInsert?.(translationText)}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/40 text-xs font-semibold transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 whitespace-nowrap"
+          title="Thay thế văn bản trong ô nhập liệu"
+          aria-label="Replace text in input"
+        >
+          <CornerDownLeft size={13} className="text-indigo-300" />
+          <span>Replace</span>
+        </button>
+      )}
 
       <div className="flex items-center gap-1">
         <button

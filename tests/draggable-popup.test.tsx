@@ -157,4 +157,49 @@ describe('Draggable TranslatePopup with LocalStorage', () => {
       window.dispatchEvent(new MouseEvent('mouseup'));
     });
   });
+
+  it('TC-DRAG-05: Renders Improve mode with Improve it header and Replace button', () => {
+    const handleInsert = vi.fn();
+    render(
+      <TranslatePopup
+        mode="improve"
+        originalText="Original input text"
+        result="Improved polished text"
+        isLoading={false}
+        hasEditableTarget={true}
+        onInsert={handleInsert}
+        onClose={() => {}}
+      />
+    );
+
+    expect(screen.getByText('Improve it')).toBeDefined();
+    expect(screen.getByPlaceholderText('Tell me how to improve... ↵')).toBeDefined();
+
+    const replaceBtn = screen.getByRole('button', { name: /replace text in input/i });
+    expect(replaceBtn).toBeDefined();
+
+    fireEvent.click(replaceBtn);
+    expect(handleInsert).toHaveBeenCalledWith('Improved polished text');
+  });
+
+  it('TC-DRAG-06: Header mode menu switches between Improve it, Rewrite, and Translate', () => {
+    const handleModeChange = vi.fn();
+    render(
+      <TranslatePopup
+        mode="improve"
+        originalText="Original input text"
+        result="Improved text"
+        isLoading={false}
+        onModeChange={handleModeChange}
+        onClose={() => {}}
+      />
+    );
+
+    const modeBtn = screen.getByText('Improve it');
+    fireEvent.click(modeBtn);
+
+    const rewriteOption = screen.getByRole('button', { name: /^rewrite$/i });
+    fireEvent.click(rewriteOption);
+    expect(handleModeChange).toHaveBeenCalledWith('rewrite');
+  });
 });

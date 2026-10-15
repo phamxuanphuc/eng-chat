@@ -21,10 +21,10 @@ try {
   });
 } catch (_) {}
 
-let toolbarState = { visible: false, x: 0, y: 0, isLoading: false };
+let toolbarState = { visible: false, x: 0, y: 0, isLoading: false, isEditable: false };
 let tooltipState = {
   visible: false,
-  mode: 'translate' as 'translate' | 'rewrite',
+  mode: 'translate' as 'translate' | 'rewrite' | 'improve',
   originalText: '',
   result: null as any,
   isLoading: false,
@@ -98,7 +98,7 @@ const handleTriggerOptimize = async (
   tone: ToneType,
   settings?: any,
   customText?: string,
-  forcedMode?: 'translate' | 'rewrite'
+  forcedMode?: 'translate' | 'rewrite' | 'improve'
 ) => {
   const activeEl = getActiveEditableElement() || currentEditableEl;
   currentEditableEl = activeEl;
@@ -110,8 +110,8 @@ const handleTriggerOptimize = async (
     return;
   }
 
-  const isModalMode = forcedMode === 'rewrite' || forcedMode === 'translate' || tone === 'translate_explain';
-  const mode: 'translate' | 'rewrite' = forcedMode || (tone === 'translate_explain' ? 'translate' : 'rewrite');
+  const isModalMode = forcedMode === 'improve' || forcedMode === 'rewrite' || forcedMode === 'translate' || tone === 'translate_explain';
+  const mode: 'translate' | 'rewrite' | 'improve' = forcedMode || (tone === 'translate_explain' ? 'translate' : 'rewrite');
 
   if (isModalMode) {
     tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: true, error: null, hasEditableTarget: !!activeEl };
@@ -149,7 +149,7 @@ const handleTriggerOptimize = async (
   }
 };
 
-const handleModeChange = (newMode: 'translate' | 'rewrite') => {
+const handleModeChange = (newMode: 'translate' | 'rewrite' | 'improve') => {
   if (!tooltipState.originalText) return;
   const tone: ToneType = newMode === 'translate' ? 'translate_explain' : 'professional';
   handleTriggerOptimize(tone, undefined, tooltipState.originalText, newMode);
@@ -162,7 +162,7 @@ const handleFollowUp = async (query: string) => {
 
   try {
     const prompt = `Văn bản gốc: "${tooltipState.originalText}"\n\nYêu cầu xử lý tiếp theo: ${query}`;
-    const tone: ToneType = tooltipState.mode === 'rewrite' ? 'professional' : 'translate_explain';
+    const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
     const response: OptimizeResponse = await chrome.runtime.sendMessage({
       action: 'EXECUTE_GEMINI',
       payload: { text: prompt, tone },
@@ -177,7 +177,7 @@ const handleFollowUp = async (query: string) => {
 
 const handleRegenerate = () => {
   if (tooltipState.originalText) {
-    const tone: ToneType = tooltipState.mode === 'rewrite' ? 'professional' : 'translate_explain';
+    const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
     handleTriggerOptimize(tone, undefined, tooltipState.originalText, tooltipState.mode);
   }
 };
@@ -205,12 +205,12 @@ setupDOMEvents({
   onFocus: (rect, element) => {
     currentEditableEl = element;
     const pos = computeToolbarPos(rect);
-    toolbarState = { visible: true, x: pos.x, y: pos.y, isLoading: false };
+    toolbarState = { visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: true };
     renderApp();
   },
-  onSelect: (rect) => {
+  onSelect: (rect, isEditable) => {
     const pos = computeToolbarPos(rect);
-    toolbarState = { visible: true, x: pos.x, y: pos.y, isLoading: false };
+    toolbarState = { visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: !!isEditable };
     renderApp();
   },
   onClickOutside: () => {
