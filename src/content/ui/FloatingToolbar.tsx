@@ -94,16 +94,11 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           type="button"
           disabled={isLoading}
           onClick={() => handleToneClick('professional', 'improve')}
-          className={`flex items-center gap-1 px-2 py-1 rounded-full transition-all disabled:opacity-50 cursor-pointer ${
-            isEditable
-              ? 'bg-gradient-to-r from-indigo-500/30 to-purple-500/30 border border-indigo-500/50 text-indigo-300 font-semibold shadow-sm hover:scale-105 active:scale-95'
-              : btnHover
-          }`}
-          title="Cải thiện văn bản (Improve it)"
+          className={`p-1.5 rounded-full transition-colors disabled:opacity-50 cursor-pointer ${btnHover}`}
+          title="Cải thiện văn bản (Improve)"
           aria-label="Improve text"
         >
-          <Wand2 size={14} className="text-indigo-400" />
-          <span className="text-xs font-medium">Improve</span>
+          <Wand2 size={15} className="text-indigo-400 hover:scale-110 transition-transform" />
         </button>
 
         <button
