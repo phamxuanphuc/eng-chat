@@ -213,4 +213,30 @@ describe('TranslatePopup Component', () => {
     });
     expect(screen.queryByText('Tất cả các API thanh toán đã được kiểm tra.')).toBeNull();
   });
+
+  it('TC-TP-11: Renders Length & format and Language selector in improve mode and triggers language change', () => {
+    const handleLanguageChange = vi.fn();
+    render(
+      <TranslatePopup
+        mode="improve"
+        originalText="Currently system operates as follows"
+        result="Currently section navigation functions correctly"
+        isLoading={false}
+        targetLanguage="English"
+        onLanguageChange={handleLanguageChange}
+        onClose={() => {}}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: /length & format/i })).toBeDefined();
+    const langBtn = screen.getByRole('button', { name: /select language/i });
+    expect(langBtn).toBeDefined();
+    expect(screen.getByText('English')).toBeDefined();
+
+    fireEvent.click(langBtn);
+    const vnOption = screen.getByRole('button', { name: /vietnamese/i });
+    fireEvent.click(vnOption);
+
+    expect(handleLanguageChange).toHaveBeenCalledWith('Vietnamese');
+  });
 });

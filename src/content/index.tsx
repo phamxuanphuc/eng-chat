@@ -156,8 +156,8 @@ const handleTriggerOptimize = async (
 
 const handleModeChange = (newMode: 'translate' | 'rewrite' | 'improve') => {
   if (!tooltipState.originalText) return;
-  const tone: ToneType = newMode === 'translate' ? 'translate_explain' : 'professional';
-  handleTriggerOptimize(tone, undefined, tooltipState.originalText, newMode);
+  if (newMode === 'improve') tooltipState.targetLanguage = 'English';
+  handleTriggerOptimize(newMode === 'translate' ? 'translate_explain' : 'professional', undefined, tooltipState.originalText, newMode);
 };
 
 const handleFollowUp = async (query: string) => {
@@ -190,7 +190,8 @@ const handleRegenerate = () => {
 const handleLanguageChange = async (lang: string) => {
   tooltipState = { ...tooltipState, targetLanguage: lang, isLoading: true, error: null };
   renderApp();
-  await handleFollowUp(`Dịch toàn bộ văn bản gốc sang ngôn ngữ: ${lang}`);
+  const prompt = tooltipState.mode === 'improve' ? `Improve text into ${lang} language.` : `Dịch sang ngôn ngữ: ${lang}`;
+  await handleFollowUp(prompt);
 };
 
 const handleRewriteOptionsChange = async (opts: RewriteOptions) => {

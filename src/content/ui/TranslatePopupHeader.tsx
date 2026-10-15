@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Languages, PenLine, Wand2, ChevronDown, Pin, PinOff, X } from 'lucide-react';
-import { getPopupTheme } from './popup-theme';
+import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
 
 export interface TranslatePopupHeaderProps {
   mode: 'translate' | 'rewrite' | 'improve';
@@ -13,8 +13,6 @@ export interface TranslatePopupHeaderProps {
   onClose: () => void;
   onDragStart?: (e: React.MouseEvent) => void;
 }
-
-const LANGUAGES = ['Vietnamese', 'English', 'Japanese', 'Korean', 'Chinese', 'French'];
 
 export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   mode,
@@ -111,7 +109,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
               </button>
               {langMenuOpen && (
                 <div className={`absolute right-0 top-full mt-1.5 w-32 rounded-xl border shadow-xl p-1 z-50 flex flex-col gap-0.5 ${th.menu}`}>
-                  {LANGUAGES.map((l) => (
+                  {POPUP_LANGUAGES.map((l) => (
                     <button
                       key={l}
                       type="button"

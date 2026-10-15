@@ -27,3 +27,14 @@ export const getPopupTheme = (theme: 'light' | 'dark' = 'dark') => {
         menuActive: 'bg-indigo-600/40 text-indigo-200 font-semibold',
       };
 };
+
+export const POPUP_LANGUAGES = [
+  'English',
+  'Vietnamese',
+  'Japanese',
+  'Korean',
+  'Chinese',
+  'French',
+  'Spanish',
+  'German',
+] as const;

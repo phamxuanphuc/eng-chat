@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TranslateExplainResult, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../../types';
-import { ChevronDown, Loader2, BookOpen, AudioWaveform, Languages } from 'lucide-react';
+import { ChevronDown, Loader2, BookOpen, AudioWaveform, Languages, Check } from 'lucide-react';
 import { TranslatePopupHeader } from './TranslatePopupHeader';
 import { TranslatePopupFooter } from './TranslatePopupFooter';
 import { RewriteOptionsPanel } from './RewriteOptionsPanel';
-import { getPopupTheme } from './popup-theme';
+import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
 import { useDraggable } from './useDraggable';
 
 export interface TranslatePopupProps {
@@ -23,7 +23,7 @@ export interface TranslatePopupProps {
 
 export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   mode = 'translate', originalText, result, isLoading, error,
-  targetLanguage = 'Vietnamese', rewriteOptions, theme = 'dark',
+  targetLanguage, rewriteOptions, theme = 'dark',
   isPinned = false, hasEditableTarget = false, onTogglePin,
   onLanguageChange, onModeChange, onRewriteOptionsChange,
   onFollowUp, onRegenerate, onInsert, onClose, onTranslateVi,
@@ -31,6 +31,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
   const [showRewriteOptions, setShowRewriteOptions] = useState(false);
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [showViTranslation, setShowViTranslation] = useState(false);
   const [viTranslation, setViTranslation] = useState<string | null>(null);
   const [isTranslatingVi, setIsTranslatingVi] = useState(false);
@@ -40,6 +41,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
 
   const isLight = theme === 'light';
   const th = getPopupTheme(theme);
+  const currentLang = targetLanguage || (mode === 'improve' ? 'English' : 'Vietnamese');
 
   const isExplain = result && typeof result === 'object' && 'translation' in result;
   const translationText = isExplain ? (result as TranslateExplainResult).translation : (result as string) || '';
@@ -63,8 +65,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           action: 'EXECUTE_GEMINI',
           payload: { text: `Dịch câu sau sang tiếng Việt chuẩn, tự nhiên:\n"${translationText}"`, tone: 'concise' },
         });
-        const text = res?.success && res.data ? (typeof res.data === 'string' ? res.data : res.data.translation) : '';
-        setViTranslation(text || 'Không thể dịch nội dung này.');
+        setViTranslation((res?.success && res.data) ? (typeof res.data === 'string' ? res.data : res.data.translation) : 'Không thể dịch.');
       } else {
         setViTranslation(originalText || 'Bản dịch tiếng Việt.');
       }
@@ -89,7 +90,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
       onMouseDown={(e) => e.stopPropagation()}
     >
       <TranslatePopupHeader
-        mode={mode} targetLanguage={targetLanguage} isPinned={isPinned} theme={theme}
+        mode={mode} targetLanguage={currentLang} isPinned={isPinned} theme={theme}
         onTogglePin={onTogglePin} onLanguageChange={onLanguageChange} onModeChange={onModeChange} onClose={onClose}
         onDragStart={handleMouseDown}
       />
@@ -180,14 +181,50 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         )}
 
         {(mode === 'rewrite' || mode === 'improve') && (
-          <div className="flex items-center gap-2 px-0.5">
+          <div className="relative flex items-center gap-2 px-1 py-0.5 text-xs select-none">
             <button
-              type="button" onClick={() => setShowRewriteOptions((p) => !p)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border cursor-pointer transition-colors ${th.pill}`}
+              type="button"
+              onClick={() => setShowRewriteOptions((p) => !p)}
+              className={`flex items-center gap-1.5 transition-colors cursor-pointer font-medium py-0.5 ${
+                isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-300 hover:text-white'
+              }`}
+              aria-label="Length & format"
             >
               <AudioWaveform size={14} className="text-indigo-400" />
               <span>Length & format</span>
             </button>
+
+            <span className={isLight ? 'text-slate-300' : 'text-slate-600'}>|</span>
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setLangMenuOpen((p) => !p)}
+                className={`flex items-center gap-1.5 transition-colors cursor-pointer font-medium py-0.5 ${
+                  isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-300 hover:text-white'
+                }`}
+                aria-label="Select language"
+              >
+                <Languages size={14} className="text-indigo-400" />
+                <span>{currentLang}</span>
+              </button>
+
+              {langMenuOpen && (
+                <div className={`absolute left-0 bottom-full mb-1.5 w-32 rounded-xl border shadow-xl p-1 z-50 flex flex-col gap-0.5 ${th.menu}`}>
+                  {POPUP_LANGUAGES.map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => { setLangMenuOpen(false); onLanguageChange?.(l); }}
+                      className={`flex items-center justify-between px-2.5 py-1 text-xs rounded-lg transition-colors cursor-pointer ${currentLang === l ? th.menuActive : th.menuItem}`}
+                    >
+                      <span>{l}</span>
+                      {currentLang === l && <Check size={12} className="text-indigo-400" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 

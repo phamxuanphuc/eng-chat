@@ -228,6 +228,11 @@ export const StandaloneApp: React.FC = () => {
             setTooltipState({ isOpen: true, mode: tooltipState.mode, isLoading: false, result: res.data, error: res.error });
           }}
           onRegenerate={() => runOptimize(tooltipState.mode === 'translate' ? 'translate_explain' : 'professional', tooltipState.mode)}
+          onLanguageChange={async (lang) => {
+            setTooltipState((p) => ({ ...p, isLoading: true }));
+            const res = await executeOptimize({ text: `Target language: ${lang}\n\n"${chatInput}"`, tone: tooltipState.mode === 'translate' ? 'translate_explain' : 'professional' }, await loadSettings());
+            setTooltipState((p) => ({ ...p, isLoading: false, result: res.data, error: res.error }));
+          }}
           onInsert={(text) => { setChatInput(text); setTooltipState({ isOpen: false, isLoading: false }); }}
           onClose={() => setTooltipState({ isOpen: false, isLoading: false })}
           onTranslateVi={async (text) => {
