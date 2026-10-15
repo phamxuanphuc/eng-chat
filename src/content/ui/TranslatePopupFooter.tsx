@@ -17,6 +17,7 @@ export interface TranslatePopupFooterProps {
   onFollowUp?: (query: string) => void;
   onRegenerate?: () => void;
   onInsert?: (text: string) => void;
+  onOpenModelPicker?: () => void;
 }
 
 export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
@@ -28,6 +29,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
   onFollowUp,
   onRegenerate,
   onInsert,
+  onOpenModelPicker,
 }) => {
   const [copied, setCopied] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
@@ -176,9 +178,15 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           )}
         </div>
 
-        <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[9px] font-bold ring-1 ring-white/20">
+        <button
+          type="button"
+          onClick={onOpenModelPicker}
+          className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[9px] font-bold ring-1 ring-white/20 hover:scale-110 transition-transform cursor-pointer"
+          title="Chọn model AI"
+          aria-label="Open model picker"
+        >
           ✦
-        </div>
+        </button>
       </div>
     </div>
   );

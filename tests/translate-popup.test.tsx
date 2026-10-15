@@ -5,6 +5,12 @@ import { TranslatePopup } from '../src/content/ui/TranslatePopup';
 import { mockTranslateExplainResult } from './mocks/gemini.mock';
 
 describe('TranslatePopup Component', () => {
+  it('opens the model picker from the sparkle button', async () => {
+    render(<TranslatePopup originalText="Hello" result="Xin chào" isLoading={false} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Open model picker' }));
+    expect(await screen.findByRole('dialog', { name: 'LLM model picker' })).toBeDefined();
+  });
+
   it('TC-TP-01: Renders original text, translation and handles close', () => {
     const handleClose = vi.fn();
     render(

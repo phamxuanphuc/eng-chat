@@ -6,6 +6,7 @@ import { TranslatePopupFooter } from './TranslatePopupFooter';
 import { RewriteOptionsPanel } from './RewriteOptionsPanel';
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
 import { useDraggable } from './useDraggable';
+import { ModelPicker } from './ModelPicker';
 
 export interface TranslatePopupProps {
   mode?: 'translate' | 'rewrite' | 'improve'; originalText: string;
@@ -35,6 +36,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   const [showViTranslation, setShowViTranslation] = useState(false);
   const [viTranslation, setViTranslation] = useState<string | null>(null);
   const [isTranslatingVi, setIsTranslatingVi] = useState(false);
+  const [showModelPicker, setShowModelPicker] = useState(false);
 
   const popupRef = useRef<HTMLDivElement>(null);
   const langDropdownRef = useRef<HTMLDivElement>(null);
@@ -220,8 +222,13 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           translationText={translationText} isLoading={isLoading} theme={theme}
           mode={mode} hasEditableTarget={hasEditableTarget} onFollowUp={onFollowUp}
           onRegenerate={onRegenerate} onInsert={onInsert}
+          onOpenModelPicker={() => setShowModelPicker(true)}
         />
       </div>
+
+      {showModelPicker && (
+        <ModelPicker theme={theme} onClose={() => setShowModelPicker(false)} />
+      )}
 
       {showRewriteOptions && (mode === 'rewrite' || mode === 'improve') && (
         <RewriteOptionsPanel

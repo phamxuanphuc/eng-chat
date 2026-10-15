@@ -35,6 +35,33 @@ export const formatOpenAiEndpoint = (baseUrl?: string): string => {
   return `${base}/chat/completions`;
 };
 
+export const formatOpenAiModelsEndpoint = (baseUrl?: string): string => {
+  const endpoint = formatOpenAiEndpoint(baseUrl);
+  return endpoint.replace(/\/chat\/completions$/, '/models');
+};
+
+export const fetchOpenAiModels = async (params: { baseUrl?: string; apiKey?: string }): Promise<string[]> => {
+  const headers: Record<string, string> = {};
+  if (params.apiKey?.trim()) headers.Authorization = 'Bearer ' + params.apiKey.trim();
+
+  try {
+    const response = await axios.get(formatOpenAiModelsEndpoint(params.baseUrl), { timeout: 15000, headers });
+    const models = Array.isArray(response.data?.data) ? response.data.data : [];
+    return models
+      .map((model: any) => typeof model === 'string' ? model : model?.id)
+      .filter((id: unknown): id is string => typeof id === 'string' && id.trim().length > 0)
+      .sort();
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const status = (error as AxiosError).response?.status;
+      if (status === 401 || status === 403) throw new Error(`API Key không chính xác hoặc không có quyền truy cập (${status}).`);
+      if (status === 404) throw new Error('Không tìm thấy endpoint danh sách model (404).');
+      if (!(error as AxiosError).response) throw new Error('Không thể kết nối đến máy chủ model.');
+    }
+    throw error;
+  }
+};
+
 export const callOpenAiApi = async (params: OpenAiApiParams): Promise<string> => {
   const { baseUrl, apiKey, model, systemInstruction, prompt } = params;
 
@@ -48,7 +75,7 @@ export const callOpenAiApi = async (params: OpenAiApiParams): Promise<string> =>
   };
 
   if (apiKey && apiKey.trim()) {
-    headers['Authorization'] = `Bearer ${apiKey.trim()}`;
+    headers['Authorization'] = 'Bearer ' + apiKey.trim();
   }
 
   const payload = {

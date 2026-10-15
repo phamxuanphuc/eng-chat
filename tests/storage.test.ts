@@ -48,6 +48,14 @@ describe('Storage & Settings Store', () => {
     expect(current.enableChatContext).toBe(false);
   });
 
+  it('persists provider-specific selected models', async () => {
+    await saveSettings({ llmProvider: 'openai_compatible', selectedModel: 'gemini-2.5-flash', customModel: 'local-model' });
+    const loaded = await loadSettings();
+    expect(loaded.llmProvider).toBe('openai_compatible');
+    expect(loaded.selectedModel).toBe('gemini-2.5-flash');
+    expect(loaded.customModel).toBe('local-model');
+  });
+
   it('TC-ST-04: loads and saves multiple API keys with auto-rotation setting', async () => {
     const customKeys = [
       { id: 'k1', label: 'Main', key: 'key-1' },

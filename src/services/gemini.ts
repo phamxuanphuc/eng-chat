@@ -10,6 +10,29 @@ import { callOpenAiApi } from './openai';
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
+export const fetchGeminiModels = async (apiKey: string): Promise<string[]> => {
+  if (!apiKey?.trim()) throw new Error('Chưa cấu hình API Key.');
+  try {
+    const response = await axios.get(GEMINI_API_BASE, {
+      timeout: 15000,
+      headers: { 'x-goog-api-key': apiKey.trim() },
+      params: { key: apiKey.trim() },
+    });
+    return (Array.isArray(response.data?.models) ? response.data.models : [])
+      .filter((model: any) => Array.isArray(model.supportedGenerationMethods) && model.supportedGenerationMethods.includes('generateContent'))
+      .map((model: any) => String(model.name || '').replace(/^models\//, ''))
+      .filter(Boolean)
+      .sort();
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const status = (error as AxiosError).response?.status;
+      if (status === 401 || status === 403) throw new Error(`Gemini API Key không chính xác (${status}).`);
+      if (!(error as AxiosError).response) throw new Error('Không thể kết nối đến Gemini.');
+    }
+    throw error;
+  }
+};
+
 export const callGeminiApi = async (params: {
   apiKey: string;
   model: string;
