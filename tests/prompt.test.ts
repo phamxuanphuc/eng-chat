@@ -5,16 +5,16 @@ import { mockChatContext } from './mocks/gemini.mock';
 describe('Prompt Builder Service', () => {
   it('TC-PR-01: builds specific system instruction for each tone', () => {
     const polite = buildSystemInstruction('polite');
-    expect(polite).toContain('polite, courteous, and respectful');
+    expect(polite).toContain('courteous, respectful, and tactful');
 
     const professional = buildSystemInstruction('professional');
-    expect(professional).toContain('professional, clear, and objective');
+    expect(professional).toContain('clear, precise, objective');
 
     const friendly = buildSystemInstruction('friendly');
-    expect(friendly).toContain('friendly, natural, and casual');
+    expect(friendly).toContain('natural, warm, casual');
 
     const concise = buildSystemInstruction('concise');
-    expect(concise).toContain('concise, direct, and efficient');
+    expect(concise).toContain('direct, efficient English');
   });
 
   it('TC-PR-02: builds JSON schema system instruction for translate_explain', () => {
@@ -27,17 +27,28 @@ describe('Prompt Builder Service', () => {
   });
 
   it('TC-PR-03: formats user prompt without chat context', () => {
-    const prompt = buildUserPrompt('Xin chào bạn');
-    expect(prompt).not.toContain('RECENT CONVERSATION CONTEXT');
-    expect(prompt).toContain('Xin chào bạn');
+    const prompt = buildUserPrompt('  Xin chào bạn  ');
+    expect(prompt).not.toContain('<conversation_context>');
+    expect(prompt).toContain('<target_text>\nXin chào bạn\n</target_text>');
   });
 
-  it('TC-PR-04: formats user prompt with chat context', () => {
+  it('TC-PR-04: formats user prompt with labeled, delimited chat context', () => {
     const prompt = buildUserPrompt('I agree with the approach', mockChatContext);
-    expect(prompt).toContain('--- RECENT CONVERSATION CONTEXT ---');
-    expect(prompt).toContain('Alice: Can you please review the PR');
-    expect(prompt).toContain('Bob: Sure, I am on it right now');
-    expect(prompt).toContain('Target text to process:');
-    expect(prompt).toContain('I agree with the approach');
+    expect(prompt).toContain('<conversation_context>');
+    expect(prompt).toContain('[Alice] Can you please review the PR');
+    expect(prompt).toContain('[Bob] Sure, I am on it right now');
+    expect(prompt).toContain('</conversation_context>');
+    expect(prompt).toContain('<target_text>\nI agree with the approach\n</target_text>');
+  });
+
+  it('TC-PR-05: ignores empty context messages and preserves empty target boundaries', () => {
+    const prompt = buildUserPrompt('  ', [
+      { sender: 'Ignored', text: '   ' },
+      { text: 'Useful context' },
+    ]);
+
+    expect(prompt).toContain('[Message 1] Useful context');
+    expect(prompt).not.toContain('Ignored');
+    expect(prompt).toContain('<target_text>\n\n</target_text>');
   });
 });
