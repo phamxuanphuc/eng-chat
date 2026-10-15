@@ -56,7 +56,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
   return (
     <>
       <FloatingToolbar
-        visible={toolbar.visible}
+        visible={toolbar.visible && !tooltip.visible}
         x={toolbar.x}
         y={toolbar.y}
         isLoading={toolbar.isLoading}

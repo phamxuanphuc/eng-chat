@@ -67,7 +67,11 @@ const renderApp = () => {
       theme={currentTheme}
       toolbar={toolbarState}
       tooltip={tooltipState}
-      onSelectTone={(tone, mode) => handleTriggerOptimize(tone, undefined, undefined, mode)}
+      onSelectTone={(tone, mode) => {
+        toolbarState = { ...toolbarState, visible: false };
+        renderApp();
+        handleTriggerOptimize(tone, undefined, undefined, mode);
+      }}
       onCloseToolbar={() => { toolbarState = { ...toolbarState, visible: false }; renderApp(); }}
       onTogglePin={() => { tooltipState = { ...tooltipState, isPinned: !tooltipState.isPinned }; renderApp(); }}
       onLanguageChange={handleLanguageChange}
@@ -105,6 +109,7 @@ const handleTriggerOptimize = async (
   const targetText = customText || getSelectedText();
 
   if (!targetText) {
+    toolbarState = { ...toolbarState, visible: false };
     tooltipState = { ...tooltipState, visible: true, isLoading: false, error: 'Vui lòng bôi đen hoặc nhập văn bản.', result: null, hasEditableTarget: !!activeEl };
     renderApp();
     return;
@@ -204,11 +209,13 @@ const handleRewriteOptionsChange = async (opts: RewriteOptions) => {
 setupDOMEvents({
   onFocus: (rect, element) => {
     currentEditableEl = element;
+    if (tooltipState.visible) return;
     const pos = computeToolbarPos(rect);
     toolbarState = { visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: true };
     renderApp();
   },
   onSelect: (rect, isEditable) => {
+    if (tooltipState.visible) return;
     const pos = computeToolbarPos(rect);
     toolbarState = { visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: !!isEditable };
     renderApp();
@@ -228,6 +235,7 @@ setupDOMEvents({
 if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message?.action === 'TRIGGER_OPTIMIZE') {
+      toolbarState = { ...toolbarState, visible: false };
       handleTriggerOptimize(message.tone, message.settings);
       sendResponse({ received: true });
       return true;

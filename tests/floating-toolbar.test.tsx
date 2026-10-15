@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { FloatingToolbar } from '../src/content/ui/FloatingToolbar';
+import { ContentOverlay } from '../src/content/ui/ContentOverlay';
 
 describe('FloatingToolbar Component', () => {
   it('TC-FT-01: Does not render when visible is false', () => {
@@ -138,5 +139,31 @@ describe('FloatingToolbar Component', () => {
     expect(improveBtn).toBeDefined();
     fireEvent.click(improveBtn);
     expect(onSelectTone).toHaveBeenCalledWith('professional', 'improve');
+  });
+
+  it('TC-FT-09: ContentOverlay hides FloatingToolbar when tooltip popup is visible', () => {
+    const { rerender } = render(
+      <ContentOverlay
+        toolbar={{ visible: true, x: 100, y: 100 }}
+        tooltip={{ visible: false, isLoading: false, originalText: 'Hello', hasEditableTarget: false }}
+        onSelectTone={() => {}}
+        onCloseToolbar={() => {}}
+        onInsertText={() => {}}
+        onCloseTooltip={() => {}}
+      />
+    );
+    expect(screen.getByRole('toolbar')).toBeDefined();
+
+    rerender(
+      <ContentOverlay
+        toolbar={{ visible: true, x: 100, y: 100 }}
+        tooltip={{ visible: true, isLoading: false, originalText: 'Hello', hasEditableTarget: false }}
+        onSelectTone={() => {}}
+        onCloseToolbar={() => {}}
+        onInsertText={() => {}}
+        onCloseTooltip={() => {}}
+      />
+    );
+    expect(screen.queryByRole('toolbar')).toBeNull();
   });
 });

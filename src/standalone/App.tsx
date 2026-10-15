@@ -35,6 +35,7 @@ export const StandaloneApp: React.FC = () => {
     const mode = forcedMode || (tone === 'translate_explain' ? 'translate' : 'rewrite');
 
     if (isModal) {
+      setToolbar((prev) => ({ ...prev, visible: false }));
       setTooltipState({ isOpen: true, mode, isLoading: true });
     }
     try {
@@ -148,6 +149,7 @@ export const StandaloneApp: React.FC = () => {
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onFocus={(e) => {
+                    if (tooltipState.isOpen) return;
                     const rect = e.currentTarget.getBoundingClientRect();
                     setToolbar({
                       visible: true,
@@ -182,12 +184,12 @@ export const StandaloneApp: React.FC = () => {
 
       <FloatingToolbar
         theme={theme}
-        visible={toolbar.visible}
+        visible={toolbar.visible && !tooltipState.isOpen}
         x={toolbar.x}
         y={toolbar.y}
         isLoading={toolbar.isLoading}
         onSelectTone={async (tone, mode) => {
-          setToolbar((prev) => ({ ...prev, isLoading: true }));
+          setToolbar((prev) => ({ ...prev, isLoading: true, visible: false }));
           await runOptimize(tone, mode);
           setToolbar((prev) => ({ ...prev, isLoading: false, visible: false }));
         }}
