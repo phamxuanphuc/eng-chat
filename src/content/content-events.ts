@@ -69,6 +69,13 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
     return false;
   };
 
+  const isInsideHost = (e: Event): boolean => {
+    const host = document.getElementById('engchat-root-host');
+    if (!host) return false;
+    const path = e.composedPath ? e.composedPath() : [];
+    return path.includes(host) || host === e.target || host.contains(e.target as Node);
+  };
+
   document.addEventListener('focusin', (e) => {
     const target = e.target as HTMLElement;
     if (target && isEditable(target)) {
@@ -84,27 +91,20 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
   }, true);
 
   document.addEventListener('mousedown', (e) => {
-    const target = e.target as HTMLElement;
-    if (!target) return;
-    const host = document.getElementById('engchat-root-host');
-    if (host && (host === target || host.contains(target))) return;
+    if (isInsideHost(e)) return;
     isMouseDown = true;
     callbacks.onClickOutside();
   });
 
   document.addEventListener('mouseup', (e) => {
     isMouseDown = false;
-    const target = e.target as HTMLElement;
-    const host = document.getElementById('engchat-root-host');
-    if (host && (host === target || host.contains(target))) return;
-    setTimeout(() => checkSelection(target), 10);
+    if (isInsideHost(e)) return;
+    setTimeout(() => checkSelection(e.target as HTMLElement), 10);
   });
 
   document.addEventListener('keyup', (e) => {
-    const target = e.target as HTMLElement;
-    const host = document.getElementById('engchat-root-host');
-    if (host && (host === target || host.contains(target))) return;
-    checkSelection(target);
+    if (isInsideHost(e)) return;
+    checkSelection(e.target as HTMLElement);
   });
 
   document.addEventListener('selectionchange', () => {

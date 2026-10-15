@@ -105,4 +105,21 @@ describe('content-events', () => {
     await new Promise((resolve) => setTimeout(resolve, 30));
     expect(onSelect).toHaveBeenCalledWith(expect.anything(), false);
   });
+
+  it('TC-CE-07: setupDOMEvents does not trigger onClickOutside when clicking inside root host', () => {
+    const onFocus = vi.fn();
+    const onSelect = vi.fn();
+    const onClickOutside = vi.fn();
+
+    setupDOMEvents({ onFocus, onSelect, onClickOutside });
+
+    const host = document.createElement('div');
+    host.id = 'engchat-root-host';
+    const innerBtn = document.createElement('button');
+    host.appendChild(innerBtn);
+    document.body.appendChild(host);
+
+    innerBtn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    expect(onClickOutside).not.toHaveBeenCalled();
+  });
 });

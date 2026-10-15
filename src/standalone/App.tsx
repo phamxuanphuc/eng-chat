@@ -53,15 +53,21 @@ export const StandaloneApp: React.FC = () => {
   };
 
   useEffect(() => {
+    const isInsideOverlay = (e: MouseEvent): boolean => {
+      const path = e.composedPath ? e.composedPath() : [];
+      return path.some((el) => {
+        if (!(el instanceof HTMLElement)) return false;
+        const role = el.getAttribute('role');
+        return role === 'toolbar' || role === 'dialog' || !!el.closest?.('[role="toolbar"], [role="dialog"]');
+      });
+    };
     const onMouseDown = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target?.closest('[role="toolbar"]') || target?.closest('[role="dialog"]')) return;
+      if (isInsideOverlay(e)) return;
       setToolbar((p) => ({ ...p, visible: false }));
       if (tooltipRef.current.isOpen) setTooltipState((p) => ({ ...p, isOpen: false }));
     };
     const onMouseUp = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target?.closest('[role="toolbar"]') || target?.closest('[role="dialog"]')) return;
+      if (isInsideOverlay(e)) return;
       setTimeout(checkSelection, 15);
     };
     document.addEventListener('mousedown', onMouseDown);
@@ -215,15 +221,13 @@ export const StandaloneApp: React.FC = () => {
           onModeChange={(m) => runOptimize(m === 'translate' ? 'translate_explain' : 'professional', m)}
           onFollowUp={async (query) => {
             setTooltipState((p) => ({ ...p, isLoading: true }));
-            const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
-            const res = await executeOptimize({ text: `Văn bản gốc: "${activeText}"\n\nYêu cầu: ${query}`, tone }, await loadSettings());
+            const res = await executeOptimize({ text: `Văn bản gốc: "${activeText}"\n\nYêu cầu: ${query}`, tone: tooltipState.mode === 'translate' ? 'translate_explain' : 'professional' }, await loadSettings());
             setTooltipState({ isOpen: true, mode: tooltipState.mode, isLoading: false, result: res.data, error: res.error });
           }}
           onRegenerate={() => runOptimize(tooltipState.mode === 'translate' ? 'translate_explain' : 'professional', tooltipState.mode)}
           onLanguageChange={async (lang) => {
             setTooltipState((p) => ({ ...p, isLoading: true }));
-            const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
-            const res = await executeOptimize({ text: `Target language: ${lang}\n\n"${activeText}"`, tone }, await loadSettings());
+            const res = await executeOptimize({ text: `Target language: ${lang}\n\n"${activeText}"`, tone: tooltipState.mode === 'translate' ? 'translate_explain' : 'professional' }, await loadSettings());
             setTooltipState((p) => ({ ...p, isLoading: false, result: res.data, error: res.error }));
           }}
           onInsert={(text) => {
