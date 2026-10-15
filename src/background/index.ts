@@ -9,7 +9,7 @@ type ContextAction = 'improve' | 'rewrite' | 'translate';
 const CONTEXT_ACTIONS: Array<{ id: ContextAction; title: string; tone: ToneType }> = [
   { id: 'improve', title: 'Improve', tone: 'professional' },
   { id: 'rewrite', title: 'Rewrite', tone: 'professional' },
-  { id: 'translate', title: 'Translate (English)', tone: 'translate_explain' },
+  { id: 'translate', title: 'Translate', tone: 'translate_explain' }
 ];
 
 export const setupContextMenus = () => {
@@ -18,7 +18,7 @@ export const setupContextMenus = () => {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
       id: 'engchat_root',
-      title: 'EngChat AI - Tối ưu tiếng Anh',
+      title: 'EngChat AI',
       contexts: ['selection', 'editable'],
     });
 

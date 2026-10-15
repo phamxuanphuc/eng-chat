@@ -41,12 +41,12 @@ describe('Background Service Worker', () => {
       expect.objectContaining({ id: 'engchat_action_rewrite', title: 'Rewrite' })
     );
     expect(chrome.contextMenus.create).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'engchat_action_translate', title: 'Translate (English)' })
+      expect.objectContaining({ id: 'engchat_action_translate', title: 'Translate' })
     );
     const createdTitles = (chrome.contextMenus.create as any).mock.calls
       .filter(([item]: any[]) => item.parentId === 'engchat_root')
       .map(([item]: any[]) => item.title);
-    expect(createdTitles).toEqual(['Improve', 'Rewrite', 'Translate (English)']);
+    expect(createdTitles).toEqual(['Improve', 'Rewrite', 'Translate']);
   });
 
   it('TC-BG-02: dispatches each context action with its mode and tone', async () => {
