@@ -11,6 +11,7 @@ export interface TranslatePopupHeaderProps {
   onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite') => void;
   onClose: () => void;
+  onDragStart?: (e: React.MouseEvent) => void;
 }
 
 const LANGUAGES = ['Vietnamese', 'English', 'Japanese', 'Korean', 'Chinese', 'French'];
@@ -24,17 +25,36 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   onLanguageChange,
   onModeChange,
   onClose,
+  onDragStart,
 }) => {
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
   const isLight = theme === 'light';
   const th = getPopupTheme(theme);
 
+  const handleHeaderMouseDown = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button, input, select, textarea, [role="button"]')) {
+      return;
+    }
+    onDragStart?.(e);
+  };
+
   return (
-    <div className={`sticky top-0 z-20 px-4 pt-2.5 pb-2 border-b backdrop-blur-md rounded-t-2xl flex flex-col gap-1.5 ${
-      isLight ? 'bg-white/95 border-slate-200/80' : 'bg-slate-900/95 border-slate-800/80'
-    }`}>
-      <div className={`w-8 h-1 rounded-full mx-auto ${th.bar}`} />
+    <div
+      onMouseDown={handleHeaderMouseDown}
+      className={`sticky top-0 z-20 px-4 pt-2.5 pb-2 border-b backdrop-blur-md rounded-t-2xl flex flex-col gap-1.5 cursor-grab active:cursor-grabbing select-none ${
+        isLight ? 'bg-white/95 border-slate-200/80' : 'bg-slate-900/95 border-slate-800/80'
+      }`}
+    >
+      <div
+        data-testid="drag-handle"
+        onMouseDown={onDragStart}
+        className="w-full pt-0.5 pb-1 -mt-1 cursor-grab active:cursor-grabbing flex items-center justify-center select-none group"
+        title="Kéo để di chuyển"
+      >
+        <div className={`w-9 h-1 rounded-full transition-all group-hover:scale-x-125 group-hover:bg-indigo-400 ${th.bar}`} />
+      </div>
 
       <div className="flex items-center justify-between">
         <div className="relative">

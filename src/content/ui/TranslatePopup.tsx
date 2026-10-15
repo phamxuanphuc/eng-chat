@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TranslateExplainResult, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../../types';
 import { ChevronDown, Loader2, BookOpen, AudioWaveform, Languages } from 'lucide-react';
 import { TranslatePopupHeader } from './TranslatePopupHeader';
 import { TranslatePopupFooter } from './TranslatePopupFooter';
 import { RewriteOptionsPanel } from './RewriteOptionsPanel';
 import { getPopupTheme } from './popup-theme';
+import { useDraggable } from './useDraggable';
 
 export interface TranslatePopupProps {
   mode?: 'translate' | 'rewrite'; originalText: string;
@@ -33,6 +34,9 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   const [showViTranslation, setShowViTranslation] = useState(false);
   const [viTranslation, setViTranslation] = useState<string | null>(null);
   const [isTranslatingVi, setIsTranslatingVi] = useState(false);
+
+  const popupRef = useRef<HTMLDivElement>(null);
+  const { position, isDragging, handleMouseDown } = useDraggable(popupRef, 'engchat_popup_position');
 
   const isLight = theme === 'light';
   const th = getPopupTheme(theme);
@@ -73,14 +77,21 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
 
   return (
     <div
+      ref={popupRef}
       role="dialog"
       aria-label={mode === 'rewrite' ? 'EngChat Rewrite Popup' : 'EngChat Translate Popup'}
-      className={`fixed bottom-6 right-6 z-[2147483647] w-[460px] max-w-[94vw] max-h-[88vh] rounded-2xl border backdrop-blur-2xl font-sans flex flex-col overflow-hidden ${th.card}`}
+      style={
+        position
+          ? { left: `${position.x}px`, top: `${position.y}px`, bottom: 'auto', right: 'auto' }
+          : undefined
+      }
+      className={`fixed ${!position ? 'bottom-6 right-6' : ''} z-[2147483647] w-[460px] max-w-[94vw] max-h-[88vh] rounded-2xl border backdrop-blur-2xl font-sans flex flex-col overflow-hidden ${isDragging ? 'select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)]' : ''} ${th.card}`}
       onMouseDown={(e) => e.stopPropagation()}
     >
       <TranslatePopupHeader
         mode={mode} targetLanguage={targetLanguage} isPinned={isPinned} theme={theme}
         onTogglePin={onTogglePin} onLanguageChange={onLanguageChange} onModeChange={onModeChange} onClose={onClose}
+        onDragStart={handleMouseDown}
       />
 
       <div className="p-4 pt-3 overflow-y-auto flex-1 flex flex-col gap-3">
