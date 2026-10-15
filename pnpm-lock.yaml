@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@crxjs/vite-plugin':
+    hash: a48a39d0774b127c7138e7be957cc50bfeb0d9d79999307a091a1d544b7e4666
+    path: patches/@crxjs__vite-plugin.patch
+
 importers:
 
   .:
@@ -32,7 +37,7 @@ importers:
     devDependencies:
       '@crxjs/vite-plugin':
         specifier: ^2.0.0-beta.28
-        version: 2.7.1(vite@5.4.21)
+        version: 2.7.1(patch_hash=a48a39d0774b127c7138e7be957cc50bfeb0d9d79999307a091a1d544b7e4666)(vite@5.4.21)
       '@testing-library/jest-dom':
         specifier: ^7.0.1
         version: 7.0.1(@testing-library/dom@10.4.2)(vitest@1.6.1(happy-dom@14.12.3))
@@ -1637,7 +1642,7 @@ snapshots:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
-  '@crxjs/vite-plugin@2.7.1(vite@5.4.21)':
+  '@crxjs/vite-plugin@2.7.1(patch_hash=a48a39d0774b127c7138e7be957cc50bfeb0d9d79999307a091a1d544b7e4666)(vite@5.4.21)':
     dependencies:
       '@webcomponents/custom-elements': 1.6.0
       acorn-walk: 8.3.5
