@@ -20,8 +20,11 @@ export const computeToolbarPos = (rect: DOMRect) => {
 };
 
 export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
-  const checkInputSelection = () => {
-    const active = getActiveEditableElement();
+  const checkInputSelection = (target?: HTMLElement | null) => {
+    const active =
+      target && (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)
+        ? target
+        : getActiveEditableElement();
     if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) {
       const start = active.selectionStart ?? 0;
       const end = active.selectionEnd ?? 0;
@@ -54,9 +57,9 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
     }
   });
 
-  document.addEventListener('select', () => {
-    checkInputSelection();
-  });
+  document.addEventListener('select', (e) => {
+    checkInputSelection(e.target as HTMLElement);
+  }, true);
 
   document.addEventListener('keyup', (e) => {
     if (e.shiftKey || e.key === 'Shift' || e.key.startsWith('Arrow') || e.ctrlKey || e.metaKey) {
@@ -64,9 +67,9 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
     }
   });
 
-  document.addEventListener('mouseup', () => {
+  document.addEventListener('mouseup', (e) => {
     setTimeout(() => {
-      if (checkInputSelection()) return;
+      if (checkInputSelection(e.target as HTMLElement)) return;
       const sel = window.getSelection();
       if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
         try {
@@ -86,18 +89,6 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
 
     const host = document.getElementById('engchat-root-host');
     if (host && (host === target || host.contains(target))) return;
-
-    const active = getActiveEditableElement();
-    if (target === active || (active && active.contains(target))) return;
-
-    if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) {
-      const start = active.selectionStart ?? 0;
-      const end = active.selectionEnd ?? 0;
-      if (start !== end) return;
-    }
-
-    const sel = window.getSelection();
-    if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) return;
 
     callbacks.onClickOutside();
   });

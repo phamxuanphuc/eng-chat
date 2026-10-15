@@ -181,10 +181,9 @@ const handleFollowUp = async (query: string) => {
 };
 
 const handleRegenerate = () => {
-  if (tooltipState.originalText) {
-    const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
-    handleTriggerOptimize(tone, undefined, tooltipState.originalText, tooltipState.mode);
-  }
+  if (!tooltipState.originalText) return;
+  const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
+  handleTriggerOptimize(tone, undefined, tooltipState.originalText, tooltipState.mode);
 };
 
 const handleLanguageChange = async (lang: string) => {
@@ -210,26 +209,24 @@ const handleRewriteOptionsChange = async (opts: RewriteOptions) => {
 setupDOMEvents({
   onFocus: (rect, element) => {
     currentEditableEl = element;
-    if (tooltipState.visible) return;
+    if (tooltipState.visible && !tooltipState.isPinned) tooltipState = { ...tooltipState, visible: false };
+    if (tooltipState.visible && tooltipState.isPinned) return;
     const pos = computeToolbarPos(rect);
     toolbarState = { visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: true };
     renderApp();
   },
   onSelect: (rect, isEditable) => {
-    if (tooltipState.visible) return;
+    if (tooltipState.visible && !tooltipState.isPinned) tooltipState = { ...tooltipState, visible: false };
+    if (tooltipState.visible && tooltipState.isPinned) return;
     const pos = computeToolbarPos(rect);
     toolbarState = { visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: !!isEditable };
     renderApp();
   },
   onClickOutside: () => {
-    if (toolbarState.visible) {
-      toolbarState = { ...toolbarState, visible: false };
-      renderApp();
-    }
-    if (tooltipState.visible && !tooltipState.isPinned) {
-      tooltipState = { ...tooltipState, visible: false };
-      renderApp();
-    }
+    let changed = false;
+    if (toolbarState.visible) { toolbarState = { ...toolbarState, visible: false }; changed = true; }
+    if (tooltipState.visible && !tooltipState.isPinned) { tooltipState = { ...tooltipState, visible: false }; changed = true; }
+    if (changed) renderApp();
   },
 });
 

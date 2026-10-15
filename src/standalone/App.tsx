@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { App as OptionsApp } from '../options/App';
 import { App as PopupApp } from '../popup/App';
 import { TranslatePopup } from '../content/ui/TranslatePopup';
@@ -15,20 +15,45 @@ export const StandaloneApp: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [activeTab, setActiveTab] = useState<'playground' | 'options' | 'popup'>('playground');
   const [chatInput, setChatInput] = useState('Tôi đồng ý với phương án này, hãy triển khai sớm nhé');
+  const [selectedSnippet, setSelectedSnippet] = useState('');
   const [rewriteOptions, setRewriteOptions] = useState<RewriteOptions>(DEFAULT_REWRITE_OPTIONS);
-  const [toolbar, setToolbar] = useState<{
-    visible: boolean;
-    x: number;
-    y: number;
-    isLoading: boolean;
-  }>({ visible: false, x: 0, y: 0, isLoading: false });
+  const [toolbar, setToolbar] = useState({ visible: false, x: 0, y: 0, isLoading: false });
   const [tooltipState, setTooltipState] = useState<{
-    isOpen: boolean;
-    mode?: 'translate' | 'rewrite' | 'improve';
-    isLoading: boolean;
-    result?: any;
-    error?: string | null;
+    isOpen: boolean; mode?: 'translate' | 'rewrite' | 'improve'; isLoading: boolean; result?: any; error?: string | null;
   }>({ isOpen: false, mode: 'translate', isLoading: false });
+
+  const activeText = selectedSnippet || chatInput;
+
+  const checkSelection = () => {
+    const inputEl = document.getElementById('standalone-chat-input') as HTMLInputElement | null;
+    if (inputEl && inputEl.selectionStart !== inputEl.selectionEnd) {
+      const s = inputEl.value.slice(inputEl.selectionStart || 0, inputEl.selectionEnd || 0).trim();
+      if (s) {
+        setSelectedSnippet(s);
+        const rect = inputEl.getBoundingClientRect();
+        setToolbar({ visible: true, x: Math.round(rect.left + rect.width / 2 - 90), y: Math.round(rect.bottom + 8), isLoading: false });
+        return;
+      }
+    }
+    const sel = window.getSelection();
+    if (sel && !sel.isCollapsed && sel.toString().trim()) {
+      setSelectedSnippet(sel.toString().trim());
+      const rect = sel.getRangeAt(0).getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        setToolbar({ visible: true, x: Math.round(rect.left + rect.width / 2 - 90), y: Math.round(rect.bottom + 8), isLoading: false });
+      }
+    }
+  };
+
+  useEffect(() => {
+    const onMouseUp = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target?.closest('[role="toolbar"]') || target?.closest('[role="dialog"]')) return;
+      setTimeout(checkSelection, 20);
+    };
+    document.addEventListener('mouseup', onMouseUp);
+    return () => document.removeEventListener('mouseup', onMouseUp);
+  }, []);
 
   const runOptimize = async (tone: ToneType, forcedMode?: 'translate' | 'rewrite' | 'improve') => {
     const isModal = forcedMode === 'improve' || forcedMode === 'rewrite' || forcedMode === 'translate' || tone === 'translate_explain';
@@ -39,41 +64,24 @@ export const StandaloneApp: React.FC = () => {
       setTooltipState({ isOpen: true, mode, isLoading: true });
     }
     try {
-      const inputEl = document.getElementById('standalone-chat-input') as HTMLElement;
+      const inputEl = document.getElementById('standalone-chat-input') as HTMLInputElement | null;
       const context = extractChatContext(inputEl, 4);
       const settings = await loadSettings();
-
-      const response = await executeOptimize(
-        { text: chatInput, tone, contextMessages: context },
-        settings
-      );
+      const response = await executeOptimize({ text: activeText, tone, contextMessages: context }, settings);
 
       if (response.success && response.data) {
         if (!isModal && inputEl) {
-          const textToInsert =
-            typeof response.data === 'string'
-              ? response.data
-              : response.data.translation;
+          const textToInsert = typeof response.data === 'string' ? response.data : response.data.translation;
           replaceTextInElement(inputEl, textToInsert);
-          setChatInput(textToInsert);
+          setChatInput(inputEl.value);
         } else {
           setTooltipState({ isOpen: true, mode, isLoading: false, result: response.data });
         }
       } else {
-        setTooltipState({
-          isOpen: true,
-          mode,
-          isLoading: false,
-          error: response.error || 'Lỗi xử lý',
-        });
+        setTooltipState({ isOpen: true, mode, isLoading: false, error: response.error || 'Lỗi xử lý' });
       }
     } catch (err: any) {
-      setTooltipState({
-        isOpen: true,
-        mode,
-        isLoading: false,
-        error: err?.message || 'Có lỗi xảy ra',
-      });
+      setTooltipState({ isOpen: true, mode, isLoading: false, error: err?.message || 'Có lỗi xảy ra' });
     }
   };
 
@@ -91,15 +99,9 @@ export const StandaloneApp: React.FC = () => {
         </div>
 
         <nav className="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
-          <Button variant={activeTab === 'playground' ? 'primary' : 'ghost'} size="sm" icon={<Monitor size={14} />} onClick={() => setActiveTab('playground')}>
-            Trang Thử Nghiệm
-          </Button>
-          <Button variant={activeTab === 'options' ? 'primary' : 'ghost'} size="sm" icon={<Settings size={14} />} onClick={() => setActiveTab('options')}>
-            Cài Đặt (Options)
-          </Button>
-          <Button variant={activeTab === 'popup' ? 'primary' : 'ghost'} size="sm" icon={<MessageSquare size={14} />} onClick={() => setActiveTab('popup')}>
-            Cửa Sổ Popup
-          </Button>
+          <Button variant={activeTab === 'playground' ? 'primary' : 'ghost'} size="sm" icon={<Monitor size={14} />} onClick={() => setActiveTab('playground')}>Trang Thử Nghiệm</Button>
+          <Button variant={activeTab === 'options' ? 'primary' : 'ghost'} size="sm" icon={<Settings size={14} />} onClick={() => setActiveTab('options')}>Cài Đặt (Options)</Button>
+          <Button variant={activeTab === 'popup' ? 'primary' : 'ghost'} size="sm" icon={<MessageSquare size={14} />} onClick={() => setActiveTab('popup')}>Cửa Sổ Popup</Button>
           <Button variant="ghost" size="sm" icon={theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
             {theme === 'dark' ? 'Sáng' : 'Tối'}
           </Button>
@@ -108,7 +110,6 @@ export const StandaloneApp: React.FC = () => {
 
       <main className={`flex-1 ${activeTab === 'options' ? 'p-0 w-full' : 'p-6 max-w-5xl mx-auto w-full'}`}>
         {activeTab === 'options' && <OptionsApp />}
-
         {activeTab === 'popup' && (
           <div className="flex flex-col items-center justify-center py-8">
             <div className="border border-slate-800 rounded-2xl shadow-2xl overflow-hidden bg-slate-950 ring-1 ring-slate-800">
@@ -116,7 +117,6 @@ export const StandaloneApp: React.FC = () => {
             </div>
           </div>
         )}
-
         {activeTab === 'playground' && (
           <div className="flex flex-col gap-6">
             <div className="p-4 rounded-xl bg-indigo-950/20 border border-indigo-500/30 text-xs text-indigo-300 flex items-center justify-between">
@@ -148,15 +148,11 @@ export const StandaloneApp: React.FC = () => {
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
+                  onSelect={checkSelection}
                   onFocus={(e) => {
-                    if (tooltipState.isOpen) return;
+                    if (tooltipState.isOpen) setTooltipState((p) => ({ ...p, isOpen: false }));
                     const rect = e.currentTarget.getBoundingClientRect();
-                    setToolbar({
-                      visible: true,
-                      x: Math.round(rect.left + rect.width / 2 - 90),
-                      y: Math.round(rect.bottom + 8),
-                      isLoading: false,
-                    });
+                    setToolbar({ visible: true, x: Math.round(rect.left + rect.width / 2 - 90), y: Math.round(rect.bottom + 8), isLoading: false });
                   }}
                   className="w-full rounded-xl bg-slate-950 text-slate-100 px-4 py-3 text-sm border border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 outline-none"
                 />
@@ -164,15 +160,9 @@ export const StandaloneApp: React.FC = () => {
 
               <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800">
                 <span className="text-xs text-slate-400 mr-2">Thao tác nhanh:</span>
-                <Button variant="secondary" size="sm" onClick={() => runOptimize('polite')}>
-                  🎩 Lịch sự
-                </Button>
-                <Button variant="secondary" size="sm" onClick={() => runOptimize('professional')}>
-                  💼 Chuyên nghiệp
-                </Button>
-                <Button variant="secondary" size="sm" onClick={() => runOptimize('concise')}>
-                  ⚡ Ngắn gọn
-                </Button>
+                <Button variant="secondary" size="sm" onClick={() => runOptimize('polite')}>🎩 Lịch sự</Button>
+                <Button variant="secondary" size="sm" onClick={() => runOptimize('professional')}>💼 Chuyên nghiệp</Button>
+                <Button variant="secondary" size="sm" onClick={() => runOptimize('concise')}>⚡ Ngắn gọn</Button>
                 <Button variant="primary" size="sm" icon={<Sparkles size={14} />} onClick={() => runOptimize('translate_explain')}>
                   📖 Dịch & Giải thích
                 </Button>
@@ -188,6 +178,7 @@ export const StandaloneApp: React.FC = () => {
         x={toolbar.x}
         y={toolbar.y}
         isLoading={toolbar.isLoading}
+        isEditable={true}
         onSelectTone={async (tone, mode) => {
           setToolbar((prev) => ({ ...prev, isLoading: true, visible: false }));
           await runOptimize(tone, mode);
@@ -200,7 +191,7 @@ export const StandaloneApp: React.FC = () => {
         <TranslatePopup
           theme={theme}
           mode={tooltipState.mode}
-          originalText={chatInput}
+          originalText={activeText}
           isLoading={tooltipState.isLoading}
           error={tooltipState.error}
           result={tooltipState.result}
@@ -209,35 +200,43 @@ export const StandaloneApp: React.FC = () => {
           onRewriteOptionsChange={async (opts) => {
             setRewriteOptions(opts);
             setTooltipState((p) => ({ ...p, isLoading: true }));
-            const parts: string[] = [];
-            if (opts.length !== 'Auto') parts.push(`Length: ${opts.length}`);
-            if (opts.formality !== 'Auto') parts.push(`Formality: ${opts.formality}`);
-            if (opts.format !== 'Auto') parts.push(`Format: ${opts.format}`);
-            if (opts.tone !== 'Auto') parts.push(`Tone: ${opts.tone}`);
-            const prompt = parts.length > 0 ? `Văn bản gốc: "${chatInput}"\nRewrite requirements: ${parts.join(', ')}.` : chatInput;
-            const settings = await loadSettings();
-            const res = await executeOptimize({ text: prompt, tone: 'professional' }, settings);
+            const parts = [
+              opts.length !== 'Auto' && `Length: ${opts.length}`,
+              opts.formality !== 'Auto' && `Formality: ${opts.formality}`,
+              opts.format !== 'Auto' && `Format: ${opts.format}`,
+              opts.tone !== 'Auto' && `Tone: ${opts.tone}`,
+            ].filter(Boolean).join(', ');
+            const prompt = parts ? `Văn bản gốc: "${activeText}"\nRewrite requirements: ${parts}.` : activeText;
+            const res = await executeOptimize({ text: prompt, tone: 'professional' }, await loadSettings());
             setTooltipState((p) => ({ ...p, isLoading: false, result: res.data, error: res.error }));
           }}
           onModeChange={(m) => runOptimize(m === 'translate' ? 'translate_explain' : 'professional', m)}
           onFollowUp={async (query) => {
             setTooltipState((p) => ({ ...p, isLoading: true }));
-            const settings = await loadSettings();
             const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
-            const res = await executeOptimize({ text: `Văn bản gốc: "${chatInput}"\n\nYêu cầu: ${query}`, tone }, settings);
+            const res = await executeOptimize({ text: `Văn bản gốc: "${activeText}"\n\nYêu cầu: ${query}`, tone }, await loadSettings());
             setTooltipState({ isOpen: true, mode: tooltipState.mode, isLoading: false, result: res.data, error: res.error });
           }}
           onRegenerate={() => runOptimize(tooltipState.mode === 'translate' ? 'translate_explain' : 'professional', tooltipState.mode)}
           onLanguageChange={async (lang) => {
             setTooltipState((p) => ({ ...p, isLoading: true }));
-            const res = await executeOptimize({ text: `Target language: ${lang}\n\n"${chatInput}"`, tone: tooltipState.mode === 'translate' ? 'translate_explain' : 'professional' }, await loadSettings());
+            const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
+            const res = await executeOptimize({ text: `Target language: ${lang}\n\n"${activeText}"`, tone }, await loadSettings());
             setTooltipState((p) => ({ ...p, isLoading: false, result: res.data, error: res.error }));
           }}
-          onInsert={(text) => { setChatInput(text); setTooltipState({ isOpen: false, isLoading: false }); }}
+          onInsert={(text) => {
+            const inputEl = document.getElementById('standalone-chat-input') as HTMLInputElement | null;
+            if (inputEl) {
+              replaceTextInElement(inputEl, text);
+              setChatInput(inputEl.value);
+            } else {
+              setChatInput(text);
+            }
+            setTooltipState({ isOpen: false, isLoading: false });
+          }}
           onClose={() => setTooltipState({ isOpen: false, isLoading: false })}
           onTranslateVi={async (text) => {
-            const settings = await loadSettings();
-            const res = await executeOptimize({ text: `Dịch sang tiếng Việt chuẩn, tự nhiên:\n"${text}"`, tone: 'concise' }, settings);
+            const res = await executeOptimize({ text: `Dịch sang tiếng Việt chuẩn, tự nhiên:\n"${text}"`, tone: 'concise' }, await loadSettings());
             return res.success && res.data ? (typeof res.data === 'string' ? res.data : res.data.translation) : '';
           }}
         />
