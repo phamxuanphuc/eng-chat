@@ -2,14 +2,14 @@ import { ToneType, OptimizeRequest } from '../types';
 import { loadSettings, saveSettings } from '../services/storage';
 import { executeOptimize } from '../services/gemini';
 
-const CONTEXT_MENU_PREFIX = 'engchat_tone_';
+const CONTEXT_MENU_PREFIX = 'engchat_action_';
 
-const TONES_CONFIG: Array<{ id: ToneType; title: string }> = [
-  { id: 'polite', title: '🎩 Lịch sự & Trang trọng (Polite)' },
-  { id: 'professional', title: '💼 Chuyên nghiệp (Professional)' },
-  { id: 'friendly', title: '🤝 Thân thiện (Friendly)' },
-  { id: 'concise', title: '⚡ Ngắn gọn & Trực diện (Concise)' },
-  { id: 'translate_explain', title: '📖 Dịch & Giải thích chi tiết' },
+type ContextAction = 'improve' | 'rewrite' | 'translate';
+
+const CONTEXT_ACTIONS: Array<{ id: ContextAction; title: string; tone: ToneType }> = [
+  { id: 'improve', title: 'Improve', tone: 'professional' },
+  { id: 'rewrite', title: 'Rewrite', tone: 'professional' },
+  { id: 'translate', title: 'Translate (English)', tone: 'translate_explain' },
 ];
 
 export const setupContextMenus = () => {
@@ -22,11 +22,11 @@ export const setupContextMenus = () => {
       contexts: ['selection', 'editable'],
     });
 
-    TONES_CONFIG.forEach((t) => {
+    CONTEXT_ACTIONS.forEach((action) => {
       chrome.contextMenus.create({
-        id: `${CONTEXT_MENU_PREFIX}${t.id}`,
+        id: `${CONTEXT_MENU_PREFIX}${action.id}`,
         parentId: 'engchat_root',
-        title: t.title,
+        title: action.title,
         contexts: ['selection', 'editable'],
       });
     });
@@ -79,11 +79,14 @@ export const handleContextMenuClick = async (
   const menuId = String(info.menuItemId);
 
   if (menuId.startsWith(CONTEXT_MENU_PREFIX)) {
-    const tone = menuId.replace(CONTEXT_MENU_PREFIX, '') as ToneType;
+    const actionId = menuId.replace(CONTEXT_MENU_PREFIX, '') as ContextAction;
+    const action = CONTEXT_ACTIONS.find((item) => item.id === actionId);
+    if (!action) return;
     const settings = await loadSettings();
     await safeSendTabMessage(tab.id, {
       action: 'TRIGGER_OPTIMIZE',
-      tone,
+      tone: action.tone,
+      mode: action.id,
       settings,
     });
   }

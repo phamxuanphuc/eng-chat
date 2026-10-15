@@ -35,25 +35,41 @@ describe('Background Service Worker', () => {
       expect.objectContaining({ id: 'engchat_root' })
     );
     expect(chrome.contextMenus.create).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'engchat_tone_polite' })
+      expect.objectContaining({ id: 'engchat_action_improve', title: 'Improve' })
     );
     expect(chrome.contextMenus.create).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'engchat_tone_translate_explain' })
+      expect.objectContaining({ id: 'engchat_action_rewrite', title: 'Rewrite' })
     );
+    expect(chrome.contextMenus.create).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'engchat_action_translate', title: 'Translate (English)' })
+    );
+    const createdTitles = (chrome.contextMenus.create as any).mock.calls
+      .filter(([item]: any[]) => item.parentId === 'engchat_root')
+      .map(([item]: any[]) => item.title);
+    expect(createdTitles).toEqual(['Improve', 'Rewrite', 'Translate (English)']);
   });
 
-  it('TC-BG-02: dispatches message to active tab on context menu click', async () => {
-    const info = { menuItemId: 'engchat_tone_friendly' } as any;
+  it('TC-BG-02: dispatches each context action with its mode and tone', async () => {
     const tab = { id: 101 } as any;
 
-    await handleContextMenuClick(info, tab);
+    await handleContextMenuClick({ menuItemId: 'engchat_action_improve' } as any, tab);
+    await handleContextMenuClick({ menuItemId: 'engchat_action_rewrite' } as any, tab);
+    await handleContextMenuClick({ menuItemId: 'engchat_action_translate' } as any, tab);
 
-    expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
+    expect(chrome.tabs.sendMessage).toHaveBeenNthCalledWith(
+      1,
       101,
-      expect.objectContaining({
-        action: 'TRIGGER_OPTIMIZE',
-        tone: 'friendly',
-      })
+      expect.objectContaining({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'improve' })
+    );
+    expect(chrome.tabs.sendMessage).toHaveBeenNthCalledWith(
+      2,
+      101,
+      expect.objectContaining({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'rewrite' })
+    );
+    expect(chrome.tabs.sendMessage).toHaveBeenNthCalledWith(
+      3,
+      101,
+      expect.objectContaining({ action: 'TRIGGER_OPTIMIZE', tone: 'translate_explain', mode: 'translate' })
     );
   });
 
