@@ -1,6 +1,7 @@
 import { AppSettings } from '../types';
 
 export const DEFAULT_SETTINGS: AppSettings = {
+  llmProvider: 'gemini',
   geminiApiKey: '',
   apiKeys: [],
   autoRotateKeys: true,
@@ -8,6 +9,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   defaultTone: 'professional',
   enableChatContext: true,
   maxContextMessages: 4,
+  customBaseUrl: 'https://api.openai.com/v1',
+  customApiKey: '',
+  customModel: 'gpt-4o-mini',
 };
 
 
@@ -62,6 +66,16 @@ export const loadSettings = async (): Promise<AppSettings> => {
 
   if (!loaded.selectedModel || loaded.selectedModel.includes('2.0-flash')) {
     loaded.selectedModel = 'gemini-3.5-flash-lite';
+  }
+
+  if (!loaded.llmProvider) {
+    loaded.llmProvider = 'gemini';
+  }
+  if (!loaded.customBaseUrl) {
+    loaded.customBaseUrl = 'https://api.openai.com/v1';
+  }
+  if (!loaded.customModel) {
+    loaded.customModel = 'gpt-4o-mini';
   }
 
   const validKeys = (loaded.apiKeys || []).filter(

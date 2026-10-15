@@ -6,6 +6,7 @@ import {
   TranslateExplainResult,
 } from '../types';
 import { buildSystemInstruction, buildUserPrompt } from './prompt';
+import { callOpenAiApi } from './openai';
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
@@ -112,11 +113,6 @@ export const executeOptimize = async (
   settings: AppSettings
 ): Promise<OptimizeResponse> => {
   try {
-    const candidateKeys = extractCandidateKeys(settings);
-    if (candidateKeys.length === 0) {
-      throw new Error('Chưa cấu hình API Key. Vui lòng mở Cài đặt để thêm Gemini API Key.');
-    }
-
     const systemInstruction = buildSystemInstruction(request.tone);
     const userPrompt = buildUserPrompt(
       request.text,
@@ -124,49 +120,69 @@ export const executeOptimize = async (
     );
 
     let rawResult = '';
-    let lastError: any = null;
-    let targetModel = settings.selectedModel || 'gemini-3.5-flash-lite';
-    if (targetModel.includes('2.0-flash')) {
-      targetModel = 'gemini-3.5-flash-lite';
-    }
 
-    for (let i = 0; i < candidateKeys.length; i++) {
-      const currentKey = candidateKeys[i];
-      try {
-        rawResult = await callGeminiApi({
-          apiKey: currentKey,
-          model: targetModel,
-          systemInstruction,
-          prompt: userPrompt,
-        });
-        lastError = null;
-        break;
-      } catch (err: any) {
-        lastError = err;
-        const msg = String(err?.message || '');
+    if (settings.llmProvider === 'openai_compatible') {
+      const model = settings.customModel?.trim() || 'gpt-4o-mini';
+      const baseUrl = settings.customBaseUrl?.trim() || 'https://api.openai.com/v1';
+      const apiKey = settings.customApiKey?.trim() || '';
 
-        if (msg.includes('404') && targetModel !== 'gemini-3.5-flash-lite') {
-          targetModel = 'gemini-3.5-flash-lite';
-          i--;
-          continue;
-        }
-
-        const isQuotaOrAuth =
-          msg.includes('hạn mức') ||
-          msg.includes('không chính xác') ||
-          msg.includes('429') ||
-          msg.includes('401') ||
-          msg.includes('403');
-
-        if (settings.autoRotateKeys !== false && isQuotaOrAuth && i < candidateKeys.length - 1) {
-          continue;
-        }
-        throw err;
+      rawResult = await callOpenAiApi({
+        baseUrl,
+        apiKey,
+        model,
+        systemInstruction,
+        prompt: userPrompt,
+      });
+    } else {
+      const candidateKeys = extractCandidateKeys(settings);
+      if (candidateKeys.length === 0) {
+        throw new Error('Chưa cấu hình API Key. Vui lòng mở Cài đặt để thêm Gemini API Key.');
       }
-    }
 
-    if (lastError) {
-      throw lastError;
+      let lastError: any = null;
+      let targetModel = settings.selectedModel || 'gemini-3.5-flash-lite';
+      if (targetModel.includes('2.0-flash')) {
+        targetModel = 'gemini-3.5-flash-lite';
+      }
+
+      for (let i = 0; i < candidateKeys.length; i++) {
+        const currentKey = candidateKeys[i];
+        try {
+          rawResult = await callGeminiApi({
+            apiKey: currentKey,
+            model: targetModel,
+            systemInstruction,
+            prompt: userPrompt,
+          });
+          lastError = null;
+          break;
+        } catch (err: any) {
+          lastError = err;
+          const msg = String(err?.message || '');
+
+          if (msg.includes('404') && targetModel !== 'gemini-3.5-flash-lite') {
+            targetModel = 'gemini-3.5-flash-lite';
+            i--;
+            continue;
+          }
+
+          const isQuotaOrAuth =
+            msg.includes('hạn mức') ||
+            msg.includes('không chính xác') ||
+            msg.includes('429') ||
+            msg.includes('401') ||
+            msg.includes('403');
+
+          if (settings.autoRotateKeys !== false && isQuotaOrAuth && i < candidateKeys.length - 1) {
+            continue;
+          }
+          throw err;
+        }
+      }
+
+      if (lastError) {
+        throw lastError;
+      }
     }
 
     if (request.tone === 'translate_explain') {

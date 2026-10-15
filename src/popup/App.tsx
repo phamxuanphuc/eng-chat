@@ -73,8 +73,10 @@ export const App: React.FC = () => {
     }
   };
 
+  const isCustom = settings.llmProvider === 'openai_compatible';
   const validKeys = (settings.apiKeys || []).filter((k) => k.key?.trim());
   const keyCount = validKeys.length > 0 ? validKeys.length : settings.geminiApiKey?.trim() ? 1 : 0;
+  const isCustomConfigured = Boolean(settings.customModel?.trim());
 
   const resultData = optimizeMutation.data;
   const isExplain =
@@ -91,9 +93,15 @@ export const App: React.FC = () => {
           <span className="font-bold text-sm bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
             EngChat AI
           </span>
-          <Badge variant={keyCount > 0 ? 'success' : 'warning'} size="sm">
-            {keyCount > 0 ? `${keyCount} Keys` : 'Chưa có Key'}
-          </Badge>
+          {isCustom ? (
+            <Badge variant={isCustomConfigured ? 'success' : 'warning'} size="sm">
+              {isCustomConfigured ? `Custom: ${settings.customModel}` : 'Chưa có Model'}
+            </Badge>
+          ) : (
+            <Badge variant={keyCount > 0 ? 'success' : 'warning'} size="sm">
+              {keyCount > 0 ? `${keyCount} Keys` : 'Chưa có Key'}
+            </Badge>
+          )}
         </div>
         <Button
           variant="ghost"
@@ -104,7 +112,7 @@ export const App: React.FC = () => {
         />
       </div>
 
-      {keyCount === 0 && (
+      {!isCustom && keyCount === 0 && (
         <div className="flex flex-col gap-2.5 p-3 rounded-xl bg-slate-900/80 border border-slate-800">
           <Alert
             variant="warning"

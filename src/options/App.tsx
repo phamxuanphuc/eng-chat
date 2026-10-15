@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSettingsStore } from '../store/useSettingsStore';
-import { ApiKeyItem, ToneType } from '../types';
+import { ApiKeyItem, ToneType, LLMProvider } from '../types';
 import { ApiKeyManager } from './ApiKeyManager';
+import { CustomProviderManager } from './CustomProviderManager';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Switch } from '../components/ui/Switch';
@@ -27,9 +28,13 @@ const MODELS = [
 export const App: React.FC = () => {
   const { settings, fetchSettings, updateSettings } = useSettingsStore();
 
+  const [provider, setProvider] = useState<LLMProvider>('gemini');
   const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([]);
   const [autoRotate, setAutoRotate] = useState(true);
   const [model, setModel] = useState('gemini-3.5-flash-lite');
+  const [customBaseUrl, setCustomBaseUrl] = useState('https://api.openai.com/v1');
+  const [customApiKey, setCustomApiKey] = useState('');
+  const [customModel, setCustomModel] = useState('gpt-4o-mini');
   const [tone, setTone] = useState<ToneType>('professional');
   const [chatContext, setChatContext] = useState(true);
   const [maxContext, setMaxContext] = useState(4);
@@ -41,6 +46,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (settings) {
+      setProvider(settings.llmProvider || 'gemini');
       const keys = settings.apiKeys && settings.apiKeys.length > 0
         ? settings.apiKeys
         : settings.geminiApiKey
@@ -49,6 +55,9 @@ export const App: React.FC = () => {
       setApiKeys(keys);
       setAutoRotate(settings.autoRotateKeys ?? true);
       setModel(settings.selectedModel || 'gemini-3.5-flash-lite');
+      setCustomBaseUrl(settings.customBaseUrl || 'https://api.openai.com/v1');
+      setCustomApiKey(settings.customApiKey || '');
+      setCustomModel(settings.customModel || 'gpt-4o-mini');
 
       setTone(settings.defaultTone || 'professional');
       setChatContext(settings.enableChatContext ?? true);
@@ -58,10 +67,14 @@ export const App: React.FC = () => {
 
   const handleSave = async () => {
     await updateSettings({
+      llmProvider: provider,
       geminiApiKey: apiKeys[0]?.key || '',
       apiKeys,
       autoRotateKeys: autoRotate,
       selectedModel: model,
+      customBaseUrl,
+      customApiKey,
+      customModel,
       defaultTone: tone,
       enableChatContext: chatContext,
       maxContextMessages: Number(maxContext) || 4,
@@ -83,43 +96,92 @@ export const App: React.FC = () => {
       </div>
 
       <div className="flex flex-col gap-6">
-        <ApiKeyManager
-          apiKeys={apiKeys}
-          onUpdateKeys={setApiKeys}
-          autoRotate={autoRotate}
-          onToggleAutoRotate={setAutoRotate}
-          selectedModel={model}
-          onSave={handleSave}
-        />
+        <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-3">
+          <h2 className="text-sm font-semibold text-slate-200">Nhà cung cấp AI (LLM Provider)</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setProvider('gemini')}
+              className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                provider === 'gemini'
+                  ? 'bg-indigo-950/40 border-indigo-500/80 text-indigo-200 ring-1 ring-indigo-500/30'
+                  : 'bg-slate-900/40 border-slate-800 text-slate-300 hover:border-slate-700'
+              }`}
+            >
+              <span className="text-xl">✨</span>
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold">Google Gemini</span>
+                <span className="text-[11px] text-slate-400">Gemini 3.5 Flash-Lite, Flash...</span>
+              </div>
+            </button>
 
-
-
-        <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
-          <h2 className="text-sm font-semibold text-slate-200">Mô hình AI (Model)</h2>
-          <div className="flex flex-col gap-2">
-            {MODELS.map((m) => (
-              <label
-                key={m.id}
-                onClick={() => setModel(m.id)}
-                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                  model === m.id
-                    ? 'bg-indigo-950/40 border-indigo-500/80 text-indigo-200'
-                    : 'bg-slate-900/40 border-slate-800 text-slate-300 hover:border-slate-700'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="model"
-                  value={m.id}
-                  checked={model === m.id}
-                  onChange={() => setModel(m.id)}
-                  className="accent-indigo-500"
-                />
-                <span className="text-xs font-medium">{m.name}</span>
-              </label>
-            ))}
+            <button
+              type="button"
+              onClick={() => setProvider('openai_compatible')}
+              className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                provider === 'openai_compatible'
+                  ? 'bg-indigo-950/40 border-indigo-500/80 text-indigo-200 ring-1 ring-indigo-500/30'
+                  : 'bg-slate-900/40 border-slate-800 text-slate-300 hover:border-slate-700'
+              }`}
+            >
+              <span className="text-xl">🌐</span>
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold">Custom LLM (OpenAI Compatible)</span>
+                <span className="text-[11px] text-slate-400">OpenAI, DeepSeek, Groq, Ollama...</span>
+              </div>
+            </button>
           </div>
         </div>
+
+        {provider === 'gemini' ? (
+          <>
+            <ApiKeyManager
+              apiKeys={apiKeys}
+              onUpdateKeys={setApiKeys}
+              autoRotate={autoRotate}
+              onToggleAutoRotate={setAutoRotate}
+              selectedModel={model}
+              onSave={handleSave}
+            />
+
+            <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
+              <h2 className="text-sm font-semibold text-slate-200">Mô hình AI (Model)</h2>
+              <div className="flex flex-col gap-2">
+                {MODELS.map((m) => (
+                  <label
+                    key={m.id}
+                    onClick={() => setModel(m.id)}
+                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      model === m.id
+                        ? 'bg-indigo-950/40 border-indigo-500/80 text-indigo-200'
+                        : 'bg-slate-900/40 border-slate-800 text-slate-300 hover:border-slate-700'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="model"
+                      value={m.id}
+                      checked={model === m.id}
+                      onChange={() => setModel(m.id)}
+                      className="accent-indigo-500"
+                    />
+                    <span className="text-xs font-medium">{m.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : (
+          <CustomProviderManager
+            baseUrl={customBaseUrl}
+            onUpdateBaseUrl={setCustomBaseUrl}
+            apiKey={customApiKey}
+            onUpdateApiKey={setCustomApiKey}
+            model={customModel}
+            onUpdateModel={setCustomModel}
+            onSave={handleSave}
+          />
+        )}
 
         <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
           <h2 className="text-sm font-semibold text-slate-200">Văn phong mặc định</h2>

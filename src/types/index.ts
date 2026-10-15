@@ -18,7 +18,10 @@ export interface ApiKeyItem {
   key: string;
 }
 
+export type LLMProvider = 'gemini' | 'openai_compatible';
+
 export interface AppSettings {
+  llmProvider?: LLMProvider;
   geminiApiKey: string;
   apiKeys?: ApiKeyItem[];
   autoRotateKeys?: boolean;
@@ -26,6 +29,9 @@ export interface AppSettings {
   defaultTone: ToneType;
   enableChatContext: boolean;
   maxContextMessages: number;
+  customBaseUrl?: string;
+  customApiKey?: string;
+  customModel?: string;
 }
 
 export interface ChatMessage {
