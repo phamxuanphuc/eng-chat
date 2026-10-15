@@ -31,17 +31,17 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   const th = getPopupTheme(theme);
 
   return (
-    <div className={`sticky top-0 z-20 px-4 pt-3 pb-2.5 border-b backdrop-blur-md rounded-t-2xl flex flex-col gap-2 ${
+    <div className={`sticky top-0 z-20 px-4 pt-2.5 pb-2 border-b backdrop-blur-md rounded-t-2xl flex flex-col gap-1.5 ${
       isLight ? 'bg-white/95 border-slate-200/80' : 'bg-slate-900/95 border-slate-800/80'
     }`}>
-      <div className={`w-8 h-1 rounded-full mx-auto -mt-1 ${th.bar}`} />
+      <div className={`w-8 h-1 rounded-full mx-auto ${th.bar}`} />
 
       <div className="flex items-center justify-between">
         <div className="relative">
           <button
             type="button"
             onClick={() => setModeMenuOpen((p) => !p)}
-            className={`flex items-center gap-1.5 text-xs font-semibold transition-colors cursor-pointer ${th.title}`}
+            className={`flex items-center gap-1.5 py-1 px-1.5 -ml-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${th.title}`}
           >
             {mode === 'rewrite' ? <PenLine size={15} className="text-indigo-400" /> : <Languages size={15} className="text-indigo-400" />}
             <span>{mode === 'rewrite' ? 'Rewrite' : 'Translate'}</span>
@@ -64,7 +64,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           {mode !== 'rewrite' && (
             <div className="relative">
               <button
@@ -95,7 +95,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
           <button
             type="button"
             onClick={onTogglePin}
-            className={`p-1.5 rounded-lg cursor-pointer ${isPinned ? 'text-indigo-400 bg-indigo-500/20' : th.iconBtn}`}
+            className={`p-1 rounded-lg cursor-pointer ${isPinned ? 'text-indigo-400 bg-indigo-500/20' : th.iconBtn}`}
             title={isPinned ? 'Bỏ ghim popup' : 'Ghim popup'}
           >
             {isPinned ? <PinOff size={14} /> : <Pin size={14} />}
@@ -103,7 +103,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className={`p-1.5 rounded-lg cursor-pointer ${th.iconBtn}`}
+            className={`p-1 rounded-lg cursor-pointer ${th.iconBtn}`}
             aria-label="Close"
           >
             <X size={15} />
