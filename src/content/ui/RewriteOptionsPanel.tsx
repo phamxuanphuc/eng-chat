@@ -13,13 +13,13 @@ export interface RewriteOptionsPanelProps {
   onClose: () => void;
 }
 
-const LENGTH_OPTIONS = ['Auto', 'Short', 'Medium', 'Long'] as const;
-const FORMALITY_OPTIONS = ['Auto', 'Casual', 'Neutral', 'Formal'] as const;
-const BASE_FORMAT_OPTIONS = [
+export const LENGTH_OPTIONS = ['Auto', 'Short', 'Medium', 'Long'] as const;
+export const FORMALITY_OPTIONS = ['Auto', 'Casual', 'Neutral', 'Formal'] as const;
+export const BASE_FORMAT_OPTIONS = [
   'Auto', 'Email', 'Message', 'Comment', 'Paragraph', 'Article',
   'Blog Post', 'Ideas', 'Outline', 'Twitter', 'Reddit', 'Facebook', 'LinkedIn',
 ];
-const BASE_TONE_OPTIONS = [
+export const BASE_TONE_OPTIONS = [
   'Auto', 'Enthusiastic', 'Humorous', 'Concerned', 'Humble',
   'Optimistic', 'Empathetic', 'Candid', 'Sincere',
 ];

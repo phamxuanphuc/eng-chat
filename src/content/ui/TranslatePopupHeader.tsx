@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Languages, PenLine, Wand2, ChevronDown, Pin, PinOff, X } from 'lucide-react';
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
 import { Badge } from '../../components/ui/Badge';
-import { loadSelectedStyle } from './style-preference';
+import { Select } from '../../components/ui/Select';
+import { BASE_FORMAT_OPTIONS, BASE_TONE_OPTIONS, FORMALITY_OPTIONS, LENGTH_OPTIONS } from './RewriteOptionsPanel';
 import { Language, RewriteOptions } from '../../types';
 import { getTranslator } from '../../i18n';
 
@@ -16,7 +17,7 @@ export interface TranslatePopupHeaderProps {
   onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite' | 'improve') => void;
   rewriteOptions?: RewriteOptions;
-  onOpenRewriteOptions?: () => void;
+  onRewriteOptionsChange?: (options: RewriteOptions) => void;
   onClose: () => void;
   onDragStart?: (e: React.MouseEvent) => void;
 }
@@ -31,13 +32,13 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   onLanguageChange,
   onModeChange,
   rewriteOptions,
-  onOpenRewriteOptions,
+  onRewriteOptionsChange,
   onClose,
   onDragStart,
 }) => {
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
-  const [selectedStyle, setSelectedStyle] = useState(loadSelectedStyle);
+  const [openOption, setOpenOption] = useState<keyof RewriteOptions | null>(null);
   const isLight = theme === 'light';
   const t = getTranslator(language);
   const th = getPopupTheme(theme);
@@ -62,11 +63,18 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
     return <Languages size={15} className="text-indigo-400" />;
   };
 
-  React.useEffect(() => {
-    const syncStyle = () => setSelectedStyle(loadSelectedStyle());
-    window.addEventListener('engchat-style-preference-changed', syncStyle);
-    return () => window.removeEventListener('engchat-style-preference-changed', syncStyle);
-  }, []);
+  const optionConfig = {
+    length: { label: t('content.length'), values: LENGTH_OPTIONS },
+    formality: { label: t('content.formality'), values: FORMALITY_OPTIONS },
+    format: { label: t('content.format'), values: BASE_FORMAT_OPTIONS },
+    tone: { label: t('content.tone'), values: BASE_TONE_OPTIONS },
+  } as const;
+
+  const selectOption = (key: keyof RewriteOptions, value: string) => {
+    if (!rewriteOptions) return;
+    onRewriteOptionsChange?.({ ...rewriteOptions, [key]: value });
+    setOpenOption(null);
+  };
 
   return (
     <div
@@ -93,7 +101,6 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
           >
             {getModeIcon()}
             <span>{getModeTitle()}</span>
-            <Badge variant="primary" size="sm">{selectedStyle}</Badge>
             <ChevronDown size={13} className="text-slate-400" />
           </button>
           {modeMenuOpen && (
@@ -163,28 +170,43 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
       </div>
         {rewriteOptions && mode !== 'translate' && (
           <div className="flex flex-wrap items-center gap-1" aria-label={t('common.rewriteStyleOptions')}>
-            {([
-              ['length', t('content.length')],
-              ['formality', t('content.formality')],
-              ['format', t('content.format')],
-              ['tone', t('content.tone')],
-            ] as const).map(([key, label]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={onOpenRewriteOptions}
-                className="cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-                aria-label={`${label}: ${rewriteOptions[key]}`}
-              >
-                <Badge
-                  variant={rewriteOptions[key] !== 'Auto' ? 'primary' : 'secondary'}
-                  size="sm"
-                  className="whitespace-nowrap px-2 py-0.5 text-[9px]"
-                >
-                  {label}: {rewriteOptions[key]}
-                </Badge>
-              </button>
-            ))}
+            {(Object.keys(optionConfig) as Array<keyof RewriteOptions>).map((key) => {
+              const config = optionConfig[key];
+              const isOpen = openOption === key;
+              const values = config.values.includes(rewriteOptions[key] as never)
+                ? config.values
+                : [rewriteOptions[key], ...config.values];
+              return (
+                <div key={key} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setOpenOption(isOpen ? null : key)}
+                    className="cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                    aria-label={`${config.label}: ${rewriteOptions[key]}`}
+                    aria-expanded={isOpen}
+                  >
+                    <Badge
+                      variant={rewriteOptions[key] !== 'Auto' ? 'primary' : 'secondary'}
+                      size="sm"
+                      className="whitespace-nowrap px-2 py-0.5 text-[9px]"
+                    >
+                      {config.label}: {rewriteOptions[key]}
+                    </Badge>
+                  </button>
+                  {isOpen && (
+                    <div className={`absolute left-0 top-full mt-1.5 z-50 min-w-32 rounded-xl border shadow-xl p-1 ${th.menu}`}>
+                      <Select
+                        aria-label={config.label}
+                        value={rewriteOptions[key]}
+                        options={values.map((value) => ({ value, label: value }))}
+                        onChange={(event) => selectOption(key, event.target.value)}
+                        className="h-8 w-full rounded-lg px-2 py-1 text-xs"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
     </div>

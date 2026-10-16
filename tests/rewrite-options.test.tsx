@@ -161,7 +161,17 @@ describe('RewriteOptionsPanel Component', () => {
     expect(screen.getByText('Tone: Enthusiastic')).toBeDefined();
 
     fireEvent.click(screen.getByRole('button', { name: 'Tone: Enthusiastic' }));
-    expect(screen.getByRole('region', { name: /rewrite style options/i })).toBeDefined();
+    expect(screen.getByRole('combobox', { name: 'Tone' })).toBeDefined();
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'Tone' }), {
+      target: { value: 'Humorous' },
+    });
+    expect(handleRewriteOptionsChange).toHaveBeenCalledWith({
+      length: 'Short',
+      formality: 'Formal',
+      format: 'Email',
+      tone: 'Humorous',
+    });
   });
 
   it('TC-RO-07: Header remains sticky on top with scrollable chip body', () => {
