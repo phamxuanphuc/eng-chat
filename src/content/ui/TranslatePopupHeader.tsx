@@ -90,6 +90,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   return (
     <div
       onMouseDown={handleHeaderMouseDown}
+      onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
       className={`sticky top-0 z-20 pointer-events-auto px-4 pt-2.5 pb-2 border-b backdrop-blur-md rounded-t-2xl flex flex-col gap-1.5 cursor-grab active:cursor-grabbing select-none ${
         isLight ? 'bg-white/95 border-slate-200/80' : 'bg-slate-900/95 border-slate-800/80'
