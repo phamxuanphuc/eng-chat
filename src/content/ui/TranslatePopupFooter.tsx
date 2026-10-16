@@ -6,7 +6,7 @@ import {
   Check,
   RotateCw,
   Bookmark,
-  MoreVertical,
+  Settings,
   CornerDownLeft,
 } from 'lucide-react';
 
@@ -37,7 +37,6 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
-  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [followUpText, setFollowUpText] = useState('');
 
   const isLight = theme === 'light';
@@ -138,50 +137,15 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
           <Bookmark size={14} className={bookmarked ? 'fill-amber-500' : ''} />
         </button>
 
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setMoreMenuOpen((p) => !p)}
-            className={iconBtnClass}
-            title={t('content.more')}
-            aria-label={t('content.moreActions')}
-          >
-            <MoreVertical size={14} />
-          </button>
-          {moreMenuOpen && (
-            <div
-              className={`absolute right-0 bottom-full mb-1.5 w-36 rounded-xl border p-1 z-50 flex flex-col gap-0.5 ${
-                isLight ? 'bg-white border-slate-200 shadow-xl' : 'bg-slate-900 border-slate-700 shadow-xl'
-              }`}
-            >
-              {hasEditableTarget && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMoreMenuOpen(false);
-                    onInsert?.(translationText);
-                  }}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-left rounded-lg text-indigo-500 hover:bg-indigo-500/10 transition-colors"
-                >
-                  <CornerDownLeft size={13} />
-                  <span>{t('content.insert')}</span>
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  setMoreMenuOpen(false);
-                  chrome?.runtime?.openOptionsPage?.();
-                }}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-left rounded-lg transition-colors ${
-                  isLight ? 'text-slate-700 hover:bg-slate-100' : 'text-slate-300 hover:bg-slate-800'
-                }`}
-              >
-                <span>{t('content.openSettings')}</span>
-              </button>
-            </div>
-          )}
-        </div>
+        <button
+          type="button"
+          onClick={() => chrome?.runtime?.openOptionsPage?.()}
+          className={iconBtnClass}
+          title={t('content.openSettings')}
+          aria-label={t('content.openSettings')}
+        >
+          <Settings size={14} />
+        </button>
 
         <button
           type="button"
