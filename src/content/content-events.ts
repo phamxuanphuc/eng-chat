@@ -108,13 +108,20 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
     callbacks.onClickOutside();
   });
 
+  const scheduleSelectionChecks = (target?: HTMLElement | null) => {
+    const run = () => checkSelection(target);
+    requestAnimationFrame(run);
+    setTimeout(run, 30);
+    setTimeout(run, 100);
+    setTimeout(run, 250);
+  };
+
   const checkAfterPointerSelection = (e: Event) => {
     if (isInsideHost(e)) return;
     isMouseDown = false;
-    // The browser updates the Selection after mouseup/pointerup. Check on the
-    // next frame as well as a short timeout for sites that update it later.
-    requestAnimationFrame(() => checkSelection(e.target as HTMLElement));
-    setTimeout(() => checkSelection(e.target as HTMLElement), 30);
+    // Some sites commit the Selection asynchronously after pointerup. Retry
+    // briefly so the toolbar still appears when the first range is empty.
+    scheduleSelectionChecks(e.target as HTMLElement);
   };
 
   document.addEventListener('mouseup', checkAfterPointerSelection);
@@ -123,12 +130,10 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
 
   document.addEventListener('keyup', (e) => {
     if (isInsideHost(e)) return;
-    checkSelection(e.target as HTMLElement);
+    scheduleSelectionChecks(e.target as HTMLElement);
   });
 
   document.addEventListener('selectionchange', () => {
-    if (!isMouseDown) {
-      requestAnimationFrame(() => checkSelection());
-    }
+    scheduleSelectionChecks();
   });
 };

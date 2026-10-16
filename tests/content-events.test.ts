@@ -136,7 +136,32 @@ describe('content-events', () => {
     expect(onSelect).toHaveBeenCalledWith(expect.anything(), false);
   });
 
-  it('TC-CE-08: setupDOMEvents does not trigger onClickOutside when clicking inside root host', () => {
+  it('TC-CE-08: setupDOMEvents retries selection after delayed browser updates', async () => {
+    const onFocus = vi.fn();
+    const onSelect = vi.fn();
+    const onClickOutside = vi.fn();
+
+    setupDOMEvents({ onFocus, onSelect, onClickOutside });
+
+    const p = document.createElement('p');
+    p.textContent = 'Delayed selection';
+    document.body.appendChild(p);
+    const range = {
+      getBoundingClientRect: () => ({ left: 40, top: 40, right: 180, bottom: 60, width: 140, height: 20 } as DOMRect),
+      getClientRects: () => [],
+    };
+    const selection = { isCollapsed: false, toString: () => 'Delayed selection', getRangeAt: () => range, anchorNode: p };
+    let ready = false;
+    vi.spyOn(window, 'getSelection').mockImplementation(() => (ready ? selection : null) as any);
+
+    document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+    setTimeout(() => { ready = true; }, 75);
+    await new Promise((resolve) => setTimeout(resolve, 280));
+
+    expect(onSelect).toHaveBeenCalledWith(expect.anything(), false);
+  });
+
+  it('TC-CE-09: setupDOMEvents does not trigger onClickOutside when clicking inside root host', () => {
     const onFocus = vi.fn();
     const onSelect = vi.fn();
     const onClickOutside = vi.fn();
