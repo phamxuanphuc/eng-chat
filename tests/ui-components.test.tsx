@@ -9,6 +9,7 @@ import { Loader } from '../src/components/ui/Loader';
 import { ToneCard } from '../src/components/ui/ToneCard';
 import { Alert } from '../src/components/ui/Alert';
 import { Badge } from '../src/components/ui/Badge';
+import { Select } from '../src/components/ui/Select';
 
 describe('Uiverse Galaxy UI Components', () => {
   it('TC-UI-01: Button renders variants and handles click & loading', () => {
@@ -131,7 +132,24 @@ describe('Uiverse Galaxy UI Components', () => {
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 
-  it('TC-UI-08: Badge renders with text and variant style', () => {
+  it('TC-UI-08: Select renders Galaxy styling and handles selection', () => {
+    const handleChange = vi.fn();
+    render(
+      <Select
+        label="Language"
+        value="en"
+        options={[{ value: 'en', label: 'English' }, { value: 'vi', label: 'Vietnamese' }]}
+        onChange={handleChange}
+      />
+    );
+
+    const select = screen.getByLabelText('Language') as HTMLSelectElement;
+    expect(select.value).toBe('en');
+    fireEvent.change(select, { target: { value: 'vi' } });
+    expect(handleChange).toHaveBeenCalled();
+  });
+
+  it('TC-UI-09: Badge renders with text and variant style', () => {
     const { container } = render(
       <Badge variant="success" size="sm">
         Hoạt động

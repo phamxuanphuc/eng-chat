@@ -4,6 +4,7 @@ import { useOptions } from './OptionsContext';
 import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
+import { Select } from '../components/ui/Select';
 import { Check, Save, MessageSquare, Palette, Cpu, Languages } from 'lucide-react';
 import { getTranslator, languageOptions } from '../i18n';
 
@@ -37,13 +38,15 @@ export const OptionsLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <label className="flex items-center gap-1.5 text-xs text-slate-400" htmlFor="language-select">
-              <Languages size={14} />
-              <span className="sr-only">{t('options.language')}</span>
-              <select id="language-select" value={language} onChange={(event) => setLanguage(event.target.value as 'en' | 'vi')} className="rounded-lg border border-slate-700 bg-slate-900 px-2 py-1.5 text-xs text-slate-200">
-                {languageOptions.map((option) => <option key={option.value} value={option.value}>{t(option.labelKey)}</option>)}
-              </select>
-            </label>
+            <Select
+              id="language-select"
+              aria-label={t('options.language')}
+              icon={<Languages size={16} />}
+              value={language}
+              onChange={(event) => setLanguage(event.target.value as 'en' | 'vi')}
+              options={languageOptions.map((option) => ({ value: option.value, label: t(option.labelKey) }))}
+              className="w-44"
+            />
             <nav className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
               {NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
