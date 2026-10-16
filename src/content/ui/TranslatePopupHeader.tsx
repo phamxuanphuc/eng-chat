@@ -3,7 +3,7 @@ import { Languages, PenLine, Wand2, ChevronDown, Pin, PinOff, X } from 'lucide-r
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
 import { Badge } from '../../components/ui/Badge';
 import { loadSelectedStyle } from './style-preference';
-import { Language } from '../../types';
+import { Language, RewriteOptions } from '../../types';
 import { getTranslator } from '../../i18n';
 
 export interface TranslatePopupHeaderProps {
@@ -15,6 +15,8 @@ export interface TranslatePopupHeaderProps {
   onTogglePin?: () => void;
   onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite' | 'improve') => void;
+  rewriteOptions?: RewriteOptions;
+  onOpenRewriteOptions?: () => void;
   onClose: () => void;
   onDragStart?: (e: React.MouseEvent) => void;
 }
@@ -28,6 +30,8 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   onTogglePin,
   onLanguageChange,
   onModeChange,
+  rewriteOptions,
+  onOpenRewriteOptions,
   onClose,
   onDragStart,
 }) => {
@@ -157,6 +161,27 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
           </button>
         </div>
       </div>
+        {rewriteOptions && mode !== 'translate' && (
+          <div className="grid grid-cols-4 gap-1.5" aria-label={t('common.rewriteStyleOptions')}>
+            {([
+              ['length', t('content.length')],
+              ['formality', t('content.formality')],
+              ['format', t('content.format')],
+              ['tone', t('content.tone')],
+            ] as const).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={onOpenRewriteOptions}
+                className={`min-w-0 rounded-lg border px-1.5 py-1 text-left transition-colors cursor-pointer ${th.pill}`}
+                aria-label={`${label}: ${rewriteOptions[key]}`}
+              >
+                <span className={`block truncate text-[9px] uppercase tracking-wide ${th.subText}`}>{label}</span>
+                <span className={`block truncate text-[10px] font-semibold ${th.title}`}>{rewriteOptions[key]}</span>
+              </button>
+            ))}
+          </div>
+        )}
     </div>
   );
 };

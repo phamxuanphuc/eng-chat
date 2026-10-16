@@ -137,7 +137,30 @@ describe('RewriteOptionsPanel Component', () => {
     });
   });
 
-  it('TC-RO-06: Header remains sticky on top with scrollable chip body', () => {
+  it('TC-RO-06: Displays all current rewrite values in the popup header and opens the editor', () => {
+    const handleRewriteOptionsChange = vi.fn();
+    render(
+      <TranslatePopup
+        mode="rewrite"
+        originalText="Original content"
+        result="Rewritten content"
+        isLoading={false}
+        rewriteOptions={{ length: 'Short', formality: 'Formal', format: 'Email', tone: 'Enthusiastic' }}
+        onRewriteOptionsChange={handleRewriteOptionsChange}
+        onClose={() => {}}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: 'Length: Short' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Formality: Formal' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Format: Email' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Tone: Enthusiastic' })).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Tone: Enthusiastic' }));
+    expect(screen.getByRole('region', { name: /rewrite style options/i })).toBeDefined();
+  });
+
+  it('TC-RO-07: Header remains sticky on top with scrollable chip body', () => {
     const { container } = render(
       <RewriteOptionsPanel
         options={DEFAULT_REWRITE_OPTIONS}

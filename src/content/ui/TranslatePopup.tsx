@@ -99,8 +99,10 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
       <TranslatePopupHeader
         language={language}
         mode={mode} targetLanguage={currentLang} isPinned={isPinned} theme={theme}
-        onTogglePin={onTogglePin} onLanguageChange={onLanguageChange} onModeChange={onModeChange} onClose={onClose}
-        onDragStart={handleMouseDown}
+        onTogglePin={onTogglePin} onLanguageChange={onLanguageChange} onModeChange={onModeChange}
+        rewriteOptions={rewriteOptions || DEFAULT_REWRITE_OPTIONS}
+        onOpenRewriteOptions={() => setShowRewriteOptions(true)}
+        onClose={onClose} onDragStart={handleMouseDown}
       />
 
       <div className="p-4 pt-3 overflow-y-auto flex-1 flex flex-col gap-3">
