@@ -37,6 +37,7 @@ const persistSettings = async (partial: Partial<AppSettings>) => {
 export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', theme, onClose }) => {
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [provider, setProvider] = useState<LLMProvider>('gemini');
+  const [selectedModel, setSelectedModel] = useState('');
   const [customModels, setCustomModels] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFetchingModels, setIsFetchingModels] = useState(false);
@@ -49,6 +50,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', theme
       .then((loaded) => {
         setSettings(loaded);
         setProvider(loaded.llmProvider || 'gemini');
+        setSelectedModel((loaded.llmProvider || 'gemini') === 'gemini' ? loaded.selectedModel : (loaded.customModel || ''));
       })
       .catch((err: any) => setError(err?.message || t('content.unableLoadConfig')))
       .finally(() => setIsLoading(false));
@@ -80,11 +82,12 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', theme
     const updated = await persistSettings(partial);
     setSettings(updated);
     setProvider(nextProvider);
+    setSelectedModel(model);
   };
 
-  const activeModel = provider === 'gemini'
+  const activeModel = selectedModel || (provider === 'gemini'
     ? settings?.selectedModel
-    : settings?.customModel;
+    : settings?.customModel);
   const panelClass = isLight
     ? 'bg-white border-slate-200 text-slate-800'
     : 'bg-slate-900 border-slate-700 text-slate-100';
@@ -108,7 +111,11 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', theme
                 <button
                   key={item}
                   type="button"
-                  onClick={() => { setProvider(item); setError(null); }}
+                  onClick={() => {
+                    setProvider(item);
+                    setSelectedModel(item === 'gemini' ? (settings?.selectedModel || '') : (settings?.customModel || ''));
+                    setError(null);
+                  }}
                   className={`rounded-lg px-2 py-1.5 text-xs font-medium ${provider === item ? 'bg-indigo-600 text-white' : mutedClass}`}
                 >
                   {item === 'gemini' ? 'Gemini' : t('content.customProvider')}
