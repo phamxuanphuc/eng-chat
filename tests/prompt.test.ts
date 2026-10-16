@@ -70,4 +70,25 @@ describe('Prompt Builder Service', () => {
     expect(prompt).not.toContain('Ignored');
     expect(prompt).toContain('<target_text>\n\n</target_text>');
   });
+
+  it('TC-PR-09: keeps task instructions outside the target text block', () => {
+    const prompt = buildUserPrompt('Please fix this', undefined, 'Apply the selected format.');
+
+    expect(prompt).toContain('Task: Apply the selected format.');
+    expect(prompt.indexOf('Task:')).toBeLessThan(prompt.indexOf('<target_text>'));
+  });
+
+  it('TC-PR-10: places rewrite options in trusted system instructions', () => {
+    const instruction = buildSystemInstruction('professional', undefined, {
+      length: 'Short',
+      formality: 'Formal',
+      format: 'Email',
+      tone: 'Confident',
+    });
+
+    expect(instruction).toContain('Target length: short');
+    expect(instruction).toContain('Formality: formal');
+    expect(instruction).toContain('Format: Email');
+    expect(instruction).toContain('Writing tone: Confident');
+  });
 });

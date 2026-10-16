@@ -55,6 +55,8 @@ export interface OptimizeRequest {
   text: string;
   tone: ToneType;
   contextMessages?: ChatMessage[];
+  rewriteOptions?: RewriteOptions;
+  taskInstruction?: string;
 }
 
 export interface OptimizeResponse {

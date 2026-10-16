@@ -136,10 +136,15 @@ export const executeOptimize = async (
   settings: AppSettings
 ): Promise<OptimizeResponse> => {
   try {
-    const systemInstruction = buildSystemInstruction(request.tone, settings.tonePrompts?.[request.tone]);
+    const systemInstruction = buildSystemInstruction(
+      request.tone,
+      settings.tonePrompts?.[request.tone],
+      request.rewriteOptions
+    );
     const userPrompt = buildUserPrompt(
       request.text,
-      settings.enableChatContext ? request.contextMessages : undefined
+      settings.enableChatContext ? request.contextMessages : undefined,
+      request.taskInstruction
     );
 
     let rawResult = '';

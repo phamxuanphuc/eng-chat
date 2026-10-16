@@ -138,7 +138,12 @@ const handleTriggerOptimize = async (
   try {
     const response: OptimizeResponse = await sendRuntimeMessage({
       action: 'EXECUTE_GEMINI',
-      payload: { text: targetText, tone, contextMessages },
+      payload: {
+        text: targetText,
+        tone,
+        contextMessages,
+        rewriteOptions: mode === 'translate' ? undefined : tooltipState.rewriteOptions,
+      },
     });
     toolbarState = { ...toolbarState, isLoading: false, visible: false };
 
@@ -172,11 +177,15 @@ const handleFollowUp = async (query: string) => {
   renderApp();
 
   try {
-    const prompt = `Original text: "${tooltipState.originalText}"\n\nFollow-up request: ${query}`;
     const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
     const response: OptimizeResponse = await sendRuntimeMessage({
       action: 'EXECUTE_GEMINI',
-      payload: { text: prompt, tone },
+      payload: {
+        text: tooltipState.originalText,
+        tone,
+        rewriteOptions: tooltipState.mode === 'translate' ? undefined : tooltipState.rewriteOptions,
+        taskInstruction: query,
+      },
     });
     tooltipState = { ...tooltipState, isLoading: false, result: response.success ? response.data : null, error: response.success ? null : (response.error || 'Processing error') };
     renderApp();
@@ -208,8 +217,7 @@ const handleRewriteOptionsChange = async (opts: RewriteOptions) => {
   if (opts.formality !== 'Auto') parts.push(`Formality: ${opts.formality}`);
   if (opts.format !== 'Auto') parts.push(`Format: ${opts.format}`);
   if (opts.tone !== 'Auto') parts.push(`Tone: ${opts.tone}`);
-  const prompt = parts.length > 0 ? `Rewrite with style requirements: ${parts.join(', ')}.` : 'Rewrite naturally.';
-  await handleFollowUp(prompt);
+  await handleFollowUp(parts.length > 0 ? `Apply these selected options while rewriting the text: ${parts.join(', ')}.` : 'Rewrite naturally.');
 };
 
 setupDOMEvents({
