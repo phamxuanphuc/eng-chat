@@ -9,7 +9,7 @@ import { Language } from '../../types';
 import { getTranslator } from '../../i18n';
 import { useDraggable } from './useDraggable';
 import { ModelPicker } from './ModelPicker';
-import { sendRuntimeMessage } from '../../services/extension-messaging';
+import { getRuntimeErrorMessage, sendRuntimeMessage } from '../../services/extension-messaging';
 
 export interface TranslatePopupProps {
   language?: Language; mode?: 'translate' | 'rewrite' | 'improve'; originalText: string;
@@ -79,11 +79,8 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         });
         setViTranslation((res?.success && res.data) ? (typeof res.data === 'string' ? res.data : res.data.translation) : 'Unable to translate.');
       }
-      if (!onTranslateVi && !viTranslation) {
-        setViTranslation(originalText || t('content.noVietnameseTranslation'));
-      }
     } catch (err: any) {
-      setViTranslation(t('content.translationError', { error: err?.message || t('common.unableConnect') }));
+      setViTranslation(t('content.translationError', { error: getRuntimeErrorMessage(err, t('common.unableConnect')) }));
     } finally {
       setIsTranslatingVi(false);
     }

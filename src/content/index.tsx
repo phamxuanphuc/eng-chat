@@ -8,7 +8,7 @@ import { ContentOverlay } from './ui/ContentOverlay';
 import { detectPageTheme, observePageTheme } from './theme-detector';
 import styles from '../styles/index.css?inline';
 import { getTranslator } from '../i18n';
-import { sendRuntimeMessage } from '../services/extension-messaging';
+import { getRuntimeErrorMessage, sendRuntimeMessage } from '../services/extension-messaging';
 import { loadSettings } from '../services/storage';
 
 let shadowRoot: ShadowRoot | null = null;
@@ -155,7 +155,7 @@ const handleTriggerOptimize = async (
     renderApp();
   } catch (err: any) {
     toolbarState = { ...toolbarState, isLoading: false, visible: false };
-    tooltipState = { ...tooltipState, visible: true, mode, isLoading: false, error: err?.message || 'Connection error extension.', result: null, hasEditableTarget: !!activeEl };
+    tooltipState = { ...tooltipState, visible: true, mode, isLoading: false, error: getRuntimeErrorMessage(err, 'Connection error extension.'), result: null, hasEditableTarget: !!activeEl };
     renderApp();
   }
 };
@@ -181,7 +181,7 @@ const handleFollowUp = async (query: string) => {
     tooltipState = { ...tooltipState, isLoading: false, result: response.success ? response.data : null, error: response.success ? null : (response.error || 'Processing error') };
     renderApp();
   } catch (err: any) {
-    tooltipState = { ...tooltipState, isLoading: false, error: err?.message || 'Connection error' };
+    tooltipState = { ...tooltipState, isLoading: false, error: getRuntimeErrorMessage(err, 'Connection error') };
     renderApp();
   }
 };
