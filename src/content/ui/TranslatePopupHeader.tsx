@@ -1,9 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Languages, PenLine, Wand2, ChevronDown, X } from 'lucide-react';
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
 import { Badge } from '../../components/ui/Badge';
-import { Select } from '../../components/ui/Select';
-import { BASE_FORMAT_OPTIONS, BASE_TONE_OPTIONS, FORMALITY_OPTIONS, LENGTH_OPTIONS } from './RewriteOptionsPanel';
 import { Language, RewriteOptions } from '../../types';
 import { getTranslator } from '../../i18n';
 
@@ -16,7 +14,7 @@ export interface TranslatePopupHeaderProps {
   onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite' | 'improve') => void;
   rewriteOptions?: RewriteOptions;
-  onRewriteOptionsChange?: (options: RewriteOptions) => void;
+  onOpenRewriteOptions?: () => void;
   onClose: () => void;
   onDragStart?: (e: React.MouseEvent) => void;
 }
@@ -29,30 +27,15 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   onLanguageChange,
   onModeChange,
   rewriteOptions,
-  onRewriteOptionsChange,
+  onOpenRewriteOptions,
   onClose,
   onDragStart,
 }) => {
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
-  const [openOption, setOpenOption] = useState<keyof RewriteOptions | null>(null);
-  const optionsMenuRef = useRef<HTMLDivElement>(null);
   const isLight = theme === 'light';
   const t = getTranslator(language);
   const th = getPopupTheme(theme);
-
-  useEffect(() => {
-    if (!openOption) return;
-    const handleOutsideClick = (event: MouseEvent) => {
-      const path = event.composedPath();
-      const clickedInside = optionsMenuRef.current && (
-        path.includes(optionsMenuRef.current) || optionsMenuRef.current.contains(event.target as Node)
-      );
-      if (!clickedInside) setOpenOption(null);
-    };
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [openOption]);
 
   const handleHeaderMouseDown = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -72,19 +55,6 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
     if (mode === 'improve') return <Wand2 size={15} className="text-indigo-400" />;
     if (mode === 'rewrite') return <PenLine size={15} className="text-indigo-400" />;
     return <Languages size={15} className="text-indigo-400" />;
-  };
-
-  const optionConfig = {
-    length: { label: t('content.length'), values: LENGTH_OPTIONS },
-    formality: { label: t('content.formality'), values: FORMALITY_OPTIONS },
-    format: { label: t('content.format'), values: BASE_FORMAT_OPTIONS },
-    tone: { label: t('content.tone'), values: BASE_TONE_OPTIONS },
-  } as const;
-
-  const selectOption = (key: keyof RewriteOptions, value: string) => {
-    if (!rewriteOptions) return;
-    onRewriteOptionsChange?.({ ...rewriteOptions, [key]: value });
-    setOpenOption(null);
   };
 
   return (
@@ -137,51 +107,25 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
           </div>
 
           {rewriteOptions && mode !== 'translate' && (
-            <div ref={optionsMenuRef} className="flex min-w-0 flex-1 flex-wrap items-center gap-1" aria-label={t('common.rewriteStyleOptions')}>
-              {(Object.keys(optionConfig) as Array<keyof RewriteOptions>).map((key) => {
-                const config = optionConfig[key];
-                const isOpen = openOption === key;
-                const values = config.values.includes(rewriteOptions[key] as never)
-                  ? config.values
-                  : [rewriteOptions[key], ...config.values];
-                return (
-                  <div key={key} className="relative">
-                    <button
-                      type="button"
-                      onClick={(event) => { event.stopPropagation(); setOpenOption(isOpen ? null : key); }}
-                      onMouseDown={(event) => event.stopPropagation()}
-                      className="cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-                      aria-label={`${config.label}: ${rewriteOptions[key]}`}
-                      aria-expanded={isOpen}
-                    >
-                      <Badge
-                        variant={rewriteOptions[key] !== 'Auto' ? 'primary' : 'secondary'}
-                        size="sm"
-                        className="whitespace-nowrap px-2 py-0.5 text-[9px]"
-                      >
-                        {config.label}: {rewriteOptions[key]}
-                      </Badge>
-                    </button>
-                    {isOpen && (
-                      <div
-                        className={`absolute left-0 top-full mt-1.5 z-50 min-w-32 rounded-xl border shadow-xl p-1 ${th.menu}`}
-                        onClick={(event) => event.stopPropagation()}
-                        onMouseDown={(event) => event.stopPropagation()}
-                      >
-                        <Select
-                          aria-label={config.label}
-                          value={rewriteOptions[key]}
-                          options={values.map((value) => ({ value, label: value }))}
-                          onChange={(event) => selectOption(key, event.target.value)}
-                          onClick={(event) => event.stopPropagation()}
-                          onMouseDown={(event) => event.stopPropagation()}
-                          className="h-8 w-full rounded-lg px-2 py-1 text-xs"
-                        />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1" aria-label={t('common.rewriteStyleOptions')}>
+              {(Object.entries(rewriteOptions) as Array<[keyof RewriteOptions, string]>).map(([key, value]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => onOpenRewriteOptions?.()}
+                  onMouseDown={(event) => event.stopPropagation()}
+                  className="cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                  aria-label={`${t(`content.${key}` as never)}: ${value}`}
+                >
+                  <Badge
+                    variant={value !== 'Auto' ? 'primary' : 'secondary'}
+                    size="sm"
+                    className="whitespace-nowrap px-2 py-0.5 text-[9px]"
+                  >
+                    {t(`content.${key}` as never)}: {value}
+                  </Badge>
+                </button>
+              ))}
             </div>
           )}
           {mode === 'translate' && (

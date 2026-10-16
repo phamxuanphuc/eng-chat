@@ -101,7 +101,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         mode={mode} targetLanguage={currentLang} theme={theme}
         onLanguageChange={onLanguageChange} onModeChange={onModeChange}
         rewriteOptions={rewriteOptions || DEFAULT_REWRITE_OPTIONS}
-        onRewriteOptionsChange={onRewriteOptionsChange}
+        onOpenRewriteOptions={() => setShowRewriteOptions(true)}
         onClose={onClose} onDragStart={handleMouseDown}
       />
 
