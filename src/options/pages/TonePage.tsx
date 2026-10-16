@@ -11,6 +11,10 @@ export const TonePage: React.FC = () => {
   const { language, tone, setTone, tonePrompts, setTonePrompt } = useOptions();
   const t = getTranslator(language);
   const selectedTone = TONES_LIST.find((item) => item.id === tone);
+  const selectedToneKey = selectedTone?.id === 'translate_explain' ? 'translate' : selectedTone?.id;
+  const selectedToneLabel = selectedToneKey
+    ? t(`tone.${selectedToneKey}Title` as Parameters<typeof t>[0])
+    : tone;
 
   return (
     <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-5 animate-fadeIn">
@@ -19,7 +23,7 @@ export const TonePage: React.FC = () => {
           <Sparkles size={18} className="text-indigo-400" /> {t('tone.title')}
         </h2>
         <Badge variant="primary" size="sm">
-          {selectedTone?.title || tone}
+          {selectedToneLabel}
         </Badge>
       </div>
 
@@ -32,8 +36,8 @@ export const TonePage: React.FC = () => {
           <ToneCard
             key={item.id}
             tone={item.id}
-            title={item.title}
-            description={item.desc}
+            title={t(`tone.${item.id === 'translate_explain' ? 'translate' : item.id}Title` as Parameters<typeof t>[0])}
+            description={t(`tone.${item.id === 'translate_explain' ? 'translate' : item.id}Description` as Parameters<typeof t>[0])}
             icon={item.icon}
             selected={tone === item.id}
             onClick={setTone}
@@ -43,7 +47,7 @@ export const TonePage: React.FC = () => {
 
       <div className="pt-4 border-t border-slate-800/80 flex flex-col gap-2">
         <Textarea
-          label={t('tone.custom', { tone: selectedTone?.title || tone })}
+          label={t('tone.custom', { tone: selectedToneLabel })}
           value={tonePrompts[tone] || ''}
           onChange={(event) => setTonePrompt(event.target.value)}
           placeholder={t('tone.placeholder')}
