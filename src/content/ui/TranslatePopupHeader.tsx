@@ -162,7 +162,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
         </div>
       </div>
         {rewriteOptions && mode !== 'translate' && (
-          <div className="grid grid-cols-4 gap-1" aria-label={t('common.rewriteStyleOptions')}>
+          <div className="flex flex-wrap items-center gap-1" aria-label={t('common.rewriteStyleOptions')}>
             {([
               ['length', t('content.length')],
               ['formality', t('content.formality')],
@@ -173,11 +173,16 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
                 key={key}
                 type="button"
                 onClick={onOpenRewriteOptions}
-                className={`min-w-0 rounded-md border px-1 py-0.5 text-left transition-colors cursor-pointer ${th.pill}`}
+                className="cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
                 aria-label={`${label}: ${rewriteOptions[key]}`}
               >
-                <span className={`block truncate text-[8px] uppercase tracking-wide leading-3 ${th.subText}`}>{label}</span>
-                <span className={`block truncate text-[9px] font-semibold leading-3 ${th.title}`}>{rewriteOptions[key]}</span>
+                <Badge
+                  variant={rewriteOptions[key] !== 'Auto' ? 'primary' : 'secondary'}
+                  size="sm"
+                  className="whitespace-nowrap px-2 py-0.5 text-[9px]"
+                >
+                  {label}: {rewriteOptions[key]}
+                </Badge>
               </button>
             ))}
           </div>

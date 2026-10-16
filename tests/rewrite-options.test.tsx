@@ -155,6 +155,10 @@ describe('RewriteOptionsPanel Component', () => {
     expect(screen.getByRole('button', { name: 'Formality: Formal' })).toBeDefined();
     expect(screen.getByRole('button', { name: 'Format: Email' })).toBeDefined();
     expect(screen.getByRole('button', { name: 'Tone: Enthusiastic' })).toBeDefined();
+    expect(screen.getByText('Length: Short')).toBeDefined();
+    expect(screen.getByText('Formality: Formal')).toBeDefined();
+    expect(screen.getByText('Format: Email')).toBeDefined();
+    expect(screen.getByText('Tone: Enthusiastic')).toBeDefined();
 
     fireEvent.click(screen.getByRole('button', { name: 'Tone: Enthusiastic' }));
     expect(screen.getByRole('region', { name: /rewrite style options/i })).toBeDefined();
