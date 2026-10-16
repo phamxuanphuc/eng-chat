@@ -106,7 +106,37 @@ describe('content-events', () => {
     expect(onSelect).toHaveBeenCalledWith(expect.anything(), false);
   });
 
-  it('TC-CE-07: setupDOMEvents does not trigger onClickOutside when clicking inside root host', () => {
+  it('TC-CE-07: setupDOMEvents uses the selected node bounds when range bounds are empty', async () => {
+    const onFocus = vi.fn();
+    const onSelect = vi.fn();
+    const onClickOutside = vi.fn();
+
+    setupDOMEvents({ onFocus, onSelect, onClickOutside });
+
+    const p = document.createElement('p');
+    p.textContent = 'Selected text';
+    p.getBoundingClientRect = () => ({ left: 120, top: 80, right: 220, bottom: 100, width: 100, height: 20 } as DOMRect);
+    document.body.appendChild(p);
+
+    const range = {
+      getBoundingClientRect: () => ({ left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 } as DOMRect),
+      getClientRects: () => [],
+    };
+    const mockSelection = {
+      isCollapsed: false,
+      toString: () => 'Selected text',
+      getRangeAt: () => range,
+      anchorNode: p,
+    };
+
+    vi.spyOn(window, 'getSelection').mockReturnValue(mockSelection as any);
+    document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    expect(onSelect).toHaveBeenCalledWith(expect.anything(), false);
+  });
+
+  it('TC-CE-08: setupDOMEvents does not trigger onClickOutside when clicking inside root host', () => {
     const onFocus = vi.fn();
     const onSelect = vi.fn();
     const onClickOutside = vi.fn();

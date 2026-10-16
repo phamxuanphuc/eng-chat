@@ -38,11 +38,23 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
     if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
       try {
         const range = sel.getRangeAt(0);
+        const rects = Array.from(range.getClientRects());
         let rect = range.getBoundingClientRect();
         if (rect.width === 0 || rect.height === 0) {
-          const rects = range.getClientRects();
-          if (rects.length > 0) rect = rects[0];
+          rect = rects[0] || rect;
         }
+
+        // Some sites report a zero-sized range while the selection is being
+        // committed. Use the first visible client rect before falling back to
+        // the selected node's bounds.
+        if (rect.width === 0 || rect.height === 0) {
+          const anchorEl = sel.anchorNode instanceof HTMLElement ? sel.anchorNode : sel.anchorNode?.parentElement;
+          const anchorRect = anchorEl?.getBoundingClientRect();
+          if (anchorRect && anchorRect.width > 0 && anchorRect.height > 0) {
+            rect = anchorRect;
+          }
+        }
+
         if (rect && rect.width > 0 && rect.height > 0) {
           const anchorEl = sel.anchorNode instanceof HTMLElement ? sel.anchorNode : sel.anchorNode?.parentElement;
           callbacks.onSelect(rect, isEditable(anchorEl));
@@ -96,11 +108,18 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
     callbacks.onClickOutside();
   });
 
-  document.addEventListener('mouseup', (e) => {
-    isMouseDown = false;
+  const checkAfterPointerSelection = (e: Event) => {
     if (isInsideHost(e)) return;
-    setTimeout(() => checkSelection(e.target as HTMLElement), 10);
-  });
+    isMouseDown = false;
+    // The browser updates the Selection after mouseup/pointerup. Check on the
+    // next frame as well as a short timeout for sites that update it later.
+    requestAnimationFrame(() => checkSelection(e.target as HTMLElement));
+    setTimeout(() => checkSelection(e.target as HTMLElement), 30);
+  };
+
+  document.addEventListener('mouseup', checkAfterPointerSelection);
+  document.addEventListener('pointerup', checkAfterPointerSelection);
+  document.addEventListener('touchend', checkAfterPointerSelection);
 
   document.addEventListener('keyup', (e) => {
     if (isInsideHost(e)) return;
@@ -109,7 +128,7 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
 
   document.addEventListener('selectionchange', () => {
     if (!isMouseDown) {
-      setTimeout(checkSelection, 20);
+      requestAnimationFrame(() => checkSelection());
     }
   });
 };
