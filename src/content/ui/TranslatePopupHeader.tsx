@@ -162,7 +162,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
         </div>
       </div>
         {rewriteOptions && mode !== 'translate' && (
-          <div className="grid grid-cols-4 gap-1.5" aria-label={t('common.rewriteStyleOptions')}>
+          <div className="grid grid-cols-4 gap-1" aria-label={t('common.rewriteStyleOptions')}>
             {([
               ['length', t('content.length')],
               ['formality', t('content.formality')],
@@ -173,11 +173,11 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
                 key={key}
                 type="button"
                 onClick={onOpenRewriteOptions}
-                className={`min-w-0 rounded-lg border px-1.5 py-1 text-left transition-colors cursor-pointer ${th.pill}`}
+                className={`min-w-0 rounded-md border px-1 py-0.5 text-left transition-colors cursor-pointer ${th.pill}`}
                 aria-label={`${label}: ${rewriteOptions[key]}`}
               >
-                <span className={`block truncate text-[9px] uppercase tracking-wide ${th.subText}`}>{label}</span>
-                <span className={`block truncate text-[10px] font-semibold ${th.title}`}>{rewriteOptions[key]}</span>
+                <span className={`block truncate text-[8px] uppercase tracking-wide leading-3 ${th.subText}`}>{label}</span>
+                <span className={`block truncate text-[9px] font-semibold leading-3 ${th.title}`}>{rewriteOptions[key]}</span>
               </button>
             ))}
           </div>
