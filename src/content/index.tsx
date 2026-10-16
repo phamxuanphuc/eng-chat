@@ -253,7 +253,8 @@ const cleanupDOMEvents = setupDOMEvents({
   onClickOutside: () => {
     let changed = false;
     if (toolbarState.visible) { toolbarState = { ...toolbarState, visible: false }; changed = true; }
-    if (tooltipState.visible && !tooltipState.isPinned) { tooltipState = { ...tooltipState, visible: false }; changed = true; }
+    // The content event listener already excludes clicks inside the host. Keep
+    // the popup mounted for chip controls and native select interactions.
     if (changed) renderApp();
   },
 });

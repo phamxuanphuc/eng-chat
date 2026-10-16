@@ -44,7 +44,11 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   useEffect(() => {
     if (!openOption) return;
     const handleOutsideClick = (event: MouseEvent) => {
-      if (!optionsMenuRef.current?.contains(event.target as Node)) setOpenOption(null);
+      const path = event.composedPath();
+      const clickedInside = optionsMenuRef.current && (
+        path.includes(optionsMenuRef.current) || optionsMenuRef.current.contains(event.target as Node)
+      );
+      if (!clickedInside) setOpenOption(null);
     };
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
