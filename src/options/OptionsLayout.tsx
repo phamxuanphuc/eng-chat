@@ -45,7 +45,7 @@ export const OptionsLayout: React.FC = () => {
               value={language}
               onChange={(event) => setLanguage(event.target.value as 'en' | 'vi')}
               options={languageOptions.map((option) => ({ value: option.value, label: t(option.labelKey) }))}
-              compact
+              className="h-9 min-w-[118px] rounded-lg px-2.5 py-1.5 text-xs"
               title={t(language === 'en' ? 'language.english' : 'language.vietnamese')}
             />
             <nav className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
