@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Languages, PenLine, Wand2, ChevronDown, Pin, PinOff, X } from 'lucide-react';
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
 import { Badge } from '../../components/ui/Badge';
@@ -39,9 +39,19 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
   const [openOption, setOpenOption] = useState<keyof RewriteOptions | null>(null);
+  const optionsMenuRef = useRef<HTMLDivElement>(null);
   const isLight = theme === 'light';
   const t = getTranslator(language);
   const th = getPopupTheme(theme);
+
+  useEffect(() => {
+    if (!openOption) return;
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (!optionsMenuRef.current?.contains(event.target as Node)) setOpenOption(null);
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [openOption]);
 
   const handleHeaderMouseDown = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -124,7 +134,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
           </div>
 
           {rewriteOptions && mode !== 'translate' && (
-            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1" aria-label={t('common.rewriteStyleOptions')}>
+            <div ref={optionsMenuRef} className="flex min-w-0 flex-1 flex-wrap items-center gap-1" aria-label={t('common.rewriteStyleOptions')}>
               {(Object.keys(optionConfig) as Array<keyof RewriteOptions>).map((key) => {
                 const config = optionConfig[key];
                 const isOpen = openOption === key;
