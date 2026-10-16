@@ -202,7 +202,26 @@ describe('content-events', () => {
     expect(onSelect).toHaveBeenCalledWith(expect.anything(), false);
   });
 
-  it('TC-CE-11: ignores selectionchange events without an active selection', () => {
+  it('TC-CE-11: removes listeners and pending selection checks on cleanup', async () => {
+    const onFocus = vi.fn();
+    const onSelect = vi.fn();
+    const onClickOutside = vi.fn();
+
+    const cleanup = setupDOMEvents({ onFocus, onSelect, onClickOutside });
+    cleanup();
+
+    const input = document.createElement('input');
+    input.getBoundingClientRect = () => ({ left: 50, top: 50, width: 100, height: 30, right: 150, bottom: 80 } as DOMRect);
+    document.body.appendChild(input);
+    input.dispatchEvent(new Event('focusin', { bubbles: true }));
+    input.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(onFocus).not.toHaveBeenCalled();
+    expect(onClickOutside).not.toHaveBeenCalled();
+  });
+
+  it('TC-CE-12: ignores selectionchange events without an active selection', () => {
     const onFocus = vi.fn();
     const onSelect = vi.fn();
     const onClickOutside = vi.fn();

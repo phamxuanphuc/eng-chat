@@ -19,8 +19,10 @@ export const computeToolbarPos = (rect: DOMRect) => {
   return { x: Math.round(x), y: Math.round(y) };
 };
 
-export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
+export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) => {
   let isMouseDown = false;
+  const timers = new Set<ReturnType<typeof setTimeout>>();
+  const animationFrames = new Set<number>();
 
   const isEditable = (el?: HTMLElement | null): boolean => {
     if (!el) return false;
@@ -102,7 +104,7 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
     return false;
   };
 
-  document.addEventListener('focusin', (e) => {
+  const handleFocusIn = (e: Event) => {
     const target = e.target as HTMLElement;
     if (target && isEditable(target)) {
       const rect = target.getBoundingClientRect();
@@ -110,24 +112,29 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
         callbacks.onFocus(rect, target);
       }
     }
-  });
+  };
 
-  document.addEventListener('select', (e) => {
-    checkSelection(e.target as HTMLElement);
-  }, true);
-
-  document.addEventListener('mousedown', (e) => {
+  const handleSelect = (e: Event) => checkSelection(e.target as HTMLElement);
+  const handleMouseDown = (e: Event) => {
     if (isInsideHost(e)) return;
     isMouseDown = true;
     callbacks.onClickOutside();
-  });
+  };
 
   const scheduleSelectionChecks = (target?: HTMLElement | null) => {
-    const run = () => checkSelection(target);
-    requestAnimationFrame(run);
-    setTimeout(run, 30);
-    setTimeout(run, 100);
-    setTimeout(run, 250);
+    const run = () => {
+      animationFrames.delete(frameId);
+      checkSelection(target);
+    };
+    const frameId = requestAnimationFrame(run);
+    animationFrames.add(frameId);
+    [30, 100, 250].forEach((delay) => {
+      const timer = setTimeout(() => {
+        timers.delete(timer);
+        run();
+      }, delay);
+      timers.add(timer);
+    });
   };
 
   const checkAfterPointerSelection = (e: Event) => {
@@ -138,17 +145,36 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
     scheduleSelectionChecks(e.target as HTMLElement);
   };
 
+  const handleKeyUp = (e: Event) => {
+    if (isInsideHost(e)) return;
+    scheduleSelectionChecks(e.target as HTMLElement);
+  };
+  const handleSelectionChange = () => {
+    if (hasUsableSelection()) scheduleSelectionChecks();
+  };
+
   // Capture selection events before page frameworks can stop propagation.
+  document.addEventListener('focusin', handleFocusIn);
+  document.addEventListener('select', handleSelect, true);
+  document.addEventListener('mousedown', handleMouseDown);
   document.addEventListener('mouseup', checkAfterPointerSelection, true);
   document.addEventListener('pointerup', checkAfterPointerSelection, true);
   document.addEventListener('touchend', checkAfterPointerSelection, true);
+  document.addEventListener('keyup', handleKeyUp, true);
+  document.addEventListener('selectionchange', handleSelectionChange, true);
 
-  document.addEventListener('keyup', (e) => {
-    if (isInsideHost(e)) return;
-    scheduleSelectionChecks(e.target as HTMLElement);
-  }, true);
-
-  document.addEventListener('selectionchange', () => {
-    if (hasUsableSelection()) scheduleSelectionChecks();
-  }, true);
+  return () => {
+    document.removeEventListener('focusin', handleFocusIn);
+    document.removeEventListener('select', handleSelect, true);
+    document.removeEventListener('mousedown', handleMouseDown);
+    document.removeEventListener('mouseup', checkAfterPointerSelection, true);
+    document.removeEventListener('pointerup', checkAfterPointerSelection, true);
+    document.removeEventListener('touchend', checkAfterPointerSelection, true);
+    document.removeEventListener('keyup', handleKeyUp, true);
+    document.removeEventListener('selectionchange', handleSelectionChange, true);
+    animationFrames.forEach((frameId) => cancelAnimationFrame(frameId));
+    timers.forEach((timer) => clearTimeout(timer));
+    animationFrames.clear();
+    timers.clear();
+  };
 };

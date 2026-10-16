@@ -51,6 +51,9 @@ describe('Background Service Worker', () => {
 
   it('TC-BG-02: dispatches each context action with its mode and tone', async () => {
     const tab = { id: 101 } as any;
+    (chrome.storage.sync.get as any).mockResolvedValue({
+      engchat_settings: { defaultTone: 'friendly' },
+    });
 
     await handleContextMenuClick({ menuItemId: 'engchat_action_improve' } as any, tab);
     await handleContextMenuClick({ menuItemId: 'engchat_action_rewrite' } as any, tab);
@@ -59,12 +62,12 @@ describe('Background Service Worker', () => {
     expect(chrome.tabs.sendMessage).toHaveBeenNthCalledWith(
       1,
       101,
-      expect.objectContaining({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'improve' })
+      expect.objectContaining({ action: 'TRIGGER_OPTIMIZE', tone: 'friendly', mode: 'improve' })
     );
     expect(chrome.tabs.sendMessage).toHaveBeenNthCalledWith(
       2,
       101,
-      expect.objectContaining({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'rewrite' })
+      expect.objectContaining({ action: 'TRIGGER_OPTIMIZE', tone: 'friendly', mode: 'rewrite' })
     );
     expect(chrome.tabs.sendMessage).toHaveBeenNthCalledWith(
       3,

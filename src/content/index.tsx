@@ -236,7 +236,7 @@ const handleRewriteOptionsChange = async (opts: RewriteOptions) => {
   await handleFollowUp(parts.length > 0 ? `Apply these selected options while rewriting the text: ${parts.join(', ')}.` : 'Rewrite naturally.');
 };
 
-setupDOMEvents({
+const cleanupDOMEvents = setupDOMEvents({
   onFocus: (rect, element) => {
     currentEditableEl = element;
     if (tooltipState.visible) return;
@@ -257,6 +257,7 @@ setupDOMEvents({
     if (changed) renderApp();
   },
 });
+window.addEventListener('pagehide', cleanupDOMEvents, { once: true });
 
 // Mount immediately so the content script remains usable even if settings storage is slow.
 renderApp();

@@ -6,10 +6,10 @@ const CONTEXT_MENU_PREFIX = 'engchat_action_';
 
 type ContextAction = 'improve' | 'rewrite' | 'translate';
 
-const CONTEXT_ACTIONS: Array<{ id: ContextAction; title: string; tone: ToneType }> = [
-  { id: 'improve', title: 'Improve', tone: 'professional' },
-  { id: 'rewrite', title: 'Rewrite', tone: 'professional' },
-  { id: 'translate', title: 'Translate', tone: 'translate_explain' }
+const CONTEXT_ACTIONS: Array<{ id: ContextAction; title: string }> = [
+  { id: 'improve', title: 'Improve' },
+  { id: 'rewrite', title: 'Rewrite' },
+  { id: 'translate', title: 'Translate' },
 ];
 
 export const setupContextMenus = () => {
@@ -85,7 +85,7 @@ export const handleContextMenuClick = async (
     const settings = await loadSettings();
     await safeSendTabMessage(tab.id, {
       action: 'TRIGGER_OPTIMIZE',
-      tone: action.tone,
+      tone: action.id === 'translate' ? 'translate_explain' : settings.defaultTone || 'professional',
       mode: action.id,
       settings,
     });
