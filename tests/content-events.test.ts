@@ -178,7 +178,31 @@ describe('content-events', () => {
     expect(onClickOutside).not.toHaveBeenCalled();
   });
 
-  it('TC-CE-10: ignores selectionchange events without an active selection', () => {
+  it('TC-CE-10: captures selection events during the capture phase', async () => {
+    const onFocus = vi.fn();
+    const onSelect = vi.fn();
+    const onClickOutside = vi.fn();
+
+    setupDOMEvents({ onFocus, onSelect, onClickOutside });
+
+    const p = document.createElement('p');
+    p.textContent = 'Captured selection';
+    document.body.appendChild(p);
+    const range = {
+      getBoundingClientRect: () => ({ left: 20, top: 20, right: 160, bottom: 40, width: 140, height: 20 } as DOMRect),
+      getClientRects: () => [],
+    };
+    const selection = { isCollapsed: false, toString: () => 'Captured selection', getRangeAt: () => range, anchorNode: p };
+    vi.spyOn(window, 'getSelection').mockReturnValue(selection as any);
+
+    p.addEventListener('mouseup', (event) => event.stopPropagation());
+    p.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(onSelect).toHaveBeenCalledWith(expect.anything(), false);
+  });
+
+  it('TC-CE-11: ignores selectionchange events without an active selection', () => {
     const onFocus = vi.fn();
     const onSelect = vi.fn();
     const onClickOutside = vi.fn();

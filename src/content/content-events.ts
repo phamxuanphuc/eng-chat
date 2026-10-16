@@ -138,16 +138,17 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
     scheduleSelectionChecks(e.target as HTMLElement);
   };
 
-  document.addEventListener('mouseup', checkAfterPointerSelection);
-  document.addEventListener('pointerup', checkAfterPointerSelection);
-  document.addEventListener('touchend', checkAfterPointerSelection);
+  // Capture selection events before page frameworks can stop propagation.
+  document.addEventListener('mouseup', checkAfterPointerSelection, true);
+  document.addEventListener('pointerup', checkAfterPointerSelection, true);
+  document.addEventListener('touchend', checkAfterPointerSelection, true);
 
   document.addEventListener('keyup', (e) => {
     if (isInsideHost(e)) return;
     scheduleSelectionChecks(e.target as HTMLElement);
-  });
+  }, true);
 
   document.addEventListener('selectionchange', () => {
     if (hasUsableSelection()) scheduleSelectionChecks();
-  });
+  }, true);
 };
