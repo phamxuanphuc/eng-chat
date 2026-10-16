@@ -16,7 +16,12 @@ let reactRoot: ReactDOM.Root | null = null;
 let currentEditableEl: HTMLElement | null = null;
 let currentTheme: 'light' | 'dark' = 'dark';
 let currentLanguage: 'en' | 'vi' = 'en';
-loadSettings().then((settings) => { currentLanguage = settings.language || 'en'; renderApp(); }).catch(() => {});
+let currentDefaultTone: ToneType = 'professional';
+loadSettings().then((settings) => {
+  currentLanguage = settings.language || 'en';
+  currentDefaultTone = settings.defaultTone || 'professional';
+  renderApp();
+}).catch(() => {});
 
 try {
   currentTheme = detectPageTheme();
@@ -80,7 +85,12 @@ const renderApp = () => {
       onSelectTone={(tone, mode) => {
         toolbarState = { ...toolbarState, visible: false };
         renderApp();
-        handleTriggerOptimize(tone, undefined, undefined, mode);
+        handleTriggerOptimize(
+          mode === 'translate' ? tone : currentDefaultTone,
+          undefined,
+          undefined,
+          mode
+        );
       }}
       onCloseToolbar={() => { toolbarState = { ...toolbarState, visible: false }; renderApp(); }}
       onTogglePin={() => { tooltipState = { ...tooltipState, isPinned: !tooltipState.isPinned }; renderApp(); }}
@@ -172,7 +182,7 @@ const handleTriggerOptimize = async (
 const handleModeChange = (newMode: 'translate' | 'rewrite' | 'improve') => {
   if (!tooltipState.originalText) return;
   if (newMode === 'improve') tooltipState.targetLanguage = 'English';
-  handleTriggerOptimize(newMode === 'translate' ? 'translate_explain' : 'professional', undefined, tooltipState.originalText, newMode);
+  handleTriggerOptimize(newMode === 'translate' ? 'translate_explain' : currentDefaultTone, undefined, tooltipState.originalText, newMode);
 };
 
 const handleFollowUp = async (query: string) => {
@@ -181,7 +191,7 @@ const handleFollowUp = async (query: string) => {
   renderApp();
 
   try {
-    const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
+    const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : currentDefaultTone;
     const response: OptimizeResponse = await sendRuntimeMessage({
       action: 'EXECUTE_GEMINI',
       payload: {
@@ -201,7 +211,7 @@ const handleFollowUp = async (query: string) => {
 
 const handleRegenerate = () => {
   if (!tooltipState.originalText) return;
-  const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
+  const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : currentDefaultTone;
   handleTriggerOptimize(tone, undefined, tooltipState.originalText, tooltipState.mode);
 };
 

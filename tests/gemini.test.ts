@@ -145,7 +145,27 @@ describe('Gemini Service & Axios Client', () => {
     expect(response.error).toContain('API quota or rate limit exceeded');
   });
 
-  it('TC-GM-08: executeOptimize returns error when no API keys configured', async () => {
+  it('TC-GM-08: applies the selected tone prompt to the Gemini system instruction', async () => {
+    vi.mocked(axios.post).mockResolvedValueOnce({
+      data: mockGeminiSuccessRawResponse,
+    });
+
+    const response = await executeOptimize(
+      { text: 'Hello', tone: 'friendly' },
+      {
+        ...mockDefaultSettings,
+        tonePrompts: { friendly: 'Use simple everyday wording.' },
+      }
+    );
+
+    expect(response.success).toBe(true);
+    const payload = (axios.post as any).mock.calls[0][1];
+    expect(payload.system_instruction.parts[0].text).toContain(
+      'Additional user instructions for this style: Use simple everyday wording.'
+    );
+  });
+
+  it('TC-GM-09: executeOptimize returns error when no API keys configured', async () => {
     const response = await executeOptimize(
       { text: 'Hello', tone: 'professional' },
       mockEmptySettings
@@ -155,7 +175,7 @@ describe('Gemini Service & Axios Client', () => {
     expect(response.error).toContain('API key is not configured');
   });
 
-  it('TC-GM-09: maps 404 model not found error and fallback occurs', async () => {
+  it('TC-GM-10: maps 404 model not found error and fallback occurs', async () => {
     const error404 = {
       isAxios: true,
       response: {
