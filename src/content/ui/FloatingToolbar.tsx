@@ -49,8 +49,9 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       role="toolbar"
       aria-label={t('app.name')}
       className="fixed z-[2147483646] flex flex-col items-center select-none animate-in fade-in zoom-in-95 duration-200"
-      style={{ left: `${x}px`, top: `${y}px` }}
       onMouseDown={(e) => e.preventDefault()}
+      onPointerDown={(e) => e.preventDefault()}
+      style={{ left: `${x}px`, top: `${y}px`, pointerEvents: 'auto' }}
     >
       <div className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full border backdrop-blur-xl transition-all ${barStyle}`}>
         <button

@@ -177,4 +177,19 @@ describe('content-events', () => {
     innerBtn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
     expect(onClickOutside).not.toHaveBeenCalled();
   });
+
+  it('TC-CE-10: ignores selectionchange events without an active selection', () => {
+    const onFocus = vi.fn();
+    const onSelect = vi.fn();
+    const onClickOutside = vi.fn();
+
+    setupDOMEvents({ onFocus, onSelect, onClickOutside });
+    vi.spyOn(window, 'getSelection').mockReturnValue({
+      isCollapsed: true,
+      toString: () => '',
+    } as any);
+
+    document.dispatchEvent(new Event('selectionchange'));
+    expect(onSelect).not.toHaveBeenCalled();
+  });
 });

@@ -88,6 +88,20 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
     return path.includes(host) || host === e.target || host.contains(e.target as Node);
   };
 
+  const hasUsableSelection = (target?: HTMLElement | null): boolean => {
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed && selection.toString().trim().length > 0) return true;
+    const active = target && (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)
+      ? target
+      : getActiveEditableElement();
+    if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) {
+      const start = active.selectionStart ?? 0;
+      const end = active.selectionEnd ?? 0;
+      return start !== end && active.value.substring(start, end).trim().length > 0;
+    }
+    return false;
+  };
+
   document.addEventListener('focusin', (e) => {
     const target = e.target as HTMLElement;
     if (target && isEditable(target)) {
@@ -134,6 +148,6 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks) => {
   });
 
   document.addEventListener('selectionchange', () => {
-    scheduleSelectionChecks();
+    if (hasUsableSelection()) scheduleSelectionChecks();
   });
 };

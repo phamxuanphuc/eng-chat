@@ -44,6 +44,10 @@ const ensureShadowHost = (): ShadowRoot => {
   if (shadowRoot) return shadowRoot;
   const host = document.createElement('div');
   host.id = 'engchat-root-host';
+  host.style.position = 'fixed';
+  host.style.inset = '0';
+  host.style.zIndex = '2147483647';
+  host.style.pointerEvents = 'none';
   document.body.appendChild(host);
   shadowRoot = host.attachShadow({ mode: 'open' });
 
