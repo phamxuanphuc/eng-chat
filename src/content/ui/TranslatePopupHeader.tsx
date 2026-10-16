@@ -92,37 +92,78 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
         <div className={`w-9 h-1 rounded-full transition-all group-hover:scale-x-125 group-hover:bg-indigo-400 ${th.bar}`} />
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setModeMenuOpen((p) => !p)}
-            className={`flex items-center gap-1.5 py-1 px-1.5 -ml-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${th.title}`}
-          >
-            {getModeIcon()}
-            <span>{getModeTitle()}</span>
-            <ChevronDown size={13} className="text-slate-400" />
-          </button>
-          {modeMenuOpen && (
-            <div className={`absolute left-0 top-full mt-1.5 w-32 rounded-xl border shadow-xl p-1 z-50 flex flex-col gap-0.5 ${th.menu}`}>
-              {(['improve', 'rewrite', 'translate'] as const).map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => { setModeMenuOpen(false); onModeChange?.(m); }}
-                  className={`flex items-center gap-2 px-2.5 py-1.5 text-xs rounded-lg capitalize ${mode === m ? th.menuActive : th.menuItem}`}
-                >
-                  {m === 'improve' && <Wand2 size={13} />}
-                  {m === 'rewrite' && <PenLine size={13} />}
-                  {m === 'translate' && <Languages size={13} />}
-                  <span>{m === 'improve' ? t('content.improveIt') : m === 'rewrite' ? t('content.rewriteMode') : t('content.translateMode')}</span>
-                </button>
-              ))}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-1.5">
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => setModeMenuOpen((p) => !p)}
+              className={`flex items-center gap-1.5 py-1 px-1.5 -ml-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${th.title}`}
+            >
+              {getModeIcon()}
+              <span>{getModeTitle()}</span>
+              <ChevronDown size={13} className="text-slate-400" />
+            </button>
+            {modeMenuOpen && (
+              <div className={`absolute left-0 top-full mt-1.5 w-32 rounded-xl border shadow-xl p-1 z-50 flex flex-col gap-0.5 ${th.menu}`}>
+                {(['improve', 'rewrite', 'translate'] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => { setModeMenuOpen(false); onModeChange?.(m); }}
+                    className={`flex items-center gap-2 px-2.5 py-1.5 text-xs rounded-lg capitalize ${mode === m ? th.menuActive : th.menuItem}`}
+                  >
+                    {m === 'improve' && <Wand2 size={13} />}
+                    {m === 'rewrite' && <PenLine size={13} />}
+                    {m === 'translate' && <Languages size={13} />}
+                    <span>{m === 'improve' ? t('content.improveIt') : m === 'rewrite' ? t('content.rewriteMode') : t('content.translateMode')}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {rewriteOptions && mode !== 'translate' && (
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1" aria-label={t('common.rewriteStyleOptions')}>
+              {(Object.keys(optionConfig) as Array<keyof RewriteOptions>).map((key) => {
+                const config = optionConfig[key];
+                const isOpen = openOption === key;
+                const values = config.values.includes(rewriteOptions[key] as never)
+                  ? config.values
+                  : [rewriteOptions[key], ...config.values];
+                return (
+                  <div key={key} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setOpenOption(isOpen ? null : key)}
+                      className="cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                      aria-label={`${config.label}: ${rewriteOptions[key]}`}
+                      aria-expanded={isOpen}
+                    >
+                      <Badge
+                        variant={rewriteOptions[key] !== 'Auto' ? 'primary' : 'secondary'}
+                        size="sm"
+                        className="whitespace-nowrap px-2 py-0.5 text-[9px]"
+                      >
+                        {config.label}: {rewriteOptions[key]}
+                      </Badge>
+                    </button>
+                    {isOpen && (
+                      <div className={`absolute left-0 top-full mt-1.5 z-50 min-w-32 rounded-xl border shadow-xl p-1 ${th.menu}`}>
+                        <Select
+                          aria-label={config.label}
+                          value={rewriteOptions[key]}
+                          options={values.map((value) => ({ value, label: value }))}
+                          onChange={(event) => selectOption(key, event.target.value)}
+                          className="h-8 w-full rounded-lg px-2 py-1 text-xs"
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
-        </div>
-
-        <div className="flex items-center gap-1">
           {mode === 'translate' && (
             <div className="relative">
               <button
@@ -168,47 +209,6 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
           </button>
         </div>
       </div>
-        {rewriteOptions && mode !== 'translate' && (
-          <div className="flex flex-wrap items-center gap-1" aria-label={t('common.rewriteStyleOptions')}>
-            {(Object.keys(optionConfig) as Array<keyof RewriteOptions>).map((key) => {
-              const config = optionConfig[key];
-              const isOpen = openOption === key;
-              const values = config.values.includes(rewriteOptions[key] as never)
-                ? config.values
-                : [rewriteOptions[key], ...config.values];
-              return (
-                <div key={key} className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setOpenOption(isOpen ? null : key)}
-                    className="cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-                    aria-label={`${config.label}: ${rewriteOptions[key]}`}
-                    aria-expanded={isOpen}
-                  >
-                    <Badge
-                      variant={rewriteOptions[key] !== 'Auto' ? 'primary' : 'secondary'}
-                      size="sm"
-                      className="whitespace-nowrap px-2 py-0.5 text-[9px]"
-                    >
-                      {config.label}: {rewriteOptions[key]}
-                    </Badge>
-                  </button>
-                  {isOpen && (
-                    <div className={`absolute left-0 top-full mt-1.5 z-50 min-w-32 rounded-xl border shadow-xl p-1 ${th.menu}`}>
-                      <Select
-                        aria-label={config.label}
-                        value={rewriteOptions[key]}
-                        options={values.map((value) => ({ value, label: value }))}
-                        onChange={(event) => selectOption(key, event.target.value)}
-                        className="h-8 w-full rounded-lg px-2 py-1 text-xs"
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
     </div>
   );
 };
