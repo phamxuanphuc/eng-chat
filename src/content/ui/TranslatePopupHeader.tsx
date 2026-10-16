@@ -86,7 +86,8 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   return (
     <div
       onMouseDown={handleHeaderMouseDown}
-      className={`sticky top-0 z-20 px-4 pt-2.5 pb-2 border-b backdrop-blur-md rounded-t-2xl flex flex-col gap-1.5 cursor-grab active:cursor-grabbing select-none ${
+      onClick={(e) => e.stopPropagation()}
+      className={`sticky top-0 z-20 pointer-events-auto px-4 pt-2.5 pb-2 border-b backdrop-blur-md rounded-t-2xl flex flex-col gap-1.5 cursor-grab active:cursor-grabbing select-none ${
         isLight ? 'bg-white/95 border-slate-200/80' : 'bg-slate-900/95 border-slate-800/80'
       }`}
     >
@@ -142,7 +143,8 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
                   <div key={key} className="relative">
                     <button
                       type="button"
-                      onClick={() => setOpenOption(isOpen ? null : key)}
+                      onClick={(event) => { event.stopPropagation(); setOpenOption(isOpen ? null : key); }}
+                      onMouseDown={(event) => event.stopPropagation()}
                       className="cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
                       aria-label={`${config.label}: ${rewriteOptions[key]}`}
                       aria-expanded={isOpen}
@@ -156,12 +158,18 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
                       </Badge>
                     </button>
                     {isOpen && (
-                      <div className={`absolute left-0 top-full mt-1.5 z-50 min-w-32 rounded-xl border shadow-xl p-1 ${th.menu}`}>
+                      <div
+                        className={`absolute left-0 top-full mt-1.5 z-50 min-w-32 rounded-xl border shadow-xl p-1 ${th.menu}`}
+                        onClick={(event) => event.stopPropagation()}
+                        onMouseDown={(event) => event.stopPropagation()}
+                      >
                         <Select
                           aria-label={config.label}
                           value={rewriteOptions[key]}
                           options={values.map((value) => ({ value, label: value }))}
                           onChange={(event) => selectOption(key, event.target.value)}
+                          onClick={(event) => event.stopPropagation()}
+                          onMouseDown={(event) => event.stopPropagation()}
                           className="h-8 w-full rounded-lg px-2 py-1 text-xs"
                         />
                       </div>

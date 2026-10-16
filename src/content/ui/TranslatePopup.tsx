@@ -92,7 +92,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
       role="dialog"
     aria-label={mode === 'rewrite' ? `${t('app.name')} Rewrite Popup` : `${t('app.name')} Translate Popup`}
       style={position ? { left: `${position.x}px`, top: `${position.y}px`, bottom: 'auto', right: 'auto' } : undefined}
-      className={`fixed ${!position ? 'bottom-6 right-6' : ''} z-[2147483647] w-[560px] max-w-[94vw] min-h-[360px] max-h-[88vh] rounded-2xl border backdrop-blur-2xl font-sans flex flex-col overflow-hidden ${isDragging ? 'select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)]' : ''} ${th.card}`}
+      className={`fixed pointer-events-auto ${!position ? 'bottom-6 right-6' : ''} z-[2147483647] w-[560px] max-w-[94vw] min-h-[360px] max-h-[88vh] rounded-2xl border backdrop-blur-2xl font-sans flex flex-col overflow-hidden ${isDragging ? 'select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)]' : ''} ${th.card}`}
       onMouseDown={(e) => e.stopPropagation()}
     >
       <TranslatePopupHeader

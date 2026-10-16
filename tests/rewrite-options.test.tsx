@@ -160,6 +160,14 @@ describe('RewriteOptionsPanel Component', () => {
     expect(screen.getByText('Format: Email')).toBeDefined();
     expect(screen.getByText('Tone: Enthusiastic')).toBeDefined();
 
+    const dialog = screen.getByRole('dialog', { name: /Rewrite Popup/i });
+    for (const option of ['Length: Short', 'Formality: Formal', 'Format: Email', 'Tone: Enthusiastic']) {
+      fireEvent.click(screen.getByRole('button', { name: option }));
+      expect(dialog).toBeDefined();
+      expect(screen.getByRole('combobox', { name: option.split(':')[0] })).toBeDefined();
+      fireEvent.click(screen.getByRole('button', { name: option }));
+    }
+
     fireEvent.click(screen.getByRole('button', { name: 'Tone: Enthusiastic' }));
     expect(screen.getByRole('combobox', { name: 'Tone' })).toBeDefined();
 
