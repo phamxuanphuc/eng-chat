@@ -17,11 +17,6 @@ let currentEditableEl: HTMLElement | null = null;
 let currentTheme: 'light' | 'dark' = 'dark';
 let currentLanguage: 'en' | 'vi' = 'en';
 let currentDefaultTone: ToneType = 'professional';
-loadSettings().then((settings) => {
-  currentLanguage = settings.language || 'en';
-  currentDefaultTone = settings.defaultTone || 'professional';
-  renderApp();
-}).catch(() => {});
 
 try {
   currentTheme = detectPageTheme();
@@ -215,6 +210,14 @@ const handleRegenerate = () => {
   handleTriggerOptimize(tone, undefined, tooltipState.originalText, tooltipState.mode);
 };
 
+void loadSettings().then((settings) => {
+  currentLanguage = settings.language || 'en';
+  currentDefaultTone = settings.defaultTone || 'professional';
+  renderApp();
+}).catch(() => {
+  renderApp();
+});
+
 const handleLanguageChange = async (lang: string) => {
   tooltipState = { ...tooltipState, targetLanguage: lang, isLoading: true, error: null };
   renderApp();
@@ -255,6 +258,9 @@ setupDOMEvents({
     if (changed) renderApp();
   },
 });
+
+// Mount immediately so the content script remains usable even if settings storage is slow.
+renderApp();
 
 if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
