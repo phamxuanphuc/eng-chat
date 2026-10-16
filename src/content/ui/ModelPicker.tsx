@@ -6,6 +6,7 @@ import { fetchOpenAiModels } from '../../services/openai';
 import { loadSettings, saveSettings } from '../../services/storage';
 import { Language } from '../../types';
 import { getTranslator } from '../../i18n';
+import { sendRuntimeMessage } from '../../services/extension-messaging';
 
 interface ModelPickerProps {
   language?: Language;
@@ -14,17 +15,21 @@ interface ModelPickerProps {
 }
 
 const getSettings = async (): Promise<AppSettings> => {
-  if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
-    const response = await chrome.runtime.sendMessage({ action: 'GET_SETTINGS' });
+  try {
+    const response = await sendRuntimeMessage({ action: 'GET_SETTINGS' });
     if (response) return response as AppSettings;
+  } catch (error) {
+    if (!error || !(error instanceof Error) || !error.message.includes('reload this page')) throw error;
   }
   return loadSettings();
 };
 
 const persistSettings = async (partial: Partial<AppSettings>) => {
-  if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
-    const response = await chrome.runtime.sendMessage({ action: 'SAVE_SETTINGS', payload: partial });
+  try {
+    const response = await sendRuntimeMessage({ action: 'SAVE_SETTINGS', payload: partial });
     if (response?.success) return response.settings as AppSettings;
+  } catch (error) {
+    if (!error || !(error instanceof Error) || !error.message.includes('reload this page')) throw error;
   }
   return saveSettings(partial);
 };

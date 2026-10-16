@@ -8,6 +8,7 @@ import { ContentOverlay } from './ui/ContentOverlay';
 import { detectPageTheme, observePageTheme } from './theme-detector';
 import styles from '../styles/index.css?inline';
 import { getTranslator } from '../i18n';
+import { sendRuntimeMessage } from '../services/extension-messaging';
 import { loadSettings } from '../services/storage';
 
 let shadowRoot: ShadowRoot | null = null;
@@ -96,7 +97,7 @@ const renderApp = () => {
 };
 
 const handleTranslateVi = async (text: string): Promise<string> => {
-  const response: OptimizeResponse = await chrome.runtime.sendMessage({
+  const response: OptimizeResponse = await sendRuntimeMessage({
     action: 'EXECUTE_GEMINI',
     payload: { text: `Translate the following English sentence into natural Vietnamese:\n"${text}"`, tone: 'concise' },
   });
@@ -135,7 +136,7 @@ const handleTriggerOptimize = async (
   const contextMessages = shouldExtract ? extractChatContext(activeEl, settings?.maxContextMessages || 4) : [];
 
   try {
-    const response: OptimizeResponse = await chrome.runtime.sendMessage({
+    const response: OptimizeResponse = await sendRuntimeMessage({
       action: 'EXECUTE_GEMINI',
       payload: { text: targetText, tone, contextMessages },
     });
@@ -173,7 +174,7 @@ const handleFollowUp = async (query: string) => {
   try {
     const prompt = `Original text: "${tooltipState.originalText}"\n\nFollow-up request: ${query}`;
     const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : 'professional';
-    const response: OptimizeResponse = await chrome.runtime.sendMessage({
+    const response: OptimizeResponse = await sendRuntimeMessage({
       action: 'EXECUTE_GEMINI',
       payload: { text: prompt, tone },
     });

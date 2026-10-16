@@ -9,6 +9,7 @@ import { Language } from '../../types';
 import { getTranslator } from '../../i18n';
 import { useDraggable } from './useDraggable';
 import { ModelPicker } from './ModelPicker';
+import { sendRuntimeMessage } from '../../services/extension-messaging';
 
 export interface TranslatePopupProps {
   language?: Language; mode?: 'translate' | 'rewrite' | 'improve'; originalText: string;
@@ -71,13 +72,14 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
     setIsTranslatingVi(true);
     try {
       if (onTranslateVi) setViTranslation(await onTranslateVi(translationText));
-      else if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
-        const res = await chrome.runtime.sendMessage({
+      else {
+        const res = await sendRuntimeMessage({
           action: 'EXECUTE_GEMINI',
           payload: { text: `Translate the following sentence into natural Vietnamese:\n"${translationText}"`, tone: 'concise' },
         });
         setViTranslation((res?.success && res.data) ? (typeof res.data === 'string' ? res.data : res.data.translation) : 'Unable to translate.');
-      } else {
+      }
+      if (!onTranslateVi && !viTranslation) {
         setViTranslation(originalText || t('content.noVietnameseTranslation'));
       }
     } catch (err: any) {
