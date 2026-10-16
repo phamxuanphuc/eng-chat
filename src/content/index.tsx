@@ -88,7 +88,6 @@ const renderApp = () => {
         );
       }}
       onCloseToolbar={() => { toolbarState = { ...toolbarState, visible: false }; renderApp(); }}
-      onTogglePin={() => { tooltipState = { ...tooltipState, isPinned: !tooltipState.isPinned }; renderApp(); }}
       onLanguageChange={handleLanguageChange}
       onModeChange={handleModeChange}
       onRewriteOptionsChange={handleRewriteOptionsChange}
@@ -182,7 +181,7 @@ const handleModeChange = (newMode: 'translate' | 'rewrite' | 'improve') => {
 
 const handleFollowUp = async (query: string) => {
   if (!tooltipState.originalText) return;
-  tooltipState = { ...tooltipState, isLoading: true, error: null };
+  tooltipState = { ...tooltipState, isLoading: true, error: null, isPinned: false };
   renderApp();
 
   try {

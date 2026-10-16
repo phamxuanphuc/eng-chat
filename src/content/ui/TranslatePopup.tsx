@@ -16,8 +16,8 @@ export interface TranslatePopupProps {
   result?: string | TranslateExplainResult | null;
   isLoading: boolean; error?: string | null; targetLanguage?: string;
   rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark';
-  isPinned?: boolean; hasEditableTarget?: boolean;
-  onTogglePin?: () => void; onLanguageChange?: (lang: string) => void;
+  hasEditableTarget?: boolean;
+  onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite' | 'improve') => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void;
   onFollowUp?: (query: string) => void; onRegenerate?: () => void;
@@ -28,7 +28,7 @@ export interface TranslatePopupProps {
 export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   language = 'en', mode = 'translate', originalText, result, isLoading, error,
   targetLanguage, rewriteOptions, theme = 'dark',
-  isPinned = false, hasEditableTarget = false, onTogglePin,
+  hasEditableTarget = false,
   onLanguageChange, onModeChange, onRewriteOptionsChange,
   onFollowUp, onRegenerate, onInsert, onClose, onTranslateVi,
 }) => {
@@ -92,13 +92,13 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
       role="dialog"
     aria-label={mode === 'rewrite' ? `${t('app.name')} Rewrite Popup` : `${t('app.name')} Translate Popup`}
       style={position ? { left: `${position.x}px`, top: `${position.y}px`, bottom: 'auto', right: 'auto' } : undefined}
-      className={`fixed ${!position ? 'bottom-6 right-6' : ''} z-[2147483647] w-[460px] max-w-[94vw] min-h-[360px] max-h-[88vh] rounded-2xl border backdrop-blur-2xl font-sans flex flex-col overflow-hidden ${isDragging ? 'select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)]' : ''} ${th.card}`}
+      className={`fixed ${!position ? 'bottom-6 right-6' : ''} z-[2147483647] w-[560px] max-w-[94vw] min-h-[360px] max-h-[88vh] rounded-2xl border backdrop-blur-2xl font-sans flex flex-col overflow-hidden ${isDragging ? 'select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)]' : ''} ${th.card}`}
       onMouseDown={(e) => e.stopPropagation()}
     >
       <TranslatePopupHeader
         language={language}
-        mode={mode} targetLanguage={currentLang} isPinned={isPinned} theme={theme}
-        onTogglePin={onTogglePin} onLanguageChange={onLanguageChange} onModeChange={onModeChange}
+        mode={mode} targetLanguage={currentLang} theme={theme}
+        onLanguageChange={onLanguageChange} onModeChange={onModeChange}
         rewriteOptions={rewriteOptions || DEFAULT_REWRITE_OPTIONS}
         onRewriteOptionsChange={onRewriteOptionsChange}
         onClose={onClose} onDragStart={handleMouseDown}

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Languages, PenLine, Wand2, ChevronDown, Pin, PinOff, X } from 'lucide-react';
+import { Languages, PenLine, Wand2, ChevronDown, X } from 'lucide-react';
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
 import { Badge } from '../../components/ui/Badge';
 import { Select } from '../../components/ui/Select';
@@ -11,9 +11,8 @@ export interface TranslatePopupHeaderProps {
   language?: Language;
   mode: 'translate' | 'rewrite' | 'improve';
   targetLanguage: string;
-  isPinned: boolean;
+  isPinned?: boolean;
   theme: 'light' | 'dark';
-  onTogglePin?: () => void;
   onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite' | 'improve') => void;
   rewriteOptions?: RewriteOptions;
@@ -26,9 +25,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   language = 'en',
   mode,
   targetLanguage,
-  isPinned,
   theme,
-  onTogglePin,
   onLanguageChange,
   onModeChange,
   rewriteOptions,
@@ -201,14 +198,6 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={onTogglePin}
-            className={`p-1 rounded-lg cursor-pointer ${isPinned ? 'text-indigo-400 bg-indigo-500/20' : th.iconBtn}`}
-            title={isPinned ? t('content.unpin') : t('content.pin')}
-          >
-            {isPinned ? <PinOff size={14} /> : <Pin size={14} />}
-          </button>
           <button
             type="button"
             onClick={onClose}

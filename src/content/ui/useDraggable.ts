@@ -45,7 +45,7 @@ export const useDraggable = (
   useEffect(() => {
     if (!position || !elementRef.current) return;
     const rect = elementRef.current.getBoundingClientRect();
-    const clamped = clampPosition(position.x, position.y, rect.width || 460, rect.height || 300);
+    const clamped = clampPosition(position.x, position.y, rect.width || 560, rect.height || 300);
     if (clamped.x !== position.x || clamped.y !== position.y) {
       setPosition(clamped);
     }
@@ -55,7 +55,7 @@ export const useDraggable = (
     const handleResize = () => {
       if (!position || !elementRef.current) return;
       const rect = elementRef.current.getBoundingClientRect();
-      const clamped = clampPosition(position.x, position.y, rect.width || 460, rect.height || 300);
+      const clamped = clampPosition(position.x, position.y, rect.width || 560, rect.height || 300);
       setPosition(clamped);
     };
 
@@ -76,7 +76,7 @@ export const useDraggable = (
       startY: e.clientY,
       startLeft: currentLeft,
       startTop: currentTop,
-      width: rect.width || 460,
+      width: rect.width || 560,
       height: rect.height || 300,
       currentPos: { x: currentLeft, y: currentTop },
     };
