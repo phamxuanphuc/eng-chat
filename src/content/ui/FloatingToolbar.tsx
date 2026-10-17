@@ -1,7 +1,7 @@
 import React from 'react';
 import { ToneType, Language } from '../../types';
 import { getTranslator } from '../../i18n';
-import { PenLine, Wand2 } from 'lucide-react';
+import { FileText, PenLine, Wand2 } from 'lucide-react';
 
 export interface FloatingToolbarProps {
   language?: Language;
@@ -11,7 +11,7 @@ export interface FloatingToolbarProps {
   isLoading?: boolean;
   theme?: 'light' | 'dark';
   isEditable?: boolean;
-  onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve') => void;
+  onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onClose?: () => void;
 }
 
@@ -28,7 +28,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
 }) => {
   if (!visible) return null;
 
-  const handleToneClick = (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve') => {
+  const handleToneClick = (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => {
     if (mode) {
       onSelectTone(tone, mode);
     } else {
@@ -81,6 +81,20 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           </span>
           <span role="tooltip" className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-950 px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
             {t('content.translate')}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          disabled={isLoading}
+          onClick={() => handleToneClick('summarize', 'summary')}
+          className={`group relative p-1.5 rounded-full transition-colors disabled:opacity-50 cursor-pointer ${btnHover}`}
+          title={t('content.summary')}
+          aria-label={t('content.summary')}
+        >
+          <FileText size={15} />
+          <span role="tooltip" className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-950 px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+            {t('content.summary')}
           </span>
         </button>
 

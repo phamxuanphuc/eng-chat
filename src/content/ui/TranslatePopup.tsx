@@ -12,13 +12,13 @@ import { ModelPicker } from './ModelPicker';
 import { getRuntimeErrorMessage, sendRuntimeMessage } from '../../services/extension-messaging';
 
 export interface TranslatePopupProps {
-  language?: Language; mode?: 'translate' | 'rewrite' | 'improve'; originalText: string;
+  language?: Language; mode?: 'translate' | 'rewrite' | 'improve' | 'summary'; originalText: string;
   result?: string | TranslateExplainResult | null;
   isLoading: boolean; error?: string | null; targetLanguage?: string;
   rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark';
   hasEditableTarget?: boolean;
   onLanguageChange?: (lang: string) => void;
-  onModeChange?: (mode: 'translate' | 'rewrite' | 'improve') => void;
+  onModeChange?: (mode: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void;
   onFollowUp?: (query: string) => void; onRegenerate?: () => void;
   onInsert?: (text: string) => void; onClose: () => void;
@@ -90,7 +90,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
     <div
       ref={popupRef}
       role="dialog"
-    aria-label={mode === 'rewrite' ? `${t('app.name')} Rewrite Popup` : `${t('app.name')} Translate Popup`}
+    aria-label={mode === 'rewrite' ? `${t('app.name')} Rewrite Popup` : mode === 'summary' ? `${t('app.name')} Summary Popup` : `${t('app.name')} Translate Popup`}
       style={position ? { left: `${position.x}px`, top: `${position.y}px`, bottom: 'auto', right: 'auto' } : undefined}
       className={`fixed pointer-events-auto ${!position ? 'bottom-6 right-6' : ''} z-[2147483647] w-[560px] max-w-[94vw] min-h-[360px] max-h-[88vh] rounded-2xl border backdrop-blur-2xl font-sans flex flex-col overflow-hidden ${isDragging ? 'select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)]' : ''} ${th.card}`}
       onPointerDown={(e) => e.stopPropagation()}
@@ -127,13 +127,13 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           {isLoading && (
             <div className="flex items-center justify-center py-6 gap-2 text-xs text-indigo-400">
               <Loader2 size={16} className="animate-spin text-indigo-400" />
-              <span>{mode === 'improve' ? t('content.improving') : mode === 'rewrite' ? t('content.rewriting') : t('content.translating')}</span>
+              <span>{mode === 'improve' ? t('content.improving') : mode === 'rewrite' ? t('content.rewriting') : mode === 'summary' ? t('content.summarizing') : t('content.translating')}</span>
             </div>
           )}
           {error && <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-800/40 text-xs text-rose-300">{error}</div>}
           {!isLoading && !error && (
             <div className={`text-sm leading-relaxed whitespace-pre-wrap selection:bg-indigo-500/30 ${th.resText}`}>
-              {translationText || (mode === 'improve' ? t('content.noImprovedText') : mode === 'rewrite' ? t('content.noRewrittenText') : t('content.noTranslation'))}
+              {translationText || (mode === 'improve' ? t('content.noImprovedText') : mode === 'rewrite' ? t('content.noRewrittenText') : mode === 'summary' ? t('content.noSummary') : t('content.noTranslation'))}
             </div>
           )}
           {explanation && mode === 'translate' && (

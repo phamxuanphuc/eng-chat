@@ -15,7 +15,7 @@ export interface TranslatePopupFooterProps {
   translationText: string;
   isLoading: boolean;
   theme?: 'light' | 'dark';
-  mode?: 'translate' | 'rewrite' | 'improve';
+  mode?: 'translate' | 'rewrite' | 'improve' | 'summary';
   hasEditableTarget?: boolean;
   onFollowUp?: (query: string) => void;
   onRegenerate?: () => void;
@@ -50,6 +50,8 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
       ? t('content.askImprove')
       : mode === 'rewrite'
       ? t('content.askRewrite')
+      : mode === 'summary'
+      ? t('content.askSummary')
       : t('content.askFollowUp');
 
   const handleCopy = async () => {

@@ -15,7 +15,7 @@ export interface ContentOverlayProps {
   };
   tooltip: {
     visible: boolean;
-    mode?: 'translate' | 'rewrite' | 'improve';
+    mode?: 'translate' | 'rewrite' | 'improve' | 'summary';
     isLoading: boolean;
     originalText: string;
     result?: any;
@@ -24,10 +24,10 @@ export interface ContentOverlayProps {
     rewriteOptions?: RewriteOptions;
     hasEditableTarget: boolean;
   };
-  onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve') => void;
+  onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onCloseToolbar: () => void;
   onLanguageChange?: (lang: string) => void;
-  onModeChange?: (mode: 'translate' | 'rewrite' | 'improve') => void;
+  onModeChange?: (mode: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void;
   onFollowUp?: (query: string) => void;
   onRegenerate?: () => void;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Languages, PenLine, Wand2, ChevronDown, X } from 'lucide-react';
+import { Languages, PenLine, Wand2, FileText, ChevronDown, X } from 'lucide-react';
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
 import { Badge } from '../../components/ui/Badge';
 import { Language, RewriteOptions } from '../../types';
@@ -7,12 +7,12 @@ import { getTranslator } from '../../i18n';
 
 export interface TranslatePopupHeaderProps {
   language?: Language;
-  mode: 'translate' | 'rewrite' | 'improve';
+  mode: 'translate' | 'rewrite' | 'improve' | 'summary';
   targetLanguage: string;
   isPinned?: boolean;
   theme: 'light' | 'dark';
   onLanguageChange?: (lang: string) => void;
-  onModeChange?: (mode: 'translate' | 'rewrite' | 'improve') => void;
+  onModeChange?: (mode: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   rewriteOptions?: RewriteOptions;
   onOpenRewriteOptions?: () => void;
   onClose: () => void;
@@ -48,12 +48,14 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   const getModeTitle = () => {
     if (mode === 'improve') return t('content.improveIt');
     if (mode === 'rewrite') return t('content.rewriteMode');
+    if (mode === 'summary') return t('content.summaryMode');
     return t('content.translateMode');
   };
 
   const getModeIcon = () => {
     if (mode === 'improve') return <Wand2 size={15} className="text-indigo-400" />;
     if (mode === 'rewrite') return <PenLine size={15} className="text-indigo-400" />;
+    if (mode === 'summary') return <FileText size={15} className="text-indigo-400" />;
     return <Languages size={15} className="text-indigo-400" />;
   };
 
@@ -89,7 +91,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
             </button>
             {modeMenuOpen && (
               <div className={`absolute left-0 top-full mt-1.5 w-32 rounded-xl border shadow-xl p-1 z-50 flex flex-col gap-0.5 ${th.menu}`}>
-                {(['improve', 'rewrite', 'translate'] as const).map((m) => (
+                {(['improve', 'rewrite', 'summary', 'translate'] as const).map((m) => (
                   <button
                     key={m}
                     type="button"
@@ -98,15 +100,16 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
                   >
                     {m === 'improve' && <Wand2 size={13} />}
                     {m === 'rewrite' && <PenLine size={13} />}
+                    {m === 'summary' && <FileText size={13} />}
                     {m === 'translate' && <Languages size={13} />}
-                    <span>{m === 'improve' ? t('content.improveIt') : m === 'rewrite' ? t('content.rewriteMode') : t('content.translateMode')}</span>
+                    <span>{m === 'improve' ? t('content.improveIt') : m === 'rewrite' ? t('content.rewriteMode') : m === 'summary' ? t('content.summaryMode') : t('content.translateMode')}</span>
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {rewriteOptions && mode !== 'translate' && (
+          {rewriteOptions && mode !== 'translate' && mode !== 'summary' && (
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1" aria-label={t('common.rewriteStyleOptions')}>
               {(Object.entries(rewriteOptions) as Array<[keyof RewriteOptions, string]>).map(([key, value]) => (
                 <button

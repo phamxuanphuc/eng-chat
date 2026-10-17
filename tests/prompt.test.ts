@@ -19,7 +19,14 @@ describe('Prompt Builder Service', () => {
     expect(concise).toContain('Do not add filler');
   });
 
-  it('TC-PR-02: appends a trimmed custom prompt for the selected style', () => {
+  it('TC-PR-02: builds Vietnamese summary instructions', () => {
+    const instruction = buildSystemInstruction('summarize');
+
+    expect(instruction).toContain('Summarize the selected text in natural Vietnamese.');
+    expect(instruction).toContain('Return only the Vietnamese summary.');
+  });
+
+  it('TC-PR-03: appends a trimmed custom prompt for the selected style', () => {
     const instruction = buildSystemInstruction('professional', '  Use UK spelling.  ');
 
     expect(instruction).toContain('Additional user instructions for this style: Use UK spelling.');

@@ -32,6 +32,7 @@ describe('FloatingToolbar Component', () => {
     expect(screen.getByRole('tooltip', { name: 'Improve text' })).toBeDefined();
     expect(screen.getByRole('tooltip', { name: 'Translate and explain' })).toBeDefined();
     expect(screen.getByRole('tooltip', { name: 'Rewrite text' })).toBeDefined();
+    expect(screen.getByRole('tooltip', { name: 'Summarize text' })).toBeDefined();
 
     const polishBtn = screen.getByRole('button', { name: /rewrite text/i });
     fireEvent.click(polishBtn);
@@ -87,7 +88,15 @@ describe('FloatingToolbar Component', () => {
     expect(onSelectTone).toHaveBeenCalledWith('translate_explain', 'translate');
   });
 
-  it('TC-FT-06: Renders light theme with light background styling', () => {
+  it('TC-FT-06: Clicking summary triggers Vietnamese summary mode', () => {
+    const onSelectTone = vi.fn();
+    render(<FloatingToolbar visible={true} x={150} y={250} onSelectTone={onSelectTone} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /summarize text/i }));
+    expect(onSelectTone).toHaveBeenCalledWith('summarize', 'summary');
+  });
+
+  it('TC-FT-07: Renders light theme with light background styling', () => {
     const onSelectTone = vi.fn();
     const { container } = render(
       <FloatingToolbar

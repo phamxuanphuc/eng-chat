@@ -3,7 +3,8 @@ export type ToneType =
   | 'professional'
   | 'friendly'
   | 'concise'
-  | 'translate_explain';
+  | 'translate_explain'
+  | 'summarize';
 
 export interface ToneOption {
   id: ToneType;
@@ -68,7 +69,7 @@ export interface OptimizeResponse {
 export interface ContextMenuActionMessage {
   action: 'TRIGGER_OPTIMIZE';
   tone: ToneType;
-  mode?: 'translate' | 'rewrite' | 'improve';
+  mode?: 'translate' | 'rewrite' | 'improve' | 'summary';
 }
 
 export interface ContentScriptQueryPayload {

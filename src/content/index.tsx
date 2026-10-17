@@ -29,7 +29,7 @@ try {
 let toolbarState = { visible: false, x: 0, y: 0, isLoading: false, isEditable: false };
 let tooltipState = {
   visible: false,
-  mode: 'translate' as 'translate' | 'rewrite' | 'improve',
+  mode: 'translate' as 'translate' | 'rewrite' | 'improve' | 'summary',
   originalText: '',
   result: null as any,
   isLoading: false,
@@ -81,7 +81,7 @@ const renderApp = () => {
         toolbarState = { ...toolbarState, visible: false };
         renderApp();
         handleTriggerOptimize(
-          mode === 'translate' ? tone : currentDefaultTone,
+          mode === 'translate' ? tone : mode === 'summary' ? 'summarize' : currentDefaultTone,
           undefined,
           undefined,
           mode
@@ -116,7 +116,7 @@ const handleTriggerOptimize = async (
   tone: ToneType,
   settings?: any,
   customText?: string,
-  forcedMode?: 'translate' | 'rewrite' | 'improve'
+  forcedMode?: 'translate' | 'rewrite' | 'improve' | 'summary'
 ) => {
   const activeEl = getActiveEditableElement() || currentEditableEl;
   currentEditableEl = activeEl;
@@ -129,8 +129,8 @@ const handleTriggerOptimize = async (
     return;
   }
 
-  const isModalMode = forcedMode === 'improve' || forcedMode === 'rewrite' || forcedMode === 'translate' || tone === 'translate_explain';
-  const mode: 'translate' | 'rewrite' | 'improve' = forcedMode || (tone === 'translate_explain' ? 'translate' : 'rewrite');
+  const isModalMode = forcedMode === 'improve' || forcedMode === 'rewrite' || forcedMode === 'translate' || forcedMode === 'summary' || tone === 'translate_explain' || tone === 'summarize';
+  const mode: 'translate' | 'rewrite' | 'improve' | 'summary' = forcedMode || (tone === 'translate_explain' ? 'translate' : tone === 'summarize' ? 'summary' : 'rewrite');
 
   if (isModalMode) {
     tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: true, error: null, hasEditableTarget: !!activeEl };
@@ -150,7 +150,7 @@ const handleTriggerOptimize = async (
         text: targetText,
         tone,
         contextMessages,
-        rewriteOptions: mode === 'translate' ? undefined : tooltipState.rewriteOptions,
+        rewriteOptions: mode === 'translate' || mode === 'summary' ? undefined : tooltipState.rewriteOptions,
       },
     });
     toolbarState = { ...toolbarState, isLoading: false, visible: false };
@@ -173,10 +173,11 @@ const handleTriggerOptimize = async (
   }
 };
 
-const handleModeChange = (newMode: 'translate' | 'rewrite' | 'improve') => {
+const handleModeChange = (newMode: 'translate' | 'rewrite' | 'improve' | 'summary') => {
   if (!tooltipState.originalText) return;
   if (newMode === 'improve') tooltipState.targetLanguage = 'English';
-  handleTriggerOptimize(newMode === 'translate' ? 'translate_explain' : currentDefaultTone, undefined, tooltipState.originalText, newMode);
+  const tone = newMode === 'translate' ? 'translate_explain' : newMode === 'summary' ? 'summarize' : currentDefaultTone;
+  handleTriggerOptimize(tone, undefined, tooltipState.originalText, newMode);
 };
 
 const handleFollowUp = async (query: string) => {
@@ -185,13 +186,13 @@ const handleFollowUp = async (query: string) => {
   renderApp();
 
   try {
-    const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : currentDefaultTone;
+    const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : currentDefaultTone;
     const response: OptimizeResponse = await sendRuntimeMessage({
       action: 'EXECUTE_GEMINI',
       payload: {
         text: tooltipState.originalText,
         tone,
-        rewriteOptions: tooltipState.mode === 'translate' ? undefined : tooltipState.rewriteOptions,
+        rewriteOptions: tooltipState.mode === 'translate' || tooltipState.mode === 'summary' ? undefined : tooltipState.rewriteOptions,
         taskInstruction: query,
       },
     });
@@ -205,7 +206,7 @@ const handleFollowUp = async (query: string) => {
 
 const handleRegenerate = () => {
   if (!tooltipState.originalText) return;
-  const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : currentDefaultTone;
+  const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : currentDefaultTone;
   handleTriggerOptimize(tone, undefined, tooltipState.originalText, tooltipState.mode);
 };
 

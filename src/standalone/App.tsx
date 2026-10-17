@@ -23,7 +23,7 @@ export const StandaloneApp: React.FC = () => {
   const [rewriteOptions, setRewriteOptions] = useState<RewriteOptions>(DEFAULT_REWRITE_OPTIONS);
   const [toolbar, setToolbar] = useState({ visible: false, x: 0, y: 0, isLoading: false });
   const [tooltipState, setTooltipState] = useState<{
-    isOpen: boolean; mode?: 'translate' | 'rewrite' | 'improve'; isLoading: boolean; result?: any; error?: string | null;
+    isOpen: boolean; mode?: 'translate' | 'rewrite' | 'improve' | 'summary'; isLoading: boolean; result?: any; error?: string | null;
   }>({ isOpen: false, mode: 'translate', isLoading: false });
   const tooltipRef = useRef(tooltipState);
   tooltipRef.current = tooltipState;
@@ -84,9 +84,9 @@ export const StandaloneApp: React.FC = () => {
     };
   }, []);
 
-  const runOptimize = async (tone: ToneType, forcedMode?: 'translate' | 'rewrite' | 'improve') => {
-    const isModal = forcedMode === 'improve' || forcedMode === 'rewrite' || forcedMode === 'translate' || tone === 'translate_explain';
-    const mode = forcedMode || (tone === 'translate_explain' ? 'translate' : 'rewrite');
+  const runOptimize = async (tone: ToneType, forcedMode?: 'translate' | 'rewrite' | 'improve' | 'summary') => {
+    const isModal = forcedMode === 'improve' || forcedMode === 'rewrite' || forcedMode === 'translate' || forcedMode === 'summary' || tone === 'translate_explain' || tone === 'summarize';
+    const mode = forcedMode || (tone === 'translate_explain' ? 'translate' : tone === 'summarize' ? 'summary' : 'rewrite');
 
     if (isModal) {
       setToolbar((prev) => ({ ...prev, visible: false }));
@@ -226,16 +226,16 @@ export const StandaloneApp: React.FC = () => {
             const res = await executeOptimize({ text: parts ? `Original text: "${activeText}"\nRewrite requirements: ${parts}.` : activeText, tone: 'professional' }, await loadSettings());
             setTooltipState((p) => ({ ...p, isLoading: false, result: res.data, error: res.error }));
           }}
-          onModeChange={(m) => runOptimize(m === 'translate' ? 'translate_explain' : 'professional', m)}
+          onModeChange={(m) => runOptimize(m === 'translate' ? 'translate_explain' : m === 'summary' ? 'summarize' : 'professional', m)}
           onFollowUp={async (query) => {
             setTooltipState((p) => ({ ...p, isLoading: true }));
-            const res = await executeOptimize({ text: `Original text: "${activeText}"\n\nRequest: ${query}`, tone: tooltipState.mode === 'translate' ? 'translate_explain' : 'professional' }, await loadSettings());
+            const res = await executeOptimize({ text: activeText, tone: tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : 'professional', taskInstruction: query }, await loadSettings());
             setTooltipState({ isOpen: true, mode: tooltipState.mode, isLoading: false, result: res.data, error: res.error });
           }}
-          onRegenerate={() => runOptimize(tooltipState.mode === 'translate' ? 'translate_explain' : 'professional', tooltipState.mode)}
+          onRegenerate={() => runOptimize(tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : 'professional', tooltipState.mode)}
           onLanguageChange={async (lang) => {
             setTooltipState((p) => ({ ...p, isLoading: true }));
-            const res = await executeOptimize({ text: `Target language: ${lang}\n\n"${activeText}"`, tone: tooltipState.mode === 'translate' ? 'translate_explain' : 'professional' }, await loadSettings());
+            const res = await executeOptimize({ text: `Target language: ${lang}\n\n"${activeText}"`, tone: tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : 'professional' }, await loadSettings());
             setTooltipState((p) => ({ ...p, isLoading: false, result: res.data, error: res.error }));
           }}
           onInsert={(text) => {

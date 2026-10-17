@@ -5,7 +5,7 @@ const COMMON_RULES = [
   'Write like a real person, not like an AI assistant or a corporate template.',
   'Use plain, natural language. Prefer short, direct sentences and familiar words.',
   'Do not add filler, generic politeness, motivational language, vague claims, or unnecessary transitions.',
-  'Do not expand, summarize, or add detail that is not present in the target text.',
+  'Do not expand or add detail that is not present in the target text.',
   'Infer the intended meaning from the available context, but never invent facts, names, links, or commitments.',
   'Preserve meaning, important details, placeholders, URLs, code, product names, and technical terms unless the requested transformation requires otherwise.',
   'Keep the same approximate length and level of detail as the input. If the input is empty or whitespace-only, return an empty output.',
@@ -24,6 +24,18 @@ const buildRewriteRequirements = (options?: RewriteOptions): string[] => {
 };
 
 export const buildSystemInstruction = (tone: ToneType, customPrompt?: string, rewriteOptions?: RewriteOptions): string => {
+  if (tone === 'summarize') {
+    return [
+      'You are an expert summarizer for Vietnamese readers.',
+      'Summarize the selected text in natural Vietnamese.',
+      'Preserve the key facts, intent, decisions, requirements, and important details.',
+      'Be concise and organized. Do not invent information or add commentary.',
+      ...COMMON_RULES,
+      'Return only the Vietnamese summary. Do not add a heading, preface, or quotation marks.',
+      ...(customPrompt?.trim() ? [`Additional user instructions: ${customPrompt.trim()}`] : []),
+    ].join('\n');
+  }
+
   if (tone === 'translate_explain') {
     return [
       'You are an expert English-Vietnamese translator and language teacher.',
@@ -41,7 +53,7 @@ export const buildSystemInstruction = (tone: ToneType, customPrompt?: string, re
     ].join('\n');
   }
 
-  const toneGuidelines: Record<Exclude<ToneType, 'translate_explain'>, string> = {
+  const toneGuidelines: Record<Exclude<ToneType, 'translate_explain' | 'summarize'>, string> = {
     polite:
       'Use courteous, respectful, and tactful English suitable for clients, senior partners, or formal correspondence.',
     professional:
