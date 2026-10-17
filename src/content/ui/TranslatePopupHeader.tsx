@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Languages, PenLine, Wand2, FileText, ChevronDown, X } from 'lucide-react';
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
 import { Badge } from '../../components/ui/Badge';
@@ -33,9 +33,22 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
 }) => {
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
+  const modeMenuRef = useRef<HTMLDivElement>(null);
+  const languageMenuRef = useRef<HTMLDivElement>(null);
   const isLight = theme === 'light';
   const t = getTranslator(language);
   const th = getPopupTheme(theme);
+
+  useEffect(() => {
+    if (!modeMenuOpen && !langMenuOpen) return;
+    const handleOutsidePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (modeMenuOpen && !modeMenuRef.current?.contains(target)) setModeMenuOpen(false);
+      if (langMenuOpen && !languageMenuRef.current?.contains(target)) setLangMenuOpen(false);
+    };
+    document.addEventListener('pointerdown', handleOutsidePointerDown, true);
+    return () => document.removeEventListener('pointerdown', handleOutsidePointerDown, true);
+  }, [modeMenuOpen, langMenuOpen]);
 
   const handleHeaderMouseDown = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -64,7 +77,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
       onMouseDown={handleHeaderMouseDown}
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
-      className={`sticky top-0 z-20 pointer-events-auto px-4 pt-2.5 pb-2 border-b backdrop-blur-md rounded-t-2xl flex flex-col gap-1.5 cursor-grab active:cursor-grabbing select-none ${
+      className={`sticky top-0 z-20 pointer-events-auto relative px-4 pt-2.5 pb-2 border-b backdrop-blur-md rounded-t-2xl flex flex-col gap-1.5 cursor-grab active:cursor-grabbing select-none ${
         isLight ? 'bg-white/95 border-slate-200/80' : 'bg-slate-900/95 border-slate-800/80'
       }`}
     >
@@ -79,7 +92,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
 
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 flex-1 items-center gap-1.5">
-          <div className="relative shrink-0">
+          <div ref={modeMenuRef} className="relative shrink-0">
             <button
               type="button"
               onClick={() => setModeMenuOpen((p) => !p)}
@@ -132,7 +145,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
             </div>
           )}
           {mode === 'translate' && (
-            <div className="relative">
+            <div ref={languageMenuRef} className="relative">
               <button
                 type="button"
                 onClick={() => setLangMenuOpen((p) => !p)}
@@ -158,15 +171,15 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={onClose}
-            className={`p-1 rounded-lg cursor-pointer ${th.iconBtn}`}
-            aria-label={t('content.close')}
-          >
-            <X size={15} />
-          </button>
         </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className={`absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-lg cursor-pointer ${th.iconBtn}`}
+          aria-label={t('content.close')}
+        >
+          <X size={15} />
+        </button>
       </div>
     </div>
   );
