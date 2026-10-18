@@ -28,6 +28,7 @@ export interface OptionsContextValue {
   maxContext: number;
   setMaxContext: (n: number | ((prev: number) => number)) => void;
   saveSuccess: boolean;
+  saveError: boolean;
   handleSave: () => Promise<void>;
 }
 
@@ -49,6 +50,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [chatContext, setChatContext] = useState(true);
   const [maxContext, setMaxContext] = useState(4);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [settings, isInitialized]);
 
   const handleSave = async () => {
-    await updateSettings({
+    const saved = await updateSettings({
       language,
       llmProvider: provider,
       geminiApiKey: apiKeys[0]?.key || '',
@@ -94,6 +96,8 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       enableChatContext: chatContext,
       maxContextMessages: Number(maxContext) || 4,
     });
+    setSaveError(!saved);
+    if (!saved) return;
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
   };
@@ -114,7 +118,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setTonePrompt: (prompt) => setTonePrompts((current) => ({ ...current, [tone]: prompt })),
         chatContext, setChatContext,
         maxContext, setMaxContext,
-        saveSuccess, handleSave,
+        saveSuccess, saveError, handleSave,
       }}
     >
       {children}

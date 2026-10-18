@@ -96,4 +96,19 @@ describe('Options Multi-Page React Router', () => {
     expect(stored.defaultTone).toBe('friendly');
     expect(stored.maxContextMessages).toBe(8);
   });
+
+  it('TC-OR-03: Shows an error instead of success when saving fails', async () => {
+    (chrome.storage.sync.set as any).mockRejectedValue(new Error('QUOTA_BYTES_PER_ITEM'));
+    const queryClient = createTestQueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <OptionsApp />
+      </QueryClientProvider>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Save Settings/i }));
+
+    expect(await screen.findByText('Unable to save settings. Please try again.')).toBeDefined();
+    expect(screen.queryByText('Settings saved successfully in your browser!')).toBeNull();
+  });
 });

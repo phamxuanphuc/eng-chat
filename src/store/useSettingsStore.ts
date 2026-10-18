@@ -7,7 +7,7 @@ interface SettingsState {
   isLoading: boolean;
   error: string | null;
   fetchSettings: () => Promise<void>;
-  updateSettings: (partial: Partial<AppSettings>) => Promise<void>;
+  updateSettings: (partial: Partial<AppSettings>) => Promise<boolean>;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => {
@@ -49,8 +49,10 @@ export const useSettingsStore = create<SettingsState>((set) => {
       try {
         const updated = await saveSettings(partial);
         set({ settings: updated, isLoading: false });
+        return true;
       } catch {
         set({ error: 'Failed to save settings', isLoading: false });
+        return false;
       }
     },
   };

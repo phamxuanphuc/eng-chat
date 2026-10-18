@@ -15,6 +15,7 @@
   "options.aiProvider": "Nhà cung cấp AI",
   "options.writingStyle": "Phong cách viết",
   "options.context": "Ngữ cảnh",
+  "options.saveFailed": "Không thể lưu cài đặt. Vui lòng thử lại.",
   "options.saved": "Đã lưu",
   "options.saveSettings": "Lưu cài đặt",
   "options.language": "Ngôn ngữ",

@@ -15,7 +15,7 @@ const NAV_ITEMS = [
 ];
 
 export const OptionsLayout: React.FC = () => {
-  const { language, setLanguage, saveSuccess, handleSave } = useOptions();
+  const { language, setLanguage, saveSuccess, saveError, handleSave } = useOptions();
   const t = getTranslator(language);
 
   return (
@@ -84,6 +84,8 @@ export const OptionsLayout: React.FC = () => {
         {saveSuccess && (
           <Alert variant="success" message={t('options.savedBrowser', { settings: t('app.settings') })} />
         )}
+
+        {saveError && <Alert variant="error" message={t('options.saveFailed')} />}
 
         <Outlet />
 

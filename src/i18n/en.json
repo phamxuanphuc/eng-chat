@@ -15,6 +15,7 @@
   "options.aiProvider": "AI Provider",
   "options.writingStyle": "Writing style",
   "options.context": "Context",
+  "options.saveFailed": "Unable to save settings. Please try again.",
   "options.saved": "Saved",
   "options.saveSettings": "Save Settings",
   "options.language": "Language",
