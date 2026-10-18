@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Check, Loader2, RefreshCw, Star, X } from 'lucide-react';
 import { AppSettings, LLMProvider } from '../../types';
 import { GEMINI_MODELS } from '../../options/ModelSelector';
-import { fetchOpenAiModels } from '../../services/openai';
 import { loadSettings, saveSettings } from '../../services/storage';
 import { Language } from '../../types';
 import { getTranslator } from '../../i18n';
@@ -61,10 +60,9 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', theme
     setIsFetchingModels(true);
     setError(null);
     try {
-      const models = await fetchOpenAiModels({
-        baseUrl: settings.customBaseUrl,
-        apiKey: settings.customApiKey,
-      });
+      const response = await sendRuntimeMessage<{ success: boolean; models?: string[]; error?: string }>({ action: 'FETCH_CUSTOM_MODELS' });
+      if (!response?.success) throw new Error(response?.error || t('content.unableLoadModels'));
+      const models = response.models || [];
       setCustomModels(models);
       if (models.length === 0) setError(t('content.noModels'));
     } catch (err: any) {

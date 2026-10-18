@@ -1,6 +1,7 @@
 import { ToneType, OptimizeRequest } from '../types';
 import { loadSettings, saveSettings } from '../services/storage';
 import { executeOptimize } from '../services/gemini';
+import { fetchOpenAiModels } from '../services/openai';
 
 const CONTEXT_MENU_PREFIX = 'engchat_action_';
 
@@ -109,6 +110,13 @@ export const handleRuntimeMessage = async (
     if (message?.action === 'GET_SETTINGS') {
       const settings = await loadSettings();
       sendResponse(settings);
+      return true;
+    }
+
+    if (message?.action === 'FETCH_CUSTOM_MODELS') {
+      const settings = await loadSettings();
+      const models = await fetchOpenAiModels({ baseUrl: settings.customBaseUrl, apiKey: settings.customApiKey });
+      sendResponse({ success: true, models });
       return true;
     }
 

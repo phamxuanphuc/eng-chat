@@ -109,3 +109,18 @@ describe('Background Service Worker', () => {
     expect(result).toBe(false);
   });
 });
+
+describe('Background FETCH_CUSTOM_MODELS', () => {
+  it('fetches custom models from the service worker', async () => {
+    const axios = (await import('axios')).default;
+    const getSpy = vi.spyOn(axios, 'get').mockResolvedValueOnce({ data: { data: [{ id: 'b' }, { id: 'a' }] } });
+    (globalThis as any).chrome = {
+      storage: { sync: { get: vi.fn(async () => ({ engchat_settings: { customBaseUrl: 'https://x.test/v1', customApiKey: 'sk' } })), set: vi.fn() } },
+    };
+    const sendResponse = vi.fn();
+    await handleRuntimeMessage({ action: 'FETCH_CUSTOM_MODELS' }, {} as any, sendResponse);
+    expect(getSpy).toHaveBeenCalledWith('https://x.test/v1/models', expect.objectContaining({ headers: { Authorization: 'Bearer sk' } }));
+    expect(sendResponse).toHaveBeenCalledWith({ success: true, models: ['a', 'b'] });
+    getSpy.mockRestore();
+  });
+});
