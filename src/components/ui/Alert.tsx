@@ -61,7 +61,7 @@ export const Alert: React.FC<AlertProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="text-slate-400 hover:text-white transition-colors p-1"
+          className="text-slate-400 hover:text-slate-50 transition-colors p-1"
           aria-label={t('common.closeAlert')}
         >
           &times;

@@ -30,9 +30,9 @@ export const Button: React.FC<ButtonProps> = ({
     primary:
       'bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:brightness-110 focus:ring-indigo-500 border border-white/10',
     secondary:
-      'bg-slate-800/80 backdrop-blur-md text-slate-200 border border-slate-700/80 hover:bg-slate-700 hover:border-slate-600 focus:ring-slate-500 hover:text-white',
+      'bg-slate-800/80 backdrop-blur-md text-slate-200 border border-slate-700/80 hover:bg-slate-700 hover:border-slate-600 focus:ring-slate-500 hover:text-slate-50',
     ghost:
-      'bg-transparent text-slate-300 hover:bg-white/10 hover:text-white focus:ring-slate-500',
+      'bg-transparent text-slate-300 hover:bg-slate-50/10 hover:text-slate-50 focus:ring-slate-500',
     danger:
       'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40 focus:ring-red-500 border border-red-500/30',
   }[variant];

@@ -9,7 +9,7 @@
   "app.popupWindow": "Popup Window",
   "app.quickActions": "Quick actions:",
   "app.version": "Version 1.0.0 · Shortcut: Ctrl+Shift+E",
-  "options.subtitle": "AI configuration and English optimization center",
+  "options.subtitle": "AI writing & translation settings",
   "options.finish": "Finish configuration",
   "options.saveHint": "Changes on every page take effect immediately after saving.",
   "options.aiProvider": "AI Provider",
@@ -213,5 +213,9 @@
   "outputLanguage.improve": "Improve",
   "outputLanguage.rewrite": "Rewrite",
   "outputLanguage.summary": "Summary",
-  "outputLanguage.translate": "Translate"
+  "outputLanguage.translate": "Translate",
+  "options.theme": "Theme: {{theme}}",
+  "theme.system": "System",
+  "theme.light": "Light",
+  "theme.dark": "Dark"
 }

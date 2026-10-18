@@ -7,6 +7,7 @@ import { Badge } from '../components/ui/Badge';
 import { Select } from '../components/ui/Select';
 import { Check, Save, MessageSquare, Palette, Cpu, Languages } from 'lucide-react';
 import { getTranslator, languageOptions } from '../i18n';
+import { ThemeToggle } from './ThemeToggle';
 
 const NAV_ITEMS = [
   { path: '/', labelKey: 'options.aiProvider' as const, icon: Cpu },
@@ -21,7 +22,7 @@ export const OptionsLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-16">
       <header className="sticky top-0 z-40 bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/20">
-        <div className="max-w-4xl mx-auto px-6 py-3.5 flex items-center justify-between gap-4">
+        <div className="max-w-4xl mx-auto px-6 py-3.5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-lg shadow-md shadow-indigo-500/25 shrink-0">
               ✨
@@ -37,18 +38,19 @@ export const OptionsLayout: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <Select
               id="language-select"
               aria-label={t('options.language')}
-              icon={<Languages size={16} />}
+              icon={<Languages size={14} />}
               value={language}
               onChange={(event) => setLanguage(event.target.value as 'en' | 'vi')}
-              options={languageOptions.map((option) => ({ value: option.value, label: t(option.labelKey) }))}
-              className="h-9 min-w-[118px] rounded-lg px-2.5 py-1.5 text-xs"
+              options={languageOptions.map((option) => ({ value: option.value, label: option.value.toUpperCase() }))}
+              className="h-9 w-[84px] rounded-lg !pl-8 !pr-7 py-1 text-xs font-semibold"
               title={t(language === 'en' ? 'language.english' : 'language.vietnamese')}
             />
-            <nav className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
+            <ThemeToggle language={language} />
+            <nav className="order-last w-full sm:order-none sm:w-auto flex items-center gap-1.5 p-1 rounded-xl overflow-x-auto bg-slate-900/80 border border-slate-800 text-xs">
               {NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -57,7 +59,7 @@ export const OptionsLayout: React.FC = () => {
                     to={item.path}
                     end={item.path === '/'}
                     className={({ isActive }) =>
-                      `flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-xs cursor-pointer ${
+                      `flex flex-1 sm:flex-none justify-center whitespace-nowrap items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-xs cursor-pointer ${
                         isActive
                           ? 'bg-indigo-600/30 text-indigo-300 font-semibold border border-indigo-500/50 shadow-[0_0_12px_rgba(99,102,241,0.2)]'
                           : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent'
@@ -89,7 +91,7 @@ export const OptionsLayout: React.FC = () => {
 
         <Outlet />
 
-        <div className="flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-indigo-950/40 via-purple-950/20 to-slate-900 border border-slate-800/80 mt-4">
+        <div className="sticky bottom-4 z-30 flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-slate-900/90 backdrop-blur-xl border border-slate-800/80 shadow-lg shadow-slate-950/40 mt-4">
           <div className="flex flex-col text-xs text-slate-400">
             <span className="font-semibold text-slate-200">{t('options.finish')}</span>
             <span>{t('options.saveHint')}</span>
