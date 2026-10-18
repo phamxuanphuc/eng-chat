@@ -47,9 +47,9 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
   });
 
   return (
-    <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+    <section className="flex flex-col gap-5 rounded-3xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg shadow-slate-950/20 sm:p-6">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-base font-bold tracking-tight text-slate-100">
           <Server size={16} className="text-indigo-400" /> {t('custom.title')}
         </h2>
         <Badge variant={model.trim() ? 'success' : 'warning'} size="sm">
@@ -114,6 +114,6 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
       {testMutation.isError && (
         <Alert variant="error" message={t('api.connectionFailed')} description={testMutation.error?.message} />
       )}
-    </div>
+    </section>
   );
 };

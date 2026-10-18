@@ -21,9 +21,9 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
   const t = getTranslator(language || 'en');
 
   return (
-    <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+    <section className="flex flex-col gap-5 rounded-3xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg shadow-slate-950/20 sm:p-6">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-base font-bold tracking-tight text-slate-100">
           <Sparkles size={16} className="text-indigo-400" /> {t('provider.choose')}
         </h2>
         <Badge variant={isGemini ? 'success' : 'primary'} size="sm">
@@ -42,7 +42,8 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
               onSelectProvider('gemini');
             }
           }}
-          className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 text-left flex flex-col justify-between gap-3 relative ${
+          aria-label="Google Gemini"
+          className={`group relative flex cursor-pointer flex-col justify-between gap-4 rounded-2xl border p-4 text-left transition-all duration-300 ${
             isGemini
               ? 'bg-gradient-to-br from-indigo-950/70 via-purple-950/40 to-slate-900 border-indigo-500 shadow-lg shadow-indigo-500/20 ring-1 ring-indigo-500/50 scale-[1.01]'
               : 'bg-slate-950/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900/60'
@@ -85,7 +86,8 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
               onSelectProvider('openai_compatible');
             }
           }}
-          className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 text-left flex flex-col justify-between gap-3 relative ${
+          aria-label={t('provider.custom')}
+          className={`group relative flex cursor-pointer flex-col justify-between gap-4 rounded-2xl border p-4 text-left transition-all duration-300 ${
             isOpenAi
               ? 'bg-gradient-to-br from-indigo-950/70 via-purple-950/40 to-slate-900 border-indigo-500 shadow-lg shadow-indigo-500/20 ring-1 ring-indigo-500/50 scale-[1.01]'
               : 'bg-slate-950/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900/60'
@@ -118,6 +120,6 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

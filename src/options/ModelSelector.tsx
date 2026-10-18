@@ -68,9 +68,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   } as const;
 
   return (
-    <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+    <section className="flex flex-col gap-5 rounded-3xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg shadow-slate-950/20 sm:p-6">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-base font-bold tracking-tight text-slate-100">
           <Sparkles size={16} className="text-indigo-400" /> {t('model.title')}
         </h2>
         <Badge variant="primary" size="sm">
@@ -126,6 +126,6 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
           );
         })}
       </div>
-    </div>
+    </section>
   );
 };
