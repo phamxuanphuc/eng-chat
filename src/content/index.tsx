@@ -17,6 +17,7 @@ let currentEditableEl: HTMLElement | null = null;
 let currentTheme: 'light' | 'dark' = 'dark';
 let currentLanguage: 'en' | 'vi' = 'en';
 let currentDefaultTone: ToneType = 'professional';
+let latestRequestId = 0;
 
 try {
   currentTheme = detectPageTheme();
@@ -42,6 +43,7 @@ let tooltipState = {
 
 const ensureShadowHost = (): ShadowRoot => {
   if (shadowRoot) return shadowRoot;
+  document.getElementById('engchat-root-host')?.remove();
   const host = document.createElement('div');
   host.id = 'engchat-root-host';
   host.style.position = 'fixed';
@@ -53,7 +55,6 @@ const ensureShadowHost = (): ShadowRoot => {
 
   const styleLink = document.createElement('style');
   styleLink.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
     :host { all: initial; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
     * { box-sizing: border-box; }
     ${styles}
@@ -107,7 +108,7 @@ const renderApp = () => {
 const handleTranslateVi = async (text: string): Promise<string> => {
   const response: OptimizeResponse = await sendRuntimeMessage({
     action: 'EXECUTE_GEMINI',
-    payload: { text: `Translate the following English sentence into natural Vietnamese:\n"${text}"`, tone: 'concise' },
+    payload: { text, tone: 'translate_explain', taskInstruction: 'Translate the target text into natural Vietnamese.' },
   });
   return response.success && response.data ? (typeof response.data === 'string' ? response.data : response.data.translation) : '';
 };
@@ -139,6 +140,7 @@ const handleTriggerOptimize = async (
     toolbarState = { ...toolbarState, isLoading: true };
   }
   renderApp();
+  const requestId = ++latestRequestId;
 
   const shouldExtract = settings ? settings.enableChatContext : true;
   const contextMessages = shouldExtract ? extractChatContext(activeEl, settings?.maxContextMessages || 4) : [];
@@ -153,6 +155,7 @@ const handleTriggerOptimize = async (
         rewriteOptions: mode === 'translate' || mode === 'summary' ? undefined : tooltipState.rewriteOptions,
       },
     });
+    if (requestId !== latestRequestId) return;
     toolbarState = { ...toolbarState, isLoading: false, visible: false };
 
     if (response.success && response.data) {
@@ -167,6 +170,7 @@ const handleTriggerOptimize = async (
     }
     renderApp();
   } catch (err: any) {
+    if (requestId !== latestRequestId) return;
     toolbarState = { ...toolbarState, isLoading: false, visible: false };
     tooltipState = { ...tooltipState, visible: true, mode, isLoading: false, error: getRuntimeErrorMessage(err, 'Connection error extension.'), result: null, hasEditableTarget: !!activeEl };
     renderApp();
@@ -184,6 +188,7 @@ const handleFollowUp = async (query: string) => {
   if (!tooltipState.originalText) return;
   tooltipState = { ...tooltipState, isLoading: true, error: null, isPinned: false };
   renderApp();
+  const requestId = ++latestRequestId;
 
   try {
     const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : currentDefaultTone;
@@ -196,9 +201,11 @@ const handleFollowUp = async (query: string) => {
         taskInstruction: query,
       },
     });
+    if (requestId !== latestRequestId) return;
     tooltipState = { ...tooltipState, isLoading: false, result: response.success ? response.data : null, error: response.success ? null : (response.error || 'Processing error') };
     renderApp();
   } catch (err: any) {
+    if (requestId !== latestRequestId) return;
     tooltipState = { ...tooltipState, isLoading: false, error: getRuntimeErrorMessage(err, 'Connection error') };
     renderApp();
   }
@@ -257,7 +264,9 @@ const cleanupDOMEvents = setupDOMEvents({
     if (changed) renderApp();
   },
 });
-window.addEventListener('pagehide', cleanupDOMEvents, { once: true });
+window.addEventListener('pagehide', (event) => {
+  if (!event.persisted) cleanupDOMEvents();
+});
 
 // Mount immediately so the content script remains usable even if settings storage is slow.
 renderApp();
