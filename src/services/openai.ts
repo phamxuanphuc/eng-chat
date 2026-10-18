@@ -89,7 +89,7 @@ export const callOpenAiApi = async (params: OpenAiApiParams): Promise<string> =>
 
   try {
     const response = await axios.post(endpoint, payload, {
-      timeout: 20000,
+      timeout: 30000,
       headers,
     });
 

@@ -195,3 +195,39 @@ describe('Gemini Service & Axios Client', () => {
     ).rejects.toThrow('was not found (404)');
   });
 });
+
+describe('Gemini hardening', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (axios as any).isAxiosError = vi.fn((err) => !!err?.isAxios);
+  });
+
+  const call = () => callGeminiApi({ apiKey: 'k', model: 'gemini-3.5-flash-lite', systemInstruction: 's', prompt: 'p' });
+
+  it('sends the API key only in a header, never in the URL query', async () => {
+    vi.mocked(axios.post).mockResolvedValueOnce({ data: mockGeminiSuccessRawResponse });
+    await call();
+    const config = (axios.post as any).mock.calls[0][2];
+    expect(config.params).toBeUndefined();
+    expect(config.headers['x-goog-api-key']).toBe('k');
+  });
+
+  it('joins multi-part responses and skips thought parts', async () => {
+    vi.mocked(axios.post).mockResolvedValueOnce({
+      data: { candidates: [{ content: { parts: [{ text: 'thinking', thought: true }, { text: 'Hello ' }, { text: 'world' }] } }] },
+    });
+    await expect(call()).resolves.toBe('Hello world');
+  });
+
+  it('reports a blocked prompt', async () => {
+    vi.mocked(axios.post).mockResolvedValueOnce({ data: { promptFeedback: { blockReason: 'SAFETY' } } });
+    await expect(call()).rejects.toThrow('Gemini blocked this request (SAFETY).');
+  });
+
+  it('reports the finish reason when output is empty', async () => {
+    vi.mocked(axios.post).mockResolvedValueOnce({
+      data: { candidates: [{ finishReason: 'MAX_TOKENS', content: { parts: [] } }] },
+    });
+    await expect(call()).rejects.toThrow('Gemini returned empty data (MAX_TOKENS).');
+  });
+});

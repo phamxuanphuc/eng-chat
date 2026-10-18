@@ -16,7 +16,6 @@ export const fetchGeminiModels = async (apiKey: string): Promise<string[]> => {
     const response = await axios.get(GEMINI_API_BASE, {
       timeout: 15000,
       headers: { 'x-goog-api-key': apiKey.trim() },
-      params: { key: apiKey.trim() },
     });
     return (Array.isArray(response.data?.models) ? response.data.models : [])
       .filter((model: any) => Array.isArray(model.supportedGenerationMethods) && model.supportedGenerationMethods.includes('generateContent'))
@@ -59,30 +58,39 @@ export const callGeminiApi = async (params: {
       },
     ],
     generationConfig: {
-      maxOutputTokens: 2048,
+      maxOutputTokens: 8192,
     },
   };
 
   try {
     const response = await axios.post(url, payload, {
-      timeout: 15000,
+      timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
         'x-goog-api-key': cleanKey,
       },
-      params: {
-        key: cleanKey,
-      },
     });
+
+    const blockReason = response.data?.promptFeedback?.blockReason;
+    if (blockReason) {
+      throw new Error(`Gemini blocked this request (${blockReason}).`);
+    }
 
     const candidates = response.data?.candidates;
     if (!candidates || candidates.length === 0) {
       throw new Error('Gemini returned no data.');
     }
 
-    const textResult = candidates[0]?.content?.parts?.[0]?.text;
-    if (!textResult) {
-      throw new Error('Gemini returned empty data.');
+    const parts: Array<{ text?: string; thought?: boolean }> = candidates[0]?.content?.parts || [];
+    const textResult = parts
+      .filter((part) => !part.thought && typeof part.text === 'string')
+      .map((part) => part.text)
+      .join('');
+    if (!textResult.trim()) {
+      const finishReason = candidates[0]?.finishReason;
+      throw new Error(finishReason && finishReason !== 'STOP'
+        ? `Gemini returned empty data (${finishReason}).`
+        : 'Gemini returned empty data.');
     }
 
     return textResult.trim();
