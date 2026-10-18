@@ -5,13 +5,12 @@ import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
 import { Select } from '../components/ui/Select';
-import { Check, Save, MessageSquare, Palette, Cpu, Languages, Globe } from 'lucide-react';
+import { Check, Save, MessageSquare, Palette, Cpu, Languages } from 'lucide-react';
 import { getTranslator, languageOptions } from '../i18n';
 
 const NAV_ITEMS = [
   { path: '/', labelKey: 'options.aiProvider' as const, icon: Cpu },
   { path: '/tone', labelKey: 'options.writingStyle' as const, icon: Palette },
-  { path: '/language', labelKey: 'options.outputLanguage' as const, icon: Globe },
   { path: '/context', labelKey: 'options.context' as const, icon: MessageSquare },
 ];
 

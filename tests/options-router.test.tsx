@@ -51,7 +51,7 @@ describe('Options Multi-Page React Router', () => {
     expect(screen.getByPlaceholderText('AIzaSy...')).toBeDefined();
     expect(screen.getAllByText('Google Gemini').length).toBeGreaterThan(0);
 
-    const toneTab = screen.getByRole('link', { name: /writing style/i });
+    const toneTab = screen.getByRole('link', { name: /writing settings/i });
     fireEvent.click(toneTab);
     expect(await screen.findByText('Default writing style')).toBeDefined();
     expect(screen.getByText('Polite & Formal')).toBeDefined();
@@ -76,7 +76,7 @@ describe('Options Multi-Page React Router', () => {
     const apiKeyInput = screen.getByPlaceholderText('AIzaSy...');
     fireEvent.change(apiKeyInput, { target: { value: 'AIzaSy-router-test-key' } });
 
-    fireEvent.click(screen.getByRole('link', { name: /writing style/i }));
+    fireEvent.click(screen.getByRole('link', { name: /writing settings/i }));
     const friendlyTone = await screen.findByText('Friendly & Natural');
     fireEvent.click(friendlyTone);
 
@@ -127,7 +127,7 @@ describe('Options Multi-Page React Router', () => {
       </QueryClientProvider>
     );
 
-    fireEvent.click(screen.getByRole('link', { name: /output language/i }));
+    fireEvent.click(screen.getByRole('link', { name: /writing settings/i }));
     const rewrite = (await screen.findByLabelText('Rewrite')) as HTMLSelectElement;
     await waitFor(() => expect(rewrite.value).toBe('Japanese'));
     expect((screen.getByLabelText('Improve') as HTMLSelectElement).value).toBe('English');

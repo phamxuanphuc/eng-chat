@@ -1,10 +1,10 @@
 import React from 'react';
 import { Globe } from 'lucide-react';
-import { useOptions } from '../OptionsContext';
-import { Select } from '../../components/ui/Select';
-import { getTranslator, TranslationKey } from '../../i18n';
-import { PopupMode } from '../../content/target-languages';
-import { POPUP_LANGUAGES } from '../../content/ui/popup-theme';
+import { useOptions } from './OptionsContext';
+import { Select } from '../components/ui/Select';
+import { getTranslator, TranslationKey } from '../i18n';
+import { PopupMode } from '../content/target-languages';
+import { POPUP_LANGUAGES } from '../content/ui/popup-theme';
 
 const MODES: Array<{ mode: PopupMode; labelKey: TranslationKey }> = [
   { mode: 'improve', labelKey: 'outputLanguage.improve' },
@@ -15,7 +15,7 @@ const MODES: Array<{ mode: PopupMode; labelKey: TranslationKey }> = [
 
 const LANGUAGE_OPTIONS = POPUP_LANGUAGES.map((lang) => ({ value: lang, label: lang }));
 
-export const OutputLanguagePage: React.FC = () => {
+export const OutputLanguageSection: React.FC = () => {
   const { language, targetLanguages, setTargetLanguage } = useOptions();
   const t = getTranslator(language);
 

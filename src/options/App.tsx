@@ -5,7 +5,6 @@ import { OptionsLayout } from './OptionsLayout';
 import { AiProviderPage } from './pages/AiProviderPage';
 import { TonePage } from './pages/TonePage';
 import { ContextPage } from './pages/ContextPage';
-import { OutputLanguagePage } from './pages/OutputLanguagePage';
 
 export interface AppProps {
   useMemoryRouter?: boolean;
@@ -29,7 +28,6 @@ export const App: React.FC<AppProps> = ({
             <Route index element={<AiProviderPage />} />
             <Route path="ai" element={<Navigate to="/" replace />} />
             <Route path="tone" element={<TonePage />} />
-            <Route path="language" element={<OutputLanguagePage />} />
             <Route path="context" element={<ContextPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

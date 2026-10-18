@@ -55,7 +55,7 @@ describe('E2E User Flow Tests', () => {
     const apiKeyInput = screen.getByPlaceholderText('AIzaSy...') as HTMLInputElement;
     fireEvent.change(apiKeyInput, { target: { value: 'AIzaSy-e2e-live-key' } });
 
-    const toneTab = screen.getByRole('link', { name: /writing style/i });
+    const toneTab = screen.getByRole('link', { name: /writing settings/i });
     fireEvent.click(toneTab);
 
     const conciseTone = await screen.findByText('Concise & Direct');
