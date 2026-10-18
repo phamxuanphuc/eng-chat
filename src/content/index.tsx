@@ -10,6 +10,7 @@ import styles from '../styles/index.css?inline';
 import { getTranslator } from '../i18n';
 import { getRuntimeErrorMessage, sendRuntimeMessage } from '../services/extension-messaging';
 import { loadSettings } from '../services/storage';
+import { DEFAULT_TARGET_LANGUAGES, loadTargetLanguages, saveTargetLanguages, TargetLanguages } from './target-languages';
 
 let shadowRoot: ShadowRoot | null = null;
 let reactRoot: ReactDOM.Root | null = null;
@@ -19,6 +20,7 @@ let currentLanguage: 'en' | 'vi' = 'en';
 let currentDefaultTone: ToneType = 'professional';
 let latestRequestId = 0;
 let currentSettings: AppSettings | null = null;
+let targetLanguages: TargetLanguages = { ...DEFAULT_TARGET_LANGUAGES };
 
 try {
   currentTheme = detectPageTheme();
@@ -134,8 +136,9 @@ const handleTriggerOptimize = async (
   const isModalMode = forcedMode === 'improve' || forcedMode === 'rewrite' || forcedMode === 'translate' || forcedMode === 'summary' || tone === 'translate_explain' || tone === 'summarize';
   const mode: 'translate' | 'rewrite' | 'improve' | 'summary' = forcedMode || (tone === 'translate_explain' ? 'translate' : tone === 'summarize' ? 'summary' : 'rewrite');
 
+  const targetLanguage = targetLanguages[mode];
   if (isModalMode) {
-    tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: true, error: null, hasEditableTarget: !!activeEl };
+    tooltipState = { ...tooltipState, visible: true, mode, targetLanguage, originalText: targetText, isLoading: true, error: null, hasEditableTarget: !!activeEl };
     toolbarState = { ...toolbarState, visible: false };
   } else {
     toolbarState = { ...toolbarState, isLoading: true };
@@ -155,6 +158,7 @@ const handleTriggerOptimize = async (
         tone,
         contextMessages,
         rewriteOptions: mode === 'translate' || mode === 'summary' ? undefined : tooltipState.rewriteOptions,
+        targetLanguage,
       },
     });
     if (requestId !== latestRequestId) return;
@@ -185,7 +189,6 @@ const handleModeChange = (newMode: 'translate' | 'rewrite' | 'improve' | 'summar
     renderApp();
     return;
   }
-  if (newMode === 'improve') tooltipState.targetLanguage = 'English';
   const tone = newMode === 'translate' ? 'translate_explain' : newMode === 'summary' ? 'summarize' : currentDefaultTone;
   handleTriggerOptimize(tone, undefined, tooltipState.originalText, newMode);
 };
@@ -205,6 +208,7 @@ const handleFollowUp = async (query: string) => {
         tone,
         rewriteOptions: tooltipState.mode === 'translate' || tooltipState.mode === 'summary' ? undefined : tooltipState.rewriteOptions,
         taskInstruction: query,
+        targetLanguage: targetLanguages[tooltipState.mode],
       },
     });
     if (requestId !== latestRequestId) return;
@@ -234,6 +238,10 @@ void loadSettings().then(applySettings).catch(() => {
   renderApp();
 });
 
+void loadTargetLanguages().then((languages) => {
+  targetLanguages = languages;
+});
+
 if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
   chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === 'local' && changes.engchat_settings?.newValue) {
@@ -242,11 +250,12 @@ if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
   });
 }
 
-const handleLanguageChange = async (lang: string) => {
-  tooltipState = { ...tooltipState, targetLanguage: lang, isLoading: true, error: null };
+const handleLanguageChange = (lang: string) => {
+  targetLanguages = { ...targetLanguages, [tooltipState.mode]: lang };
+  void saveTargetLanguages(targetLanguages);
+  tooltipState = { ...tooltipState, targetLanguage: lang };
   renderApp();
-  const prompt = tooltipState.mode === 'improve' ? `Improve text into ${lang} language.` : `Translate to language: ${lang}`;
-  await handleFollowUp(prompt);
+  handleRegenerate();
 };
 
 const handleRewriteOptionsChange = async (opts: RewriteOptions) => {

@@ -147,7 +147,8 @@ export const executeOptimize = async (
     const systemInstruction = buildSystemInstruction(
       request.tone,
       settings.tonePrompts?.[request.tone],
-      request.rewriteOptions
+      request.rewriteOptions,
+      request.targetLanguage
     );
     const userPrompt = buildUserPrompt(
       request.text,

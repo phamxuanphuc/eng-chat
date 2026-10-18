@@ -235,7 +235,7 @@ export const StandaloneApp: React.FC = () => {
           onRegenerate={() => runOptimize(tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : 'professional', tooltipState.mode)}
           onLanguageChange={async (lang) => {
             setTooltipState((p) => ({ ...p, isLoading: true }));
-            const res = await executeOptimize({ text: `Target language: ${lang}\n\n"${activeText}"`, tone: tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : 'professional' }, await loadSettings());
+            const res = await executeOptimize({ text: activeText, targetLanguage: lang, tone: tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : 'professional' }, await loadSettings());
             setTooltipState((p) => ({ ...p, isLoading: false, result: res.data, error: res.error }));
           }}
           onInsert={(text) => {

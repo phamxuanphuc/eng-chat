@@ -5,6 +5,7 @@ import { TranslatePopupHeader } from './TranslatePopupHeader';
 import { TranslatePopupFooter } from './TranslatePopupFooter';
 import { RewriteOptionsPanel } from './RewriteOptionsPanel';
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
+import { DEFAULT_TARGET_LANGUAGES } from '../target-languages';
 import { Language } from '../../types';
 import { getTranslator } from '../../i18n';
 import { useDraggable } from './useDraggable';
@@ -48,7 +49,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   const t = getTranslator(language);
   const isLight = theme === 'light';
   const th = getPopupTheme(theme);
-  const currentLang = targetLanguage || (mode === 'improve' ? 'English' : 'Vietnamese');
+  const currentLang = targetLanguage || DEFAULT_TARGET_LANGUAGES[mode];
 
   const isExplain = result && typeof result === 'object' && 'translation' in result;
   const translationText = isExplain ? (result as TranslateExplainResult).translation : (result as string) || '';

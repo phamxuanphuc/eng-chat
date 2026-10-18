@@ -58,6 +58,7 @@ export interface OptimizeRequest {
   contextMessages?: ChatMessage[];
   rewriteOptions?: RewriteOptions;
   taskInstruction?: string;
+  targetLanguage?: string;
 }
 
 export interface OptimizeResponse {

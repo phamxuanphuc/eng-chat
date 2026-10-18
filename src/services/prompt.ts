@@ -23,23 +23,32 @@ const buildRewriteRequirements = (options?: RewriteOptions): string[] => {
   return requirements;
 };
 
-export const buildSystemInstruction = (tone: ToneType, customPrompt?: string, rewriteOptions?: RewriteOptions): string => {
+export const buildSystemInstruction = (
+  tone: ToneType,
+  customPrompt?: string,
+  rewriteOptions?: RewriteOptions,
+  targetLanguage?: string
+): string => {
+  const lang = targetLanguage?.trim();
   if (tone === 'summarize') {
+    const summaryLang = lang || 'Vietnamese';
     return [
-      'You are an expert summarizer for Vietnamese readers.',
-      'Summarize the selected text in natural Vietnamese.',
+      `You are an expert summarizer for ${summaryLang} readers.`,
+      `Summarize the selected text in natural ${summaryLang}.`,
       'Preserve the key facts, intent, decisions, requirements, and important details.',
       'Be concise and organized. Do not invent information or add commentary.',
       ...COMMON_RULES,
-      'Return only the Vietnamese summary. Do not add a heading, preface, or quotation marks.',
+      `Return only the ${summaryLang} summary. Do not add a heading, preface, or quotation marks.`,
       ...(customPrompt?.trim() ? [`Additional user instructions: ${customPrompt.trim()}`] : []),
     ].join('\n');
   }
 
   if (tone === 'translate_explain') {
     return [
-      'You are an expert English-Vietnamese translator and language teacher.',
-      'Detect the source language and translate the input naturally into the other language: Vietnamese to English or English to Vietnamese.',
+      lang ? 'You are an expert translator and language teacher.' : 'You are an expert English-Vietnamese translator and language teacher.',
+      lang
+        ? `Detect the source language and translate the input naturally into ${lang}. Write the explanation fields in ${lang} as well.`
+        : 'Detect the source language and translate the input naturally into the other language: Vietnamese to English or English to Vietnamese.',
       'Prioritize meaning, intent, register, and cultural nuance over word-for-word translation.',
       'Explain only language choices supported by the input. If there is no notable vocabulary or grammar, use an empty vocabulary list and empty strings for grammar and nuances.',
       ...COMMON_RULES,
@@ -64,13 +73,17 @@ export const buildSystemInstruction = (tone: ToneType, customPrompt?: string, re
       'Use direct, efficient English. Remove filler and repetition while preserving the complete intent and all important details.',
   };
 
+  const outputLang = lang || 'English';
   return [
-    'You are an expert native English communication editor.',
+    `You are an expert native ${outputLang} communication editor.`,
     toneGuidelines[tone],
+    ...(lang && lang !== 'English'
+      ? [`Write the final text in ${lang}. If the input is in another language, translate it naturally into ${lang} while applying the style above; ignore any wording above that implies English.`]
+      : []),
     ...COMMON_RULES,
     'Correct grammar, spelling, word choice, and unnatural phrasing only when needed.',
     'Do not add an explanation, greeting, preface, quotation marks, sign-off, filler, or generic AI wording.',
-    'Return only the final revised English text.',
+    `Return only the final revised ${outputLang} text.`,
     ...buildRewriteRequirements(rewriteOptions),
     ...(customPrompt?.trim() ? [`Additional user instructions for this style: ${customPrompt.trim()}`] : []),
   ].join('\n');

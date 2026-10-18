@@ -149,7 +149,7 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
               ))}
             </div>
           )}
-          {mode === 'translate' && (
+          {(mode === 'translate' || mode === 'summary') && (
             <div ref={languageMenuRef} className="relative">
               <button
                 type="button"

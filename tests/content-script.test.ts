@@ -10,6 +10,7 @@ describe('Content script request handling', () => {
     (globalThis as any).chrome = {
       storage: {
         sync: { get: vi.fn(async () => ({ engchat_settings: { enableChatContext: false } })), set: vi.fn() },
+        local: { get: vi.fn(async () => ({})), set: vi.fn(async () => {}) },
         onChanged: { addListener: vi.fn() },
       },
       runtime: {
@@ -85,5 +86,34 @@ describe('Content script request handling', () => {
 
     expect(sendMessage).toHaveBeenCalledTimes(1);
     expect(sendMessage.mock.calls[0][0].payload).toMatchObject({ text: 'Text that failed', tone: 'summarize' });
+  });
+
+  it('sends the chosen target language and remembers it per mode', async () => {
+    const textarea = document.createElement('textarea');
+    textarea.value = 'Xin chao';
+    document.body.appendChild(textarea);
+    textarea.focus();
+
+    const sendMessage = (globalThis as any).chrome.runtime.sendMessage;
+    pending.length = 0;
+    sendMessage.mockClear();
+    onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'summarize', mode: 'summary' }, {}, vi.fn());
+    expect(sendMessage.mock.calls[0][0].payload.targetLanguage).toBe('Vietnamese');
+    pending[0].resolve({ success: true, data: 'Tom tat' });
+    await flush();
+
+    const root = document.getElementById('engchat-root-host')!.shadowRoot!;
+    const click = (label: string) => Array.from(root.querySelectorAll('button')).find((b) => b.textContent?.trim() === label)!.click();
+    click('Vietnamese');
+    await flush();
+    sendMessage.mockClear();
+    click('English');
+    await flush();
+    expect(sendMessage.mock.calls[0][0].payload).toMatchObject({ tone: 'summarize', targetLanguage: 'English' });
+    expect((globalThis as any).chrome.storage.local.set).toHaveBeenCalledWith({ engchat_target_languages: expect.objectContaining({ summary: 'English', translate: 'Vietnamese' }) });
+
+    sendMessage.mockClear();
+    onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'translate_explain', mode: 'translate' }, {}, vi.fn());
+    expect(sendMessage.mock.calls[0][0].payload.targetLanguage).toBe('Vietnamese');
   });
 });

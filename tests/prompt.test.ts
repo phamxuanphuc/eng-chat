@@ -98,4 +98,19 @@ describe('Prompt Builder Service', () => {
     expect(instruction).toContain('Format: Email');
     expect(instruction).toContain('Writing tone: Confident');
   });
+
+  it('TC-PR-TL: writes each mode in the chosen target language', () => {
+    expect(buildSystemInstruction('summarize', undefined, undefined, 'English')).toContain('Summarize the selected text in natural English.');
+    expect(buildSystemInstruction('summarize', undefined, undefined, 'English')).not.toContain('Vietnamese');
+
+    const translate = buildSystemInstruction('translate_explain', undefined, undefined, 'Japanese');
+    expect(translate).toContain('translate the input naturally into Japanese');
+    expect(translate).not.toContain('Vietnamese to English or English to Vietnamese');
+
+    const rewriteVi = buildSystemInstruction('professional', undefined, undefined, 'Vietnamese');
+    expect(rewriteVi).toContain('Write the final text in Vietnamese.');
+    expect(rewriteVi).toContain('Return only the final revised Vietnamese text.');
+
+    expect(buildSystemInstruction('professional', undefined, undefined, 'English')).toBe(buildSystemInstruction('professional'));
+  });
 });
