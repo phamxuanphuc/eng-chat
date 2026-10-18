@@ -111,4 +111,37 @@ describe('Options Multi-Page React Router', () => {
     expect(await screen.findByText('Unable to save settings. Please try again.')).toBeDefined();
     expect(screen.queryByText('Settings saved successfully in your browser!')).toBeNull();
   });
+
+  it('TC-OR-04: Edits and saves the output language for each mode', async () => {
+    const localData: Record<string, any> = { engchat_target_languages: { rewrite: 'Japanese' } };
+    (chrome.storage as any).local = {
+      get: vi.fn(async (key: string) => ({ [key]: localData[key] })),
+      set: vi.fn(async (obj: Record<string, any>) => {
+        Object.assign(localData, obj);
+      }),
+    };
+    const queryClient = createTestQueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <OptionsApp />
+      </QueryClientProvider>
+    );
+
+    fireEvent.click(screen.getByRole('link', { name: /output language/i }));
+    const rewrite = (await screen.findByLabelText('Rewrite')) as HTMLSelectElement;
+    await waitFor(() => expect(rewrite.value).toBe('Japanese'));
+    expect((screen.getByLabelText('Improve') as HTMLSelectElement).value).toBe('English');
+
+    fireEvent.change(screen.getByLabelText('Translate'), { target: { value: 'French' } });
+    fireEvent.click(screen.getByRole('button', { name: /Save Settings/i }));
+
+    await waitFor(() => {
+      expect(localData.engchat_target_languages).toEqual({
+        improve: 'English',
+        rewrite: 'Japanese',
+        summary: 'Vietnamese',
+        translate: 'French',
+      });
+    });
+  });
 });

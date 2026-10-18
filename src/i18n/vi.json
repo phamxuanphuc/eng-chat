@@ -207,5 +207,12 @@
   "common.lengthFormat": "Độ dài & định dạng",
   "common.unableTranslate": "Không thể dịch.",
   "common.unableConnect": "Không thể kết nối.",
-  "content.modelPickerDialog": "Bộ chọn mô hình LLM"
+  "content.modelPickerDialog": "Bộ chọn mô hình LLM",
+  "options.outputLanguage": "Ngôn ngữ đầu ra",
+  "outputLanguage.title": "Ngôn ngữ đầu ra theo từng chế độ",
+  "outputLanguage.description": "Kết quả của mỗi chế độ sẽ được viết bằng ngôn ngữ bạn chọn tại đây. Bạn cũng có thể đổi ngay trong popup.",
+  "outputLanguage.improve": "Cải thiện",
+  "outputLanguage.rewrite": "Viết lại",
+  "outputLanguage.summary": "Tóm tắt",
+  "outputLanguage.translate": "Dịch"
 }

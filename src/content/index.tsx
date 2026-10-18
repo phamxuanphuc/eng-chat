@@ -247,6 +247,11 @@ if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
     if (areaName === 'local' && changes.engchat_settings?.newValue) {
       void loadSettings().then(applySettings).catch(() => {});
     }
+    if (areaName === 'local' && changes.engchat_target_languages) {
+      void loadTargetLanguages().then((languages) => {
+        targetLanguages = languages;
+      });
+    }
   });
 }
 

@@ -207,5 +207,12 @@
   "common.rewriteStyleOptions": "Rewrite style options",
   "common.lengthFormat": "Length & format",
   "common.unableTranslate": "Unable to translate.",
-  "common.unableConnect": "Unable to connect."
+  "common.unableConnect": "Unable to connect.",
+  "options.outputLanguage": "Output language",
+  "outputLanguage.title": "Output language per mode",
+  "outputLanguage.description": "Results of each mode are written in the language you choose here. You can also change it right in the popup.",
+  "outputLanguage.improve": "Improve",
+  "outputLanguage.rewrite": "Rewrite",
+  "outputLanguage.summary": "Summary",
+  "outputLanguage.translate": "Translate"
 }

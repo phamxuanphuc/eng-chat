@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { ApiKeyItem, ToneType, LLMProvider, Language } from '../types';
+import { DEFAULT_TARGET_LANGUAGES, loadTargetLanguages, saveTargetLanguages, PopupMode, TargetLanguages } from '../content/target-languages';
 
 export interface OptionsContextValue {
   language: Language;
@@ -27,6 +28,8 @@ export interface OptionsContextValue {
   setChatContext: (v: boolean | ((prev: boolean) => boolean)) => void;
   maxContext: number;
   setMaxContext: (n: number | ((prev: number) => number)) => void;
+  targetLanguages: TargetLanguages;
+  setTargetLanguage: (mode: PopupMode, language: string) => void;
   saveSuccess: boolean;
   saveError: boolean;
   handleSave: () => Promise<void>;
@@ -49,12 +52,14 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [tonePrompts, setTonePrompts] = useState<Partial<Record<ToneType, string>>>({});
   const [chatContext, setChatContext] = useState(true);
   const [maxContext, setMaxContext] = useState(4);
+  const [targetLanguages, setTargetLanguages] = useState<TargetLanguages>({ ...DEFAULT_TARGET_LANGUAGES });
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     fetchSettings();
+    void loadTargetLanguages().then(setTargetLanguages);
   }, [fetchSettings]);
 
   useEffect(() => {
@@ -81,6 +86,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [settings, isInitialized]);
 
   const handleSave = async () => {
+    await saveTargetLanguages(targetLanguages);
     const saved = await updateSettings({
       language,
       llmProvider: provider,
@@ -118,6 +124,8 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setTonePrompt: (prompt) => setTonePrompts((current) => ({ ...current, [tone]: prompt })),
         chatContext, setChatContext,
         maxContext, setMaxContext,
+        targetLanguages,
+        setTargetLanguage: (mode, value) => setTargetLanguages((current) => ({ ...current, [mode]: value })),
         saveSuccess, saveError, handleSave,
       }}
     >
