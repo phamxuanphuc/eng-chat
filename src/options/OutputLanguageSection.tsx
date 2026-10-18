@@ -1,5 +1,5 @@
 import React from 'react';
-import { Globe } from 'lucide-react';
+import { Check, Globe } from 'lucide-react';
 import { useOptions } from './OptionsContext';
 import { Select } from '../components/ui/Select';
 import { getTranslator, TranslationKey } from '../i18n';
@@ -20,26 +20,42 @@ export const OutputLanguageSection: React.FC = () => {
   const t = getTranslator(language);
 
   return (
-    <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-5 animate-fadeIn">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-base font-semibold text-slate-200 flex items-center gap-2">
-          <Globe size={18} className="text-indigo-400" /> {t('outputLanguage.title')}
-        </h2>
-        <p className="text-xs text-slate-400">{t('outputLanguage.description')}</p>
+    <section className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg shadow-slate-950/20 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-400/20">
+            <Globe size={19} />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-slate-100">{t('outputLanguage.title')}</h2>
+            <p className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-400">{t('outputLanguage.description')}</p>
+          </div>
+        </div>
+        <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300">{t('tone.modesCount', { count: MODES.length })}</span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {MODES.map(({ mode, labelKey }) => (
-          <Select
-            key={mode}
-            id={`output-language-${mode}`}
-            label={t(labelKey)}
-            value={targetLanguages[mode]}
-            onChange={(event) => setTargetLanguage(mode, event.target.value)}
-            options={LANGUAGE_OPTIONS}
-          />
+          <div key={mode} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-800/90 bg-slate-950/40 p-3 transition-colors hover:border-slate-700">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-300">
+                <Check size={14} />
+              </span>
+              <span className="truncate text-sm font-medium text-slate-200">{t(labelKey)}</span>
+            </div>
+            <div className="w-32 shrink-0">
+              <Select
+                id={`output-language-${mode}`}
+                aria-label={t(labelKey)}
+                value={targetLanguages[mode]}
+                onChange={(event) => setTargetLanguage(mode, event.target.value)}
+                options={LANGUAGE_OPTIONS}
+                className="w-full !rounded-xl !py-2 text-xs"
+              />
+            </div>
+          </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
