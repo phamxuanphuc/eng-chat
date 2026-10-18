@@ -62,4 +62,28 @@ describe('Content script request handling', () => {
     onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'rewrite' }, {}, vi.fn());
     expect(sendMessage.mock.calls[0][0].payload.contextMessages).toEqual([]);
   });
+
+  it('switches mode after a failed request', async () => {
+    const textarea = document.createElement('textarea');
+    textarea.value = 'Text that failed';
+    document.body.appendChild(textarea);
+    textarea.focus();
+
+    const sendMessage = (globalThis as any).chrome.runtime.sendMessage;
+    pending.length = 0;
+    onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'professional' }, {}, vi.fn());
+    pending[0].resolve({ success: false, error: 'API key is not configured' });
+    await flush();
+
+    const root = document.getElementById('engchat-root-host')!.shadowRoot!;
+    const buttons = () => Array.from(root.querySelectorAll('button'));
+    buttons().find((b) => b.textContent?.trim() === 'Rewrite')!.click();
+    await flush();
+    sendMessage.mockClear();
+    buttons().find((b) => b.textContent?.trim() === 'Summary')!.click();
+    await flush();
+
+    expect(sendMessage).toHaveBeenCalledTimes(1);
+    expect(sendMessage.mock.calls[0][0].payload).toMatchObject({ text: 'Text that failed', tone: 'summarize' });
+  });
 });

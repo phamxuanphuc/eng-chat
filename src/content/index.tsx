@@ -168,19 +168,23 @@ const handleTriggerOptimize = async (
         tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, result: response.data, error: null, hasEditableTarget: !!activeEl };
       }
     } else {
-      tooltipState = { ...tooltipState, visible: true, mode, isLoading: false, error: response.error || 'An error occurred while calling AI.', result: null, hasEditableTarget: !!activeEl };
+      tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, error: response.error || 'An error occurred while calling AI.', result: null, hasEditableTarget: !!activeEl };
     }
     renderApp();
   } catch (err: any) {
     if (requestId !== latestRequestId) return;
     toolbarState = { ...toolbarState, isLoading: false, visible: false };
-    tooltipState = { ...tooltipState, visible: true, mode, isLoading: false, error: getRuntimeErrorMessage(err, 'Connection error extension.'), result: null, hasEditableTarget: !!activeEl };
+    tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, error: getRuntimeErrorMessage(err, 'Connection error extension.'), result: null, hasEditableTarget: !!activeEl };
     renderApp();
   }
 };
 
 const handleModeChange = (newMode: 'translate' | 'rewrite' | 'improve' | 'summary') => {
-  if (!tooltipState.originalText) return;
+  if (!tooltipState.originalText) {
+    tooltipState = { ...tooltipState, mode: newMode };
+    renderApp();
+    return;
+  }
   if (newMode === 'improve') tooltipState.targetLanguage = 'English';
   const tone = newMode === 'translate' ? 'translate_explain' : newMode === 'summary' ? 'summarize' : currentDefaultTone;
   handleTriggerOptimize(tone, undefined, tooltipState.originalText, newMode);
