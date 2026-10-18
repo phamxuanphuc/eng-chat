@@ -1,82 +1,71 @@
-# Tài Liệu Yêu Cầu Sản Phẩm (PRD) - EngChat AI Extension
+# Tài Liệu Yêu Cầu Sản Phẩm (PRD) - EngChat AI
 
 ## 1. Tổng Quan Sản Phẩm
-EngChat AI là tiện ích mở rộng (Chrome Extension Manifest V3) giúp người dùng chuyển đổi và tối ưu hóa nội dung sang tiếng Anh chuẩn xác theo nhiều phong cách giao tiếp khác nhau trực tiếp trên trình duyệt, thông qua Google Gemini API cá nhân.
+EngChat AI ("Write, Rewrite & Translate Anywhere") là tiện ích Chrome Manifest V3 giúp người dùng **cải thiện, viết lại, tóm tắt và dịch** văn bản ngay trên bất kỳ trang web nào, bằng API key của chính họ: Google Gemini hoặc bất kỳ nhà cung cấp tương thích OpenAI (OpenAI, OpenRouter, Groq, Ollama, LM Studio,...).
 
 ---
 
 ## 2. Mục Tiêu & Giá Trị Cốt Lõi
-- **Tiện lợi**: Tối ưu hóa văn bản ngay tại vị trí đang gõ thông qua chuột phải hoặc phím tắt, không cần chuyển tab sang Google Translate hay ChatGPT.
-- **Linh hoạt văn phong**: Hỗ trợ nhiều ngữ cảnh giao tiếp (lịch sự, công sở, thân mật, ngắn gọn).
-- **Tiết kiệm & Bảo mật**: Sử dụng API Key của chính người dùng, lưu trữ trực tiếp trên trình duyệt, không thông qua server trung gian.
+- **Tiện lợi**: Xử lý văn bản ngay tại vị trí đang gõ/đọc qua thanh công cụ nổi, menu chuột phải hoặc phím tắt, không cần chuyển tab.
+- **Đa ngôn ngữ đầu ra**: Mỗi chế độ có ngôn ngữ đích riêng (ví dụ: Rewrite → English, Translate → Tiếng Việt).
+- **Linh hoạt văn phong**: Nhiều phong cách giao tiếp, tùy chỉnh độ dài/định dạng và prompt riêng.
+- **Riêng tư**: Dùng API key của người dùng, gọi trực tiếp tới nhà cung cấp AI, không qua server trung gian.
 
 ---
 
-## 3. Các Tính Năng Chính (Core Features)
+## 3. Các Tính Năng Chính
 
-### 3.1. Quản Lý Cấu Hình & Đa API Key (Settings & Multi-Key Management)
-- Nhập và lưu trữ an toàn nhiều Gemini API Keys bằng `chrome.storage.sync`.
-- Hỗ trợ gán nhãn tùy chỉnh cho từng API key, đánh dấu khóa ưu tiên (Primary) và các khóa dự phòng (Backup).
-- Cơ chế tự động luân phiên (Failover): Tự động chuyển khóa tiếp theo khi gặp lỗi 429 (Resource Exhausted / Quota Exceeded) hoặc 401/403.
-- Chọn model Gemini (`gemini-2.0-flash`, `gemini-1.5-flash`,...).
-- Nút kiểm tra kết nối (Test API Key).
-- Cài đặt văn phong mặc định khi dùng phím tắt hoặc click nhanh.
-- Bật/tắt và giới hạn số lượng tin nhắn context trích xuất từ đoạn chat.
+### 3.1. Chế Độ Xử Lý & Ngôn Ngữ Đầu Ra
+| Chế độ | Mô tả | Ngôn ngữ mặc định |
+|---|---|---|
+| Improve | Sửa ngữ pháp, làm câu tự nhiên hơn | English |
+| Rewrite | Viết lại theo văn phong, độ dài, định dạng đã chọn | English |
+| Summary | Tóm tắt nội dung được chọn | Vietnamese |
+| Translate | Dịch kèm giải thích từ vựng/ngữ pháp | Vietnamese |
 
+- Ngôn ngữ hỗ trợ: English, Vietnamese, Japanese, Korean, Chinese, French, Spanish, German.
+- Ngôn ngữ đích được chọn **theo từng chế độ**, đổi được ngay trong popup kết quả (kết quả tự tạo lại) hoặc trong trang cài đặt; lưu tại `chrome.storage.local` (`engchat_target_languages`) và đồng bộ tức thì tới các tab đang mở.
 
-### 3.2. Menu Chuột Phải (Context Menu)
-- Hiển thị menu ngữ cảnh khi người dùng bôi đen đoạn văn bản hoặc click vào ô nhập liệu (`input`, `textarea`, `contenteditable`).
-- Menu đa cấp lựa chọn phong cách:
-  - **Lịch sự & Trang trọng (Polite & Formal)**: Dành cho email đối tác, khách hàng.
-  - **Chuyên nghiệp (Professional)**: Giao tiếp công việc, tài liệu kỹ thuật.
-  - **Thân thiện & Tự nhiên (Friendly & Casual)**: Trò chuyện đồng nghiệp, mạng xã hội.
-  - **Ngắn gọn & Trực diện (Concise)**: Rút ngắn thông điệp, đi thẳng vào vấn đề.
-  - **Dịch & Giải thích chi tiết (Translate & Explain)**: Dịch 2 chiều kèm phân tích từ vựng, ngữ pháp và sắc thái từ ngữ.
+### 3.2. Điểm Kích Hoạt
+- **Thanh công cụ nổi (Floating Toolbar)**: Hiện khi bôi đen văn bản hoặc focus ô nhập liệu (`input`, `textarea`, `contenteditable`).
+- **Menu chuột phải**: `EngChat AI` → Improve / Rewrite / Translate.
+- **Phím tắt**: `Ctrl+Shift+E` (`Cmd+Shift+E` trên macOS) tối ưu văn bản với văn phong mặc định.
 
-### 3.3. Tương Tác Trang Web (Content Script & DOM Manipulation)
-- **Tự động thay thế (Auto-replace)**: Ghi đè trực tiếp kết quả vào ô nhập liệu và kích hoạt sự kiện DOM chuẩn để tương thích với các ứng dụng web hiện đại (Gmail, Slack, Notion, Facebook,...).
-- **Xem trước nổi (Floating Preview)**: Khi bôi đen văn bản đọc thuần túy, hiển thị tooltip nhỏ chứa kết quả kèm nút copy.
-- **Trạng thái xử lý (Loading State)**: Hiệu ứng trực quan thông báo cho người dùng khi hệ thống đang gọi API.
+### 3.3. Popup Kết Quả (Shadow DOM)
+- Đổi chế độ, đổi ngôn ngữ đích, tạo lại kết quả, hỏi tiếp (follow-up) và đổi model ngay trong popup.
+- Thay thế trực tiếp vào ô nhập liệu (kích hoạt sự kiện DOM chuẩn, tương thích Gmail, Slack, Notion,...) hoặc sao chép kết quả.
+- Có thể kéo thả, tự theo theme sáng/tối của trang web, nút bánh răng mở trang cài đặt.
+- Hiển thị trạng thái đang xử lý và thông báo lỗi rõ ràng (sai key, hết quota, mất mạng).
 
-### 3.4. Dịch Vụ Gemini AI (AI Engine)
-- Tích hợp trực tiếp Google Gemini REST API.
-- Prompt chuẩn hóa: Hỗ trợ cả chế độ dịch trực tiếp và chế độ tối ưu dựa trên ngữ cảnh hội thoại (Contextual Prompting). Chỉ trả về nội dung hoàn chỉnh, không kèm lời giải thích thừa.
-- Xử lý lỗi thân thiện: Báo lỗi rõ ràng khi sai API Key, hết quota hoặc mất kết nối mạng.
+### 3.4. Văn Phong
+- Polite & Formal, Professional & Business, Friendly & Natural, Concise & Direct, Translate & Explain.
+- Prompt tùy chỉnh cho từng văn phong; tùy chọn độ dài/định dạng khi Rewrite.
 
-### 3.5. Trích Xuất Ngữ Cảnh Hội Thoại (Chat Context Awareness)
-- **Tự động nhận diện ngữ cảnh chat**: Khi người dùng đang ở trong khung chat (Slack, Teams, Messenger, WhatsApp, Discord,...), quét và lấy 3-5 tin nhắn gần nhất trong luồng hội thoại.
-- **Bổ sung ngữ cảnh vào Prompt**: Đóng gói lịch sử hội thoại gần nhất đưa vào prompt giúp Gemini nắm bắt vai trò, chủ đề và ý đồ phản hồi.
-- **Độ chính xác cao**: Giúp câu tiếng Anh trả về chuẩn ngữ pháp, xưng hô phù hợp và liền mạch với mạch trao đổi của cuộc trò chuyện.
+### 3.5. Nhà Cung Cấp AI
+- **Google Gemini**: Nhiều API key có nhãn, tự luân phiên key khi gặp lỗi 429/401/403, kiểm tra kết nối, chọn model (`gemini-3.5-flash-lite`, `gemini-3.5-flash`, `gemini-3.1-flash-lite`, `gemini-2.5-flash`). API key chỉ gửi qua header.
+- **OpenAI-compatible**: Base URL, API key, tải danh sách model qua service worker.
 
-### 3.6. Dịch Thuật & Giải Thích Chi Tiết (Translate & Explain)
-- **Học tập & Tra cứu sâu**: Khi người dùng bôi đen câu hoặc cụm từ và chọn "Dịch & Giải thích", tiện ích sẽ:
-  - Dịch chuẩn ngữ nghĩa (Việt -> Anh hoặc Anh -> Việt).
-  - Phân tích và giải thích: từ vựng chính (key vocabulary), cấu trúc ngữ pháp đặc biệt, ngữ cảnh sử dụng và tại sao lại chọn từ đó.
-- **Giao diện hiển thị chuyên dụng**: Hiển thị trên Floating Tooltip phân tách rõ ràng giữa bản dịch (kèm nút Copy) và thẻ giải thích (Collapsible Accordion / Card) giúp người dùng học hỏi và ghi nhớ.
+### 3.6. Ngữ Cảnh Hội Thoại (Chat Context)
+- Tùy chọn đọc 1–10 tin nhắn gần nhất (Slack, Discord, MS Teams,...) để AI chọn xưng hô và giọng điệu phù hợp. Tắt tính năng thì không có dữ liệu hội thoại nào được gửi đi.
+
+### 3.7. Trang Cài Đặt (Options)
+- 3 tab: **AI Provider**, **Writing settings** (văn phong mặc định, prompt tùy chỉnh, ngôn ngữ đầu ra theo chế độ), **Context**.
+- Header gọn: chọn ngôn ngữ giao diện (EN/VI) và nút giao diện **System / Light / Dark** (lưu trong `localStorage`, áp dụng cho trang cài đặt và popup của tiện ích).
+- Thanh "Lưu cài đặt" luôn hiển thị ở cuối màn hình; báo thành công/lỗi rõ ràng.
+- Đạt độ tương phản chữ WCAG AA ở cả hai theme, không tràn ngang trên màn hình hẹp.
+
+### 3.8. Lưu Trữ & Bảo Mật
+- Cài đặt lưu ở `chrome.storage.local` (ưu tiên) và `chrome.storage.sync`, có dự phòng `localStorage`.
+- Không có server trung gian; quyền host rộng chỉ để chèn content script và gọi tới base URL tùy chỉnh.
 
 ---
 
-## 4. Hướng Đi & Lộ Trình Triển Khai (Roadmap)
-
-### Giai đoạn 1: Khởi tạo Khung Dự án & Cấu hình (Foundation & Settings)
-- Khởi tạo dự án TypeScript/Vite với Manifest V3.
-- Xây dựng giao diện Options / Popup để cấu hình và kiểm tra Gemini API Key.
-- Thiết lập dịch vụ lưu trữ cấu hình an toàn.
-
-### Giai đoạn 2: Tích Hợp Context Menu & Gemini Service (MVP Flow)
-- Đăng ký Context Menu đa cấp trong Background Service Worker.
-- Xây dựng module kết nối Gemini API và định nghĩa prompt chuẩn.
-- Thao tác DOM cơ bản: Đọc text và thay thế trong `<input>`, `<textarea>`.
-
-### Giai đoạn 3: Ngữ Cảnh Hội Thoại & Hoàn Thiện UX (Chat Context & UX Polish)
-- Xây dựng module trích xuất tin nhắn trước đó (Chat Context Extractor).
-- Hỗ trợ tính năng Dịch thuật & Giải thích chi tiết (Translate & Explain) với thẻ phân tích ngữ pháp/từ vựng.
-- Hỗ trợ các trình soạn thảo rich-text (`contenteditable`).
-- Thêm Floating Preview Tooltip cho text bôi đen thông thường.
-- Bổ sung hiệu ứng loading và thông báo lỗi trực quan.
-- Tích hợp phím tắt nhanh (`chrome.commands`).
-
-### Giai đoạn 4: Kiểm Thử & Tối Ưu Hóa (Testing & E2E Verification)
-- Viết Unit Tests cho các module logic (Prompt builder, Storage, Chat Context Parser, API Parser).
-- Kiểm thử thực tế trên các trang web phổ biến (Gmail, Slack Web, GitHub, Discord, Messenger).
-- Tinh chỉnh theo tiêu chuẩn [Agents.md](file:///Users/phucpham/Desktop/game/eng-chat/Agents.md) trước khi bàn giao.
+## 4. Trạng Thái & Lộ Trình
+- [x] Khung dự án Vite + React + crxjs, Manifest V3.
+- [x] Gemini và OpenAI-compatible, đa key, luân phiên key.
+- [x] Thanh công cụ nổi, menu chuột phải, phím tắt, popup kết quả.
+- [x] 4 chế độ với ngôn ngữ đầu ra theo từng chế độ.
+- [x] Ngữ cảnh hội thoại, giao diện song ngữ EN/VI.
+- [x] Theme sáng/tối/hệ thống cho trang cài đặt.
+- [x] Unit/integration test (Vitest) và kiểm thử E2E trên Chromium thật.
+- [ ] Mở rộng danh sách ngôn ngữ đích; đồng bộ theme cài đặt với popup trên trang web.
