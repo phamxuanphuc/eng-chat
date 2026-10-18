@@ -15,7 +15,7 @@ describe('Popup', () => {
   it('shows the app name, configuration button, and About information', () => {
     render(<PopupApp />);
 
-    expect(screen.getByRole('heading', { name: 'EngChat AI' })).toBeDefined();
+    expect(screen.getByRole('heading', { name: 'LingoFlow' })).toBeDefined();
     expect(screen.getByRole('button', { name: 'Open settings' })).toBeDefined();
     expect(screen.getByRole('heading', { name: 'About' })).toBeDefined();
     expect(screen.getByText(/Optimize and translate your messages with AI/i)).toBeDefined();

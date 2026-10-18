@@ -1,6 +1,6 @@
-# Thiết Kế Kỹ Thuật (Technical Specification) - EngChat AI
+# Thiết Kế Kỹ Thuật (Technical Specification) - LingoFlow
 
-Tài liệu này đề xuất giải pháp kiến trúc và kỹ thuật để triển khai Chrome Extension EngChat AI theo chuẩn Manifest V3.
+Tài liệu này đề xuất giải pháp kiến trúc và kỹ thuật để triển khai Chrome Extension LingoFlow theo chuẩn Manifest V3.
 
 ---
 
@@ -70,7 +70,7 @@ Tài liệu này đề xuất giải pháp kiến trúc và kỹ thuật để t
 
 ### 3.3. Background Service Worker (`src/background/index.ts`)
 - Khởi tạo `chrome.contextMenus` đa cấp khi cài đặt extension:
-  - Menu cha: "Tối ưu tiếng Anh (EngChat AI)"
+  - Menu cha: "Tối ưu tiếng Anh (LingoFlow)"
   - Các menu con ứng với từng văn phong.
 - Điều phối luồng xử lý giữa Content Script và Gemini API.
 

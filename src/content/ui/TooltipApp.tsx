@@ -53,7 +53,7 @@ export const TooltipApp: React.FC<TooltipAppProps> = ({
         <div className="flex items-center gap-2">
           <span className="text-lg">✨</span>
           <span className="text-sm font-semibold text-indigo-300">
-            EngChat AI
+            LingoFlow
           </span>
         </div>
         <button

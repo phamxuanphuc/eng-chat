@@ -19,7 +19,7 @@ export const setupContextMenus = () => {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
       id: 'engchat_root',
-      title: 'EngChat AI',
+      title: 'LingoFlow',
       contexts: ['selection', 'editable'],
     });
 

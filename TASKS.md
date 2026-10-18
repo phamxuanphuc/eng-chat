@@ -1,6 +1,6 @@
 # Kế Hoạch Triển Khai Kỹ Thuật Chi Tiết (TASKS.md)
 
-Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, thuật toán xử lý DOM, kịch bản kiểm thử và tiêu chuẩn nghiệm thu cho EngChat AI.
+Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, thuật toán xử lý DOM, kịch bản kiểm thử và tiêu chuẩn nghiệm thu cho LingoFlow.
 
 ---
 
@@ -68,7 +68,7 @@ Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, 
 
 ### Giai đoạn 6: Background Service Worker & Context Menu
 - [x] **Task 6.1**: `src/background/index.ts`:
-  - `chrome.runtime.onInstalled`: Tạo menu cha "EngChat AI" và 5 menu con tương ứng 5 tone.
+  - `chrome.runtime.onInstalled`: Tạo menu cha "LingoFlow" và 5 menu con tương ứng 5 tone.
   - `chrome.contextMenus.onClicked`: Bắt sự kiện, điều phối gửi message tới active tab.
 - [x] **Task 6.2**: Unit test Background Worker (`tests/background.test.ts`).
 

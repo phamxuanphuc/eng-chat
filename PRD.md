@@ -1,7 +1,7 @@
-# Tài Liệu Yêu Cầu Sản Phẩm (PRD) - EngChat AI
+# Tài Liệu Yêu Cầu Sản Phẩm (PRD) - LingoFlow
 
 ## 1. Tổng Quan Sản Phẩm
-EngChat AI ("Write, Rewrite & Translate Anywhere") là tiện ích Chrome Manifest V3 giúp người dùng **cải thiện, viết lại, tóm tắt và dịch** văn bản ngay trên bất kỳ trang web nào, bằng API key của chính họ: Google Gemini hoặc bất kỳ nhà cung cấp tương thích OpenAI (OpenAI, OpenRouter, Groq, Ollama, LM Studio,...).
+LingoFlow ("Write, Rewrite & Translate Anywhere") là tiện ích Chrome Manifest V3 giúp người dùng **cải thiện, viết lại, tóm tắt và dịch** văn bản ngay trên bất kỳ trang web nào, bằng API key của chính họ: Google Gemini hoặc bất kỳ nhà cung cấp tương thích OpenAI (OpenAI, OpenRouter, Groq, Ollama, LM Studio,...).
 
 ---
 
@@ -28,7 +28,7 @@ EngChat AI ("Write, Rewrite & Translate Anywhere") là tiện ích Chrome Manife
 
 ### 3.2. Điểm Kích Hoạt
 - **Thanh công cụ nổi (Floating Toolbar)**: Hiện khi bôi đen văn bản hoặc focus ô nhập liệu (`input`, `textarea`, `contenteditable`).
-- **Menu chuột phải**: `EngChat AI` → Improve / Rewrite / Translate.
+- **Menu chuột phải**: `LingoFlow` → Improve / Rewrite / Translate.
 - **Phím tắt**: `Ctrl+Shift+E` (`Cmd+Shift+E` trên macOS) tối ưu văn bản với văn phong mặc định.
 
 ### 3.3. Popup Kết Quả (Shadow DOM)

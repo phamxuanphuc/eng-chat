@@ -32,7 +32,7 @@ export const AiProviderPage: React.FC = () => {
           <div className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,0.8)]" />
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-300/80">AI provider</p>
-            <h2 className="mt-2 text-xl font-bold tracking-tight text-slate-100 sm:text-2xl">Choose how EngChat writes for you</h2>
+            <h2 className="mt-2 text-xl font-bold tracking-tight text-slate-100 sm:text-2xl">Choose how LingoFlow writes for you</h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">Connect a provider, keep your keys organized, and tune the model that powers every writing action.</p>
           </div>
         </div>
