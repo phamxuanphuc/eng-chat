@@ -59,7 +59,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   useEffect(() => {
     if (!langMenuOpen) return;
     const onDocClick = (e: MouseEvent) => {
-      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target as Node)) setLangMenuOpen(false);
+      if (langDropdownRef.current && !e.composedPath().includes(langDropdownRef.current)) setLangMenuOpen(false);
     };
     document.addEventListener('mousedown', onDocClick);
     return () => document.removeEventListener('mousedown', onDocClick);

@@ -42,9 +42,10 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   useEffect(() => {
     if (!modeMenuOpen && !langMenuOpen) return;
     const handleOutsidePointerDown = (event: PointerEvent) => {
-      const target = event.target as Node;
-      if (modeMenuOpen && !modeMenuRef.current?.contains(target)) setModeMenuOpen(false);
-      if (langMenuOpen && !languageMenuRef.current?.contains(target)) setLangMenuOpen(false);
+      const path = event.composedPath();
+      const isInside = (el: HTMLElement | null) => !!el && path.includes(el);
+      if (modeMenuOpen && !isInside(modeMenuRef.current)) setModeMenuOpen(false);
+      if (langMenuOpen && !isInside(languageMenuRef.current)) setLangMenuOpen(false);
     };
     document.addEventListener('pointerdown', handleOutsidePointerDown, true);
     return () => document.removeEventListener('pointerdown', handleOutsidePointerDown, true);
