@@ -123,7 +123,8 @@ describe('E2E User Flow Tests', () => {
     const queryClient = createTestQueryClient();
     render(<QueryClientProvider client={queryClient}><PopupApp /></QueryClientProvider>);
 
-    expect(screen.getByRole('button', { name: /open settings/i })).toBeDefined();
+    expect(await screen.findByRole('button', { name: /open settings/i })).toBeDefined();
+    await waitFor(() => expect(useSettingsStore.getState().isLoading).toBe(false));
   });
 
   it('E2E-04: Chat context extraction and auto-replacement in conversation input', async () => {
@@ -187,6 +188,7 @@ describe('E2E User Flow Tests', () => {
     const queryClient = createTestQueryClient();
     render(<QueryClientProvider client={queryClient}><PopupApp /></QueryClientProvider>);
 
-    expect(screen.getByRole('button', { name: /open settings/i })).toBeDefined();
+    expect(await screen.findByRole('button', { name: /open settings/i })).toBeDefined();
+    await waitFor(() => expect(useSettingsStore.getState().isLoading).toBe(false));
   });
 });
