@@ -55,7 +55,7 @@ export const TonePage: React.FC = () => {
             placeholder={t('tone.placeholder')}
             rows={5}
           />
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-400">
             {t('tone.saved')}
           </p>
         </div>

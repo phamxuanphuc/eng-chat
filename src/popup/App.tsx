@@ -36,7 +36,7 @@ export const App: React.FC = () => {
         <h2 id="about-heading" className="text-sm font-semibold text-slate-200">{t('app.about')}</h2>
         <p className="text-xs leading-relaxed text-slate-400">{t('app.description')}</p>
         <p className="text-xs leading-relaxed text-slate-400">{t('app.optionsDescription')}</p>
-        <p className="text-xs leading-relaxed text-slate-500">{t('app.version')}</p>
+        <p className="text-xs leading-relaxed text-slate-400">{t('app.version')}</p>
       </section>
     </div>
   );

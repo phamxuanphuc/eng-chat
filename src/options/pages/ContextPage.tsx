@@ -40,7 +40,7 @@ export const ContextPage: React.FC = () => {
             onChange={(e) => setMaxContext(Math.max(1, Math.min(10, Number(e.target.value))))}
           />
 
-          <div className="flex items-center gap-2 pt-1">
+          <div className="flex flex-wrap items-center gap-2 pt-1">
             <span className="text-xs text-slate-400">{t('context.quick')}</span>
             {[2, 4, 6, 8].map((num) => (
               <Button
