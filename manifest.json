@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "EngChat AI - Smart English Optimizer",
+  "name": "EngChat AI - Write, Rewrite & Translate Anywhere",
   "version": "1.0.0",
-  "description": "Optimize and translate text into English with multiple tones and chat context awareness using Google Gemini.",
+  "description": "Improve, rewrite, summarize and translate text in any text box with AI. Works with Gemini or any OpenAI-compatible provider.",
   "permissions": [
     "storage",
     "contextMenus",
