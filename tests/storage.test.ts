@@ -81,3 +81,26 @@ describe('Storage & Settings Store', () => {
   });
 });
 
+
+describe('Storage area precedence', () => {
+  it('prefers chrome.storage.local over a stale sync copy', async () => {
+    (globalThis as any).chrome = {
+      storage: {
+        local: { get: vi.fn(async () => ({ engchat_settings: { defaultTone: 'friendly' } })), set: vi.fn(async () => {}) },
+        sync: { get: vi.fn(async () => ({ engchat_settings: { defaultTone: 'polite' } })), set: vi.fn(async () => {}) },
+      },
+    };
+    expect((await loadSettings()).defaultTone).toBe('friendly');
+  });
+
+  it('keeps saving when sync quota is exceeded and throws when nothing persists', async () => {
+    const local = { get: vi.fn(async () => ({})), set: vi.fn(async () => {}) };
+    const sync = { get: vi.fn(async () => ({})), set: vi.fn(async () => { throw new Error('QUOTA_BYTES_PER_ITEM'); }) };
+    (globalThis as any).chrome = { storage: { local, sync } };
+    await expect(saveSettings({ defaultTone: 'concise' })).resolves.toMatchObject({ defaultTone: 'concise' });
+    expect(local.set).toHaveBeenCalled();
+
+    local.set.mockRejectedValueOnce(new Error('disk full'));
+    await expect(saveSettings({ defaultTone: 'concise' })).rejects.toThrow('Unable to save settings.');
+  });
+});

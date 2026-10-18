@@ -36,20 +36,12 @@ export const loadSettings = async (): Promise<AppSettings> => {
   let found = false;
 
   if (typeof chrome !== 'undefined') {
-    if (chrome.storage?.sync) {
+    for (const area of [chrome.storage?.local, chrome.storage?.sync]) {
+      if (found || !area) continue;
       try {
-        const result = await chrome.storage.sync.get(STORAGE_KEY);
+        const result = await area.get(STORAGE_KEY);
         if (result && result[STORAGE_KEY]) {
           loaded = { ...DEFAULT_SETTINGS, ...result[STORAGE_KEY] };
-          found = true;
-        }
-      } catch {}
-    }
-    if (!found && chrome.storage?.local) {
-      try {
-        const localResult = await chrome.storage.local.get(STORAGE_KEY);
-        if (localResult && localResult[STORAGE_KEY]) {
-          loaded = { ...DEFAULT_SETTINGS, ...localResult[STORAGE_KEY] };
           found = true;
         }
       } catch {}
@@ -118,15 +110,13 @@ export const saveSettings = async (
     updated.geminiApiKey = updated.apiKeys[0].key;
   }
 
+  let persisted = false;
   if (typeof chrome !== 'undefined') {
-    if (chrome.storage?.sync) {
+    for (const area of [chrome.storage?.local, chrome.storage?.sync]) {
+      if (!area) continue;
       try {
-        await chrome.storage.sync.set({ [STORAGE_KEY]: updated });
-      } catch {}
-    }
-    if (chrome.storage?.local) {
-      try {
-        await chrome.storage.local.set({ [STORAGE_KEY]: updated });
+        await area.set({ [STORAGE_KEY]: updated });
+        persisted = true;
       } catch {}
     }
   }
@@ -135,9 +125,11 @@ export const saveSettings = async (
   if (local) {
     try {
       local.setItem(STORAGE_KEY, JSON.stringify(updated));
+      persisted = true;
     } catch {}
   }
 
+  if (!persisted) throw new Error('Unable to save settings.');
   return updated;
 };
 
