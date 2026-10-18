@@ -96,6 +96,8 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
             <button
               type="button"
               onClick={() => setModeMenuOpen((p) => !p)}
+              onPointerDown={(event) => event.stopPropagation()}
+              onMouseDown={(event) => event.stopPropagation()}
               className={`flex items-center gap-1.5 py-1 px-1.5 -ml-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${th.title}`}
             >
               {getModeIcon()}
@@ -109,6 +111,8 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
                     key={m}
                     type="button"
                     onClick={() => { setModeMenuOpen(false); onModeChange?.(m); }}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onMouseDown={(event) => event.stopPropagation()}
                     className={`flex items-center gap-2 px-2.5 py-1.5 text-xs rounded-lg capitalize ${mode === m ? th.menuActive : th.menuItem}`}
                   >
                     {m === 'improve' && <Wand2 size={13} />}
@@ -149,6 +153,8 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
               <button
                 type="button"
                 onClick={() => setLangMenuOpen((p) => !p)}
+                onPointerDown={(event) => event.stopPropagation()}
+                onMouseDown={(event) => event.stopPropagation()}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer ${th.pill}`}
               >
                 <span>{targetLanguage}</span>
@@ -161,6 +167,8 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
                       key={l}
                       type="button"
                       onClick={() => { setLangMenuOpen(false); onLanguageChange?.(l); }}
+                      onPointerDown={(event) => event.stopPropagation()}
+                      onMouseDown={(event) => event.stopPropagation()}
                       className={`px-2.5 py-1 text-xs text-left rounded-lg ${targetLanguage === l ? th.menuActive : th.menuItem}`}
                     >
                       {l}
