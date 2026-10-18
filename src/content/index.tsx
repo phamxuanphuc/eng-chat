@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ToneType, OptimizeResponse, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../types';
+import { AppSettings, ToneType, OptimizeResponse, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../types';
 import { getActiveEditableElement, getSelectedText, replaceTextInElement } from './dom-utils';
 import { extractChatContext } from './chat-extractor';
 import { computeToolbarPos, setupDOMEvents } from './content-events';
@@ -18,6 +18,7 @@ let currentTheme: 'light' | 'dark' = 'dark';
 let currentLanguage: 'en' | 'vi' = 'en';
 let currentDefaultTone: ToneType = 'professional';
 let latestRequestId = 0;
+let currentSettings: AppSettings | null = null;
 
 try {
   currentTheme = detectPageTheme();
@@ -115,7 +116,7 @@ const handleTranslateVi = async (text: string): Promise<string> => {
 
 const handleTriggerOptimize = async (
   tone: ToneType,
-  settings?: any,
+  settings?: AppSettings,
   customText?: string,
   forcedMode?: 'translate' | 'rewrite' | 'improve' | 'summary'
 ) => {
@@ -142,8 +143,9 @@ const handleTriggerOptimize = async (
   renderApp();
   const requestId = ++latestRequestId;
 
-  const shouldExtract = settings ? settings.enableChatContext : true;
-  const contextMessages = shouldExtract ? extractChatContext(activeEl, settings?.maxContextMessages || 4) : [];
+  const effectiveSettings = settings || currentSettings;
+  const shouldExtract = effectiveSettings ? effectiveSettings.enableChatContext !== false : true;
+  const contextMessages = shouldExtract ? extractChatContext(activeEl, effectiveSettings?.maxContextMessages || 4) : [];
 
   try {
     const response: OptimizeResponse = await sendRuntimeMessage({
@@ -217,13 +219,24 @@ const handleRegenerate = () => {
   handleTriggerOptimize(tone, undefined, tooltipState.originalText, tooltipState.mode);
 };
 
-void loadSettings().then((settings) => {
-  currentLanguage = settings.language || 'en';
+const applySettings = (settings: AppSettings) => {
+  currentSettings = settings;
+  currentLanguage = settings.language === 'vi' ? 'vi' : 'en';
   currentDefaultTone = settings.defaultTone || 'professional';
   renderApp();
-}).catch(() => {
+};
+
+void loadSettings().then(applySettings).catch(() => {
   renderApp();
 });
+
+if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'local' && changes.engchat_settings?.newValue) {
+      void loadSettings().then(applySettings).catch(() => {});
+    }
+  });
+}
 
 const handleLanguageChange = async (lang: string) => {
   tooltipState = { ...tooltipState, targetLanguage: lang, isLoading: true, error: null };

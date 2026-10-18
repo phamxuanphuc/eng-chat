@@ -8,13 +8,17 @@ describe('Content script request handling', () => {
 
   beforeAll(async () => {
     (globalThis as any).chrome = {
-      storage: { sync: { get: vi.fn(async () => ({})), set: vi.fn() } },
+      storage: {
+        sync: { get: vi.fn(async () => ({ engchat_settings: { enableChatContext: false } })), set: vi.fn() },
+        onChanged: { addListener: vi.fn() },
+      },
       runtime: {
         sendMessage: vi.fn(() => new Promise((resolve) => pending.push({ resolve }))),
         onMessage: { addListener: vi.fn((fn) => { onMessage = fn; }) },
       },
     };
     await import('../src/content/index');
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
   const shadowText = () => document.getElementById('engchat-root-host')?.shadowRoot?.textContent || '';
@@ -41,5 +45,21 @@ describe('Content script request handling', () => {
 
     expect(shadowText()).toContain('Newest result');
     expect(shadowText()).not.toContain('Stale result');
+  });
+
+  it('does not send chat context when the user disabled it', async () => {
+    const log = document.createElement('div');
+    log.setAttribute('role', 'log');
+    log.innerHTML = '<div data-qa="message_content">Private teammate message</div>';
+    const textarea = document.createElement('textarea');
+    textarea.value = 'Reply text';
+    log.appendChild(textarea);
+    document.body.appendChild(log);
+    textarea.focus();
+
+    const sendMessage = (globalThis as any).chrome.runtime.sendMessage;
+    sendMessage.mockClear();
+    onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'rewrite' }, {}, vi.fn());
+    expect(sendMessage.mock.calls[0][0].payload.contextMessages).toEqual([]);
   });
 });
