@@ -124,3 +124,14 @@ describe('Background FETCH_CUSTOM_MODELS', () => {
     getSpy.mockRestore();
   });
 });
+
+describe('Background OPEN_OPTIONS_PAGE', () => {
+  it('opens the options page from the service worker', async () => {
+    const openOptionsPage = vi.fn(async () => {});
+    (globalThis as any).chrome = { runtime: { openOptionsPage } };
+    const sendResponse = vi.fn();
+    await handleRuntimeMessage({ action: 'OPEN_OPTIONS_PAGE' }, {} as any, sendResponse);
+    expect(openOptionsPage).toHaveBeenCalled();
+    expect(sendResponse).toHaveBeenCalledWith({ success: true });
+  });
+});

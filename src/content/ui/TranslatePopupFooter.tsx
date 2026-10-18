@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Language } from '../../types';
 import { getTranslator } from '../../i18n';
+import { sendRuntimeMessage } from '../../services/extension-messaging';
 import {
   Copy,
   Check,
   RotateCw,
-  Bookmark,
   Settings,
   CornerDownLeft,
 } from 'lucide-react';
@@ -36,7 +36,6 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
   onOpenModelPicker,
 }) => {
   const [copied, setCopied] = useState(false);
-  const [bookmarked, setBookmarked] = useState(false);
   const [followUpText, setFollowUpText] = useState('');
 
   const isLight = theme === 'light';
@@ -129,19 +128,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
 
         <button
           type="button"
-          onClick={() => setBookmarked((p) => !p)}
-          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-            bookmarked ? 'text-amber-500 bg-amber-500/10' : iconBtnClass
-          }`}
-          title={bookmarked ? t('options.saved') : t('content.save')}
-          aria-label={t('content.save')}
-        >
-          <Bookmark size={14} className={bookmarked ? 'fill-amber-500' : ''} />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => chrome?.runtime?.openOptionsPage?.()}
+          onClick={() => { void sendRuntimeMessage({ action: 'OPEN_OPTIONS_PAGE' }).catch(() => {}); }}
           className={iconBtnClass}
           title={t('content.openSettings')}
           aria-label={t('content.openSettings')}

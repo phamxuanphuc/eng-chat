@@ -113,6 +113,12 @@ export const handleRuntimeMessage = async (
       return true;
     }
 
+    if (message?.action === 'OPEN_OPTIONS_PAGE') {
+      await chrome.runtime.openOptionsPage();
+      sendResponse({ success: true });
+      return true;
+    }
+
     if (message?.action === 'FETCH_CUSTOM_MODELS') {
       const settings = await loadSettings();
       const models = await fetchOpenAiModels({ baseUrl: settings.customBaseUrl, apiKey: settings.customApiKey });
