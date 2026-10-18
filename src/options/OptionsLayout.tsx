@@ -4,10 +4,10 @@ import { useOptions } from './OptionsContext';
 import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
-import { Select } from '../components/ui/Select';
-import { Check, Save, MessageSquare, Palette, Cpu, Languages } from 'lucide-react';
-import { getTranslator, languageOptions } from '../i18n';
+import { Check, Save, MessageSquare, Palette, Cpu } from 'lucide-react';
+import { getTranslator } from '../i18n';
 import { ThemeToggle } from './ThemeToggle';
+import { LanguageToggle } from './LanguageToggle';
 
 const NAV_ITEMS = [
   { path: '/', labelKey: 'options.aiProvider' as const, icon: Cpu },
@@ -39,16 +39,7 @@ export const OptionsLayout: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Select
-              id="language-select"
-              aria-label={t('options.language')}
-              icon={<Languages size={14} />}
-              value={language}
-              onChange={(event) => setLanguage(event.target.value as 'en' | 'vi')}
-              options={languageOptions.map((option) => ({ value: option.value, label: option.value.toUpperCase() }))}
-              className="h-9 w-[84px] rounded-lg !pl-8 !pr-7 py-1 text-xs font-semibold"
-              title={t(language === 'en' ? 'language.english' : 'language.vietnamese')}
-            />
+            <LanguageToggle language={language} onChange={setLanguage} />
             <ThemeToggle language={language} />
             <nav className="order-last w-full sm:order-none sm:w-auto flex items-center gap-1.5 p-1 rounded-xl overflow-x-auto bg-slate-900/80 border border-slate-800 text-xs">
               {NAV_ITEMS.map((item) => {
