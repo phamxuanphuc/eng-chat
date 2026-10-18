@@ -1,4 +1,5 @@
 import React from 'react';
+import { Check } from 'lucide-react';
 import { ToneType } from '../../types';
 
 export interface ToneCardProps {
@@ -9,6 +10,7 @@ export interface ToneCardProps {
   selected?: boolean;
   onClick: (tone: ToneType) => void;
   className?: string;
+  index?: number;
 }
 
 export const ToneCard: React.FC<ToneCardProps> = ({
@@ -19,30 +21,44 @@ export const ToneCard: React.FC<ToneCardProps> = ({
   selected = false,
   onClick,
   className = '',
+  index,
 }) => {
   return (
     <div
       onClick={() => onClick(tone)}
-      className={`relative p-3.5 rounded-xl cursor-pointer transition-all duration-300 text-left border ${
+      role="button"
+      tabIndex={0}
+      aria-pressed={selected}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onClick(tone);
+        }
+      }}
+      className={`group relative min-h-[104px] overflow-hidden rounded-2xl border p-4 text-left transition-all duration-300 ${
         selected
-          ? 'bg-gradient-to-br from-indigo-950/60 via-purple-950/40 to-slate-900 border-indigo-500 shadow-lg shadow-indigo-500/20 ring-1 ring-indigo-500/50 scale-[1.02]'
-          : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-800/50'
+          ? 'border-indigo-400/80 bg-gradient-to-br from-indigo-900/65 via-purple-950/45 to-slate-900 shadow-xl shadow-indigo-950/40 ring-1 ring-indigo-400/30'
+          : 'border-slate-800/90 bg-slate-900/55 hover:-translate-y-0.5 hover:border-indigo-400/40 hover:bg-slate-800/70 hover:shadow-lg hover:shadow-slate-950/30'
       } ${className}`}
     >
       <div className="flex items-start gap-3">
-        <span className="text-2xl select-none shrink-0">{icon}</span>
-        <div className="flex flex-col min-w-0">
-          <span
-            className={`text-sm font-semibold truncate ${
-              selected ? 'text-indigo-300' : 'text-slate-200'
-            }`}
-          >
-            {title}
-          </span>
-          <span className="text-xs text-slate-400 mt-0.5 line-clamp-2">
+        <span className={`flex h-10 w-10 shrink-0 select-none items-center justify-center rounded-xl border text-xl transition-colors ${selected ? 'border-indigo-400/40 bg-indigo-400/15' : 'border-slate-700/80 bg-slate-800/80 group-hover:border-indigo-400/30'}`}>
+          {icon}
+        </span>
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <div className="flex items-center gap-2">
+            {index !== undefined && <span className="text-[10px] font-bold tracking-widest text-slate-500">0{index}</span>}
+            <span className={`truncate text-sm font-semibold ${selected ? 'text-indigo-200' : 'text-slate-200'}`}>
+              {title}
+            </span>
+          </div>
+          <span className="line-clamp-2 text-xs leading-5 text-slate-400">
             {description}
           </span>
         </div>
+        <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-all ${selected ? 'bg-indigo-400 text-slate-950 opacity-100' : 'border border-slate-700 text-transparent opacity-0 group-hover:opacity-100'}`}>
+          <Check size={14} strokeWidth={3} />
+        </span>
       </div>
     </div>
   );
