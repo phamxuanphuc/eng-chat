@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LingoFlow - Write, Rewrite & Translate Anywhere",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Improve, rewrite, summarize and translate text in any text box with AI. Works with Gemini or any OpenAI-compatible provider.",
   "permissions": [
     "storage",
@@ -33,7 +33,8 @@
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "128": "icons/icon128.png",
+    "512": "icons/icon512.png"
   },
   "action": {
     "default_popup": "src/popup/index.html",
@@ -42,7 +43,8 @@
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",
       "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "128": "icons/icon128.png",
+      "512": "icons/icon512.png"
     }
   },
   "options_ui": {
