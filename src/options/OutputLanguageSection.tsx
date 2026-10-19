@@ -20,7 +20,7 @@ export const OutputLanguageSection: React.FC = () => {
   const t = getTranslator(language);
 
   return (
-    <section className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg shadow-slate-950/20 sm:p-6">
+    <section className="border-t border-slate-800/80 pt-6 first:border-t-0 first:pt-0">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-400/20">
@@ -31,7 +31,7 @@ export const OutputLanguageSection: React.FC = () => {
             <p className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-400">{t('outputLanguage.description')}</p>
           </div>
         </div>
-        <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-emerald-300">{t('tone.modesCount', { count: MODES.length })}</span>
+        <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-300">{t('tone.modesCount', { count: MODES.length })}</span>
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">

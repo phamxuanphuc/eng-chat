@@ -37,7 +37,7 @@ export const ToneCard: React.FC<ToneCardProps> = ({
       }}
       className={`group relative min-h-[104px] overflow-hidden rounded-2xl border p-4 text-left transition-all duration-300 ${
         selected
-          ? 'border-indigo-400/80 bg-gradient-to-br from-indigo-900/65 via-purple-950/45 to-slate-900 shadow-xl shadow-indigo-950/40 ring-1 ring-indigo-400/30'
+          ? 'border-indigo-400/80 bg-indigo-500/10 ring-1 ring-indigo-400/30'
           : 'border-slate-800/90 bg-slate-900/55 hover:-translate-y-0.5 hover:border-indigo-400/40 hover:bg-slate-800/70 hover:shadow-lg hover:shadow-slate-950/30'
       } ${className}`}
     >
@@ -47,7 +47,7 @@ export const ToneCard: React.FC<ToneCardProps> = ({
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex items-center gap-2">
-            {index !== undefined && <span className="text-[11px] font-bold tracking-widest text-slate-400">0{index}</span>}
+            {index !== undefined && <span className="text-xs font-bold tracking-widest text-slate-400">0{index}</span>}
             <span className={`truncate text-sm font-semibold ${selected ? 'text-indigo-200' : 'text-slate-200'}`}>
               {title}
             </span>

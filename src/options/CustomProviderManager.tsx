@@ -47,7 +47,7 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
   });
 
   return (
-    <section className="flex flex-col gap-5 rounded-3xl border border-slate-800 bg-slate-900/60 p-5 shadow-lg shadow-slate-950/20 sm:p-6">
+    <section className="flex flex-col gap-5 border-t border-slate-800/80 pt-6 first:border-t-0 first:pt-0">
       <div className="flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 text-base font-bold tracking-tight text-slate-100">
           <Server size={16} className="text-indigo-400" /> {t('custom.title')}

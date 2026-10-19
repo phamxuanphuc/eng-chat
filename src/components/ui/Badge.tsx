@@ -16,21 +16,21 @@ export const Badge: React.FC<BadgeProps> = ({
   className = '',
 }) => {
   const sizeStyles = {
-    sm: 'px-2 py-0.5 text-[11px] gap-1',
+    sm: 'px-2 py-0.5 text-xs gap-1',
     md: 'px-2.5 py-1 text-xs gap-1.5',
   }[size];
 
   const variantStyles = {
     primary:
-      'bg-indigo-950/60 text-indigo-300 border-indigo-500/40 shadow-sm shadow-indigo-500/20',
+      'bg-indigo-950/60 text-indigo-300 border-indigo-500/40',
     secondary:
       'bg-slate-800/80 text-slate-300 border-slate-700 shadow-sm',
     success:
-      'bg-emerald-950/60 text-emerald-300 border-emerald-500/40 shadow-sm shadow-emerald-500/20',
+      'bg-emerald-950/60 text-emerald-300 border-emerald-500/40',
     warning:
-      'bg-amber-950/60 text-amber-300 border-amber-500/40 shadow-sm shadow-amber-500/20',
+      'bg-amber-950/60 text-amber-300 border-amber-500/40',
     danger:
-      'bg-rose-950/60 text-rose-300 border-rose-500/40 shadow-sm shadow-rose-500/20',
+      'bg-rose-950/60 text-rose-300 border-rose-500/40',
   }[variant];
 
   return (

@@ -173,5 +173,21 @@ describe('Uiverse Galaxy UI Components', () => {
     expect(cls).not.toContain('to-pink-500');
   });
 
+  it('TC-UI-12: Surfaces avoid colored glows and sub-12px text', () => {
+    render(
+      <>
+        <Button variant="primary">Glow</Button>
+        <ToneCard tone="polite" title="Card" description="d" icon="🎩" selected onClick={() => {}} index={1} />
+        <Badge size="sm">Tag</Badge>
+      </>
+    );
+    expect(screen.getByRole('button', { name: 'Glow' }).className).not.toContain('shadow-indigo');
+    const card = screen.getByText('Card').closest('[aria-pressed]')!;
+    expect(card.className).not.toContain('bg-gradient');
+    expect(card.className).toContain('bg-indigo-500/10');
+    expect(screen.getByText('01').className).toContain('text-xs');
+    expect(screen.getByText("Tag").parentElement!.className).toContain('text-xs');
+  });
+
 });
 

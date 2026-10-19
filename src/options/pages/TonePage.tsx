@@ -19,8 +19,8 @@ export const TonePage: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6 animate-fadeIn">
-      <section className="overflow-hidden rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-indigo-950/50 via-slate-900/80 to-slate-950 shadow-xl shadow-indigo-950/20">
-        <div className="flex flex-col gap-5 p-5 sm:p-6">
+      <section>
+        <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-300 ring-1 ring-indigo-400/20">
@@ -49,7 +49,7 @@ export const TonePage: React.FC = () => {
             ))}
           </div>
 
-          <div className="rounded-2xl border border-slate-800/80 bg-slate-950/45 p-4">
+          <div>
             <Textarea
               label={t('tone.custom', { tone: selectedToneLabel })}
               value={tonePrompts[tone] || ''}

@@ -39,7 +39,7 @@ export const Switch: React.FC<SwitchProps> = ({
         onClick={() => !disabled && onChange(!checked)}
         className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
           checked
-            ? 'bg-gradient-to-r from-indigo-500 to-purple-600 shadow-md shadow-indigo-500/30'
+            ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
             : 'bg-slate-800 border-slate-700'
         }`}
       >

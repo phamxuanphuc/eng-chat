@@ -24,7 +24,7 @@ export const OptionsLayout: React.FC = () => {
       <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 shadow-lg shadow-black/20 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-300 ring-1 ring-indigo-400/25 shadow-lg shadow-indigo-950/40">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-300 ring-1 ring-indigo-400/25">
               <Sparkles size={19} />
             </div>
             <div className="min-w-0">
@@ -57,7 +57,7 @@ export const OptionsLayout: React.FC = () => {
                   className={({ isActive }) =>
                     `flex min-w-max flex-1 items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 transition-all ${
                       isActive
-                        ? 'bg-indigo-500/15 font-semibold text-indigo-200 ring-1 ring-indigo-400/30 shadow-sm shadow-indigo-950/50'
+                        ? 'bg-indigo-500/15 font-semibold text-indigo-200 ring-1 ring-indigo-400/30'
                         : 'text-slate-400 hover:bg-slate-800/70 hover:text-slate-200'
                     }`
                   }

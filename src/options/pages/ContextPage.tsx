@@ -13,7 +13,7 @@ export const ContextPage: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6 animate-fadeIn">
-      <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5 shadow-xl shadow-slate-950/20 sm:p-6">
+      <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight text-slate-100">
           <MessageSquare size={18} className="text-indigo-400" /> {t('context.title')}
