@@ -65,6 +65,17 @@ describe('Options Multi-Page React Router', () => {
     expect(await screen.findByPlaceholderText('AIzaSy...')).toBeDefined();
   });
 
+  it('TC-OR-05: Localizes the AI provider hero in Vietnamese', async () => {
+    useSettingsStore.setState({ settings: { ...DEFAULT_SETTINGS, language: 'vi' } });
+    render(
+      <QueryClientProvider client={createTestQueryClient()}>
+        <OptionsApp />
+      </QueryClientProvider>
+    );
+    expect(await screen.findByText('Chọn cách LingoFlow viết cho bạn')).toBeDefined();
+    expect(screen.queryByText('Choose how LingoFlow writes for you')).toBeNull();
+  });
+
   it('TC-OR-02: Preserves edits across page navigation and saves successfully', async () => {
     const queryClient = createTestQueryClient();
     render(
