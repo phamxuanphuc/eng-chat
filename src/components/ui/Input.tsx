@@ -41,7 +41,7 @@ export const Input: React.FC<InputProps> = ({
         <input
           id={inputId}
           type={effectiveType}
-          className={`w-full rounded-xl bg-slate-900/90 text-slate-100 placeholder-slate-500 text-sm px-3.5 py-2.5 transition-all duration-300 border ${
+          className={`w-full rounded-xl bg-slate-900/90 text-slate-100 placeholder-slate-400 text-sm px-3.5 py-2.5 transition-all duration-300 border ${
             error
               ? 'border-red-500/80 focus:border-red-500 focus:ring-2 focus:ring-red-500/30'
               : 'border-slate-700/80 hover:border-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 focus:shadow-lg focus:shadow-indigo-500/10'

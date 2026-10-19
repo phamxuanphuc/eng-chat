@@ -157,6 +157,20 @@ describe('Uiverse Galaxy UI Components', () => {
     );
     expect(screen.getByText('Hoạt động')).toBeDefined();
     expect((container.firstChild as HTMLElement).className).toContain('text-emerald-300');
+    expect((container.firstChild as HTMLElement).className).not.toContain('text-[10px]');
+  });
+
+  it('TC-UI-10: Inputs use an accessible placeholder color', () => {
+    render(<><Input placeholder="in" /><Textarea placeholder="ta" /></>);
+    expect(screen.getByPlaceholderText('in').className).toContain('placeholder-slate-400');
+    expect(screen.getByPlaceholderText('ta').className).toContain('placeholder-slate-400');
+  });
+
+  it('TC-UI-11: Primary button gradient keeps white text readable', () => {
+    render(<Button variant="primary">Go</Button>);
+    const cls = screen.getByRole('button', { name: 'Go' }).className;
+    expect(cls).toContain('to-pink-600');
+    expect(cls).not.toContain('to-pink-500');
   });
 
 });

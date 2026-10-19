@@ -47,7 +47,7 @@ export const ToneCard: React.FC<ToneCardProps> = ({
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <div className="flex items-center gap-2">
-            {index !== undefined && <span className="text-[10px] font-bold tracking-widest text-slate-500">0{index}</span>}
+            {index !== undefined && <span className="text-[11px] font-bold tracking-widest text-slate-400">0{index}</span>}
             <span className={`truncate text-sm font-semibold ${selected ? 'text-indigo-200' : 'text-slate-200'}`}>
               {title}
             </span>

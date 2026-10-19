@@ -72,7 +72,7 @@ export const OptionsLayout: React.FC = () => {
       </header>
 
       <main className="mx-auto flex max-w-5xl flex-col gap-6 px-5 py-8 sm:px-8 sm:py-10">
-        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
+        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-slate-400">
           <span className="h-px w-6 bg-indigo-400/60" />
           <span>{t('app.settings')}</span>
         </div>
