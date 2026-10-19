@@ -1,16 +1,16 @@
 import React from 'react';
-import { Check, Globe } from 'lucide-react';
+import { FileText, Globe, Languages, LucideIcon, PenLine, Wand2 } from 'lucide-react';
 import { useOptions } from './OptionsContext';
 import { Select } from '../components/ui/Select';
 import { getTranslator, TranslationKey } from '../i18n';
 import { PopupMode } from '../content/target-languages';
 import { POPUP_LANGUAGES } from '../content/ui/popup-theme';
 
-const MODES: Array<{ mode: PopupMode; labelKey: TranslationKey }> = [
-  { mode: 'improve', labelKey: 'outputLanguage.improve' },
-  { mode: 'rewrite', labelKey: 'outputLanguage.rewrite' },
-  { mode: 'summary', labelKey: 'outputLanguage.summary' },
-  { mode: 'translate', labelKey: 'outputLanguage.translate' },
+const MODES: Array<{ mode: PopupMode; labelKey: TranslationKey; Icon: LucideIcon }> = [
+  { mode: 'improve', labelKey: 'outputLanguage.improve', Icon: Wand2 },
+  { mode: 'rewrite', labelKey: 'outputLanguage.rewrite', Icon: PenLine },
+  { mode: 'summary', labelKey: 'outputLanguage.summary', Icon: FileText },
+  { mode: 'translate', labelKey: 'outputLanguage.translate', Icon: Languages },
 ];
 
 const LANGUAGE_OPTIONS = POPUP_LANGUAGES.map((lang) => ({ value: lang, label: lang }));
@@ -35,11 +35,11 @@ export const OutputLanguageSection: React.FC = () => {
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {MODES.map(({ mode, labelKey }) => (
+        {MODES.map(({ mode, labelKey, Icon }) => (
           <div key={mode} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-800/90 bg-slate-950/40 p-3 transition-colors hover:border-slate-700">
             <div className="flex min-w-0 items-center gap-2.5">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-300">
-                <Check size={14} />
+              <span data-testid={`output-language-icon-${mode}`} aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-300">
+                <Icon size={14} />
               </span>
               <span className="truncate text-sm font-medium text-slate-200">{t(labelKey)}</span>
             </div>

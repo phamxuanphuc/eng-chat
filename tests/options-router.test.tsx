@@ -131,6 +131,9 @@ describe('Options Multi-Page React Router', () => {
     const rewrite = (await screen.findByLabelText('Rewrite')) as HTMLSelectElement;
     await waitFor(() => expect(rewrite.value).toBe('Japanese'));
     expect((screen.getByLabelText('Improve') as HTMLSelectElement).value).toBe('English');
+    for (const [mode, icon] of [['improve', 'wand'], ['rewrite', 'pen-line'], ['summary', 'file-text'], ['translate', 'languages']]) {
+      expect(screen.getByTestId(`output-language-icon-${mode}`).querySelector('svg')?.getAttribute('class')).toContain(`lucide-${icon}`);
+    }
 
     fireEvent.change(screen.getByLabelText('Translate'), { target: { value: 'French' } });
     fireEvent.click(screen.getByRole('button', { name: /Save Settings/i }));
