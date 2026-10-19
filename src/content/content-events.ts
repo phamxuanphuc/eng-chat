@@ -46,9 +46,6 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) =
           rect = rects[0] || rect;
         }
 
-        // Some sites report a zero-sized range while the selection is being
-        // committed. Use the first visible client rect before falling back to
-        // the selected node's bounds.
         if (rect.width === 0 || rect.height === 0) {
           const anchorEl = sel.anchorNode instanceof HTMLElement ? sel.anchorNode : sel.anchorNode?.parentElement;
           const anchorRect = anchorEl?.getBoundingClientRect();
@@ -140,8 +137,6 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) =
   const checkAfterPointerSelection = (e: Event) => {
     if (isInsideHost(e)) return;
     isMouseDown = false;
-    // Some sites commit the Selection asynchronously after pointerup. Retry
-    // briefly so the toolbar still appears when the first range is empty.
     scheduleSelectionChecks(e.target as HTMLElement);
   };
 
@@ -153,7 +148,6 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) =
     if (hasUsableSelection()) scheduleSelectionChecks();
   };
 
-  // Capture selection events before page frameworks can stop propagation.
   document.addEventListener('focusin', handleFocusIn);
   document.addEventListener('select', handleSelect, true);
   document.addEventListener('mousedown', handleMouseDown);

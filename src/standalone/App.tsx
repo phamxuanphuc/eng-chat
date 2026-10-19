@@ -9,9 +9,10 @@ import { executeOptimize } from '../services/gemini';
 import { loadSettings } from '../services/storage';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { getTranslator } from '../i18n';
-import { ToneType, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../types';
 import { Button } from '../components/ui/Button';
-import { Sparkles, Settings, Monitor, MessageSquare, Sun, Moon } from 'lucide-react';
+import { Logo } from '../components/ui/Logo';
+import { Settings, Monitor, MessageSquare, Sun, Moon, Sparkles } from 'lucide-react';
+import { ToneType, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../types';
 
 export const StandaloneApp: React.FC = () => {
   const language = useSettingsStore((state) => state.settings.language);
@@ -72,16 +73,10 @@ export const StandaloneApp: React.FC = () => {
       setToolbar((p) => ({ ...p, visible: false }));
       if (tooltipRef.current.isOpen) setTooltipState((p) => ({ ...p, isOpen: false }));
     };
-    const onMouseUp = (e: MouseEvent) => {
-      if (isInsideOverlay(e)) return;
-      setTimeout(checkSelection, 15);
-    };
+    const onMouseUp = (e: MouseEvent) => { if (!isInsideOverlay(e)) setTimeout(checkSelection, 15); };
     document.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mouseup', onMouseUp);
-    return () => {
-      document.removeEventListener('mousedown', onMouseDown);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
+    return () => { document.removeEventListener('mousedown', onMouseDown); document.removeEventListener('mouseup', onMouseUp); };
   }, []);
 
   const runOptimize = async (tone: ToneType, forcedMode?: 'translate' | 'rewrite' | 'improve' | 'summary') => {
@@ -118,7 +113,7 @@ export const StandaloneApp: React.FC = () => {
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col">
       <header className="border-b border-slate-800 bg-slate-900/60 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <span className="text-2xl">✨</span>
+          <Logo size={36} />
           <div>
             <h1 className="font-bold text-base bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">{t('standalone.title')}</h1>
             <p className="text-xs text-slate-400">{t('standalone.subtitle')}</p>
@@ -137,16 +132,13 @@ export const StandaloneApp: React.FC = () => {
         {activeTab === 'options' && <OptionsApp />}
         {activeTab === 'popup' && (
           <div className="flex flex-col items-center justify-center py-8">
-            <div className="border border-slate-800 rounded-2xl shadow-2xl overflow-hidden bg-slate-950 ring-1 ring-slate-800">
-              <PopupApp />
-            </div>
+            <div className="border border-slate-800 rounded-2xl shadow-2xl overflow-hidden bg-slate-950 ring-1 ring-slate-800"><PopupApp /></div>
           </div>
         )}
         {activeTab === 'playground' && (
           <div className="flex flex-col gap-6">
             <div className="p-4 rounded-xl bg-indigo-950/20 border border-indigo-500/30 text-xs text-indigo-300 flex items-center justify-between">
-              <span>{t('standalone.tryExtraction')}</span>
-              <span className="font-semibold">{t('standalone.tip')}</span>
+              <span>{t('standalone.tryExtraction')}</span><span className="font-semibold">{t('standalone.tip')}</span>
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 flex flex-col gap-4">
@@ -162,9 +154,7 @@ export const StandaloneApp: React.FC = () => {
               </div>
 
               <div className="flex flex-col gap-2 pt-2">
-                <label className="text-xs font-medium text-slate-300" htmlFor="standalone-chat-input">
-                  {t('standalone.compose')}
-                </label>
+                <label className="text-xs font-medium text-slate-300" htmlFor="standalone-chat-input">{t('standalone.compose')}</label>
                 <input
                   id="standalone-chat-input"
                   type="text"

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Settings } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { Logo } from '../components/ui/Logo';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { getTranslator } from '../i18n';
 
@@ -18,9 +19,12 @@ export const App: React.FC = () => {
 
   return (
     <div className="w-[380px] p-6 flex flex-col gap-6 font-sans bg-slate-950 text-slate-100">
-      <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-        {t('app.name')}
-      </h1>
+      <div className="flex items-center gap-3">
+        <Logo size={36} />
+        <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
+          {t('app.name')}
+        </h1>
+      </div>
 
       <Button
         variant="primary"

@@ -4,6 +4,7 @@ import { useOptions } from './OptionsContext';
 import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
+import { Logo } from '../components/ui/Logo';
 import { Check, Save, MessageSquare, Palette, Cpu, Sparkles, ArrowUpRight } from 'lucide-react';
 import { getTranslator } from '../i18n';
 import { ThemeToggle } from './ThemeToggle';
@@ -24,9 +25,7 @@ export const OptionsLayout: React.FC = () => {
       <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 shadow-lg shadow-black/20 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-5 py-3.5 sm:px-8">
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-300 ring-1 ring-indigo-400/25">
-              <Sparkles size={19} />
-            </div>
+            <Logo size={38} />
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h1 className="truncate text-base font-bold tracking-tight text-slate-100">LingoFlow</h1>

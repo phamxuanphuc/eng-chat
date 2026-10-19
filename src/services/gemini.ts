@@ -72,14 +72,9 @@ export const callGeminiApi = async (params: {
     });
 
     const blockReason = response.data?.promptFeedback?.blockReason;
-    if (blockReason) {
-      throw new Error(`Gemini blocked this request (${blockReason}).`);
-    }
-
+    if (blockReason) throw new Error(`Gemini blocked this request (${blockReason}).`);
     const candidates = response.data?.candidates;
-    if (!candidates || candidates.length === 0) {
-      throw new Error('Gemini returned no data.');
-    }
+    if (!candidates || candidates.length === 0) throw new Error('Gemini returned no data.');
 
     const parts: Array<{ text?: string; thought?: boolean }> = candidates[0]?.content?.parts || [];
     const textResult = parts
@@ -224,23 +219,14 @@ export const executeOptimize = async (
 
     if (request.tone === 'translate_explain') {
       try {
-        const cleanJson = rawResult
-          .replace(/^```json\s*/i, '')
-          .replace(/^```\s*/i, '')
-          .replace(/\s*```$/i, '')
-          .trim();
-        const parsed: TranslateExplainResult = JSON.parse(cleanJson);
-        return { success: true, data: parsed };
+        const cleanJson = rawResult.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+        return { success: true, data: JSON.parse(cleanJson) as TranslateExplainResult };
       } catch {
         return {
           success: true,
           data: {
             translation: rawResult,
-            explanation: {
-              vocabulary: [],
-              grammar: 'Unable to parse detailed explanation.',
-              nuances: '',
-            },
+            explanation: { vocabulary: [], grammar: 'Unable to parse detailed explanation.', nuances: '' },
           },
         };
       }

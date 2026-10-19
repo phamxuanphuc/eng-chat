@@ -1,19 +1,16 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { AppSettings, ToneType, OptimizeResponse, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../types';
+import { AppSettings, ToneType, OptimizeResponse, RewriteOptions } from '../types';
 import { getActiveEditableElement, getSelectedText, replaceTextInElement } from './dom-utils';
 import { extractChatContext } from './chat-extractor';
 import { computeToolbarPos, setupDOMEvents } from './content-events';
 import { ContentOverlay } from './ui/ContentOverlay';
 import { detectPageTheme, observePageTheme } from './theme-detector';
-import styles from '../styles/index.css?inline';
-import { getTranslator } from '../i18n';
 import { getRuntimeErrorMessage, sendRuntimeMessage } from '../services/extension-messaging';
 import { loadSettings } from '../services/storage';
 import { DEFAULT_TARGET_LANGUAGES, loadTargetLanguages, saveTargetLanguages, TargetLanguages } from './target-languages';
+import { ensureShadowHost } from './shadow-host';
+import { initialToolbarState, initialTooltipState, ToolbarState, TooltipState } from './overlay-state';
 
-let shadowRoot: ShadowRoot | null = null;
-let reactRoot: ReactDOM.Root | null = null;
 let currentEditableEl: HTMLElement | null = null;
 let currentTheme: 'light' | 'dark' = 'dark';
 let currentLanguage: 'en' | 'vi' = 'en';
@@ -21,58 +18,16 @@ let currentDefaultTone: ToneType = 'professional';
 let latestRequestId = 0;
 let currentSettings: AppSettings | null = null;
 let targetLanguages: TargetLanguages = { ...DEFAULT_TARGET_LANGUAGES };
+let toolbarState: ToolbarState = { ...initialToolbarState };
+let tooltipState: TooltipState = { ...initialTooltipState };
 
 try {
   currentTheme = detectPageTheme();
-  observePageTheme((theme) => {
-    currentTheme = theme;
-    renderApp();
-  });
+  observePageTheme((theme) => { currentTheme = theme; renderApp(); });
 } catch (_) {}
 
-let toolbarState = { visible: false, x: 0, y: 0, isLoading: false, isEditable: false };
-let tooltipState = {
-  visible: false,
-  mode: 'translate' as 'translate' | 'rewrite' | 'improve' | 'summary',
-  originalText: '',
-  result: null as any,
-  isLoading: false,
-  error: null as string | null,
-  targetLanguage: 'Vietnamese',
-  rewriteOptions: DEFAULT_REWRITE_OPTIONS,
-  isPinned: false,
-  hasEditableTarget: false,
-};
-
-const ensureShadowHost = (): ShadowRoot => {
-  if (shadowRoot) return shadowRoot;
-  document.getElementById('engchat-root-host')?.remove();
-  const host = document.createElement('div');
-  host.id = 'engchat-root-host';
-  host.style.position = 'fixed';
-  host.style.inset = '0';
-  host.style.zIndex = '2147483647';
-  host.style.pointerEvents = 'none';
-  document.body.appendChild(host);
-  shadowRoot = host.attachShadow({ mode: 'open' });
-
-  const styleLink = document.createElement('style');
-  styleLink.textContent = `
-    :host { all: initial; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
-    * { box-sizing: border-box; }
-    ${styles}
-  `;
-  shadowRoot.appendChild(styleLink);
-
-  const appContainer = document.createElement('div');
-  appContainer.id = 'engchat-app-container';
-  shadowRoot.appendChild(appContainer);
-  reactRoot = ReactDOM.createRoot(appContainer);
-  return shadowRoot;
-};
-
 const renderApp = () => {
-  ensureShadowHost();
+  const { reactRoot } = ensureShadowHost();
   if (!reactRoot) return;
 
   reactRoot.render(
@@ -84,12 +39,7 @@ const renderApp = () => {
       onSelectTone={(tone, mode) => {
         toolbarState = { ...toolbarState, visible: false };
         renderApp();
-        handleTriggerOptimize(
-          mode === 'translate' ? tone : mode === 'summary' ? 'summarize' : currentDefaultTone,
-          undefined,
-          undefined,
-          mode
-        );
+        handleTriggerOptimize(mode === 'translate' ? tone : mode === 'summary' ? 'summarize' : currentDefaultTone, undefined, undefined, mode);
       }}
       onCloseToolbar={() => { toolbarState = { ...toolbarState, visible: false }; renderApp(); }}
       onLanguageChange={handleLanguageChange}
@@ -166,8 +116,7 @@ const handleTriggerOptimize = async (
 
     if (response.success && response.data) {
       if (!isModalMode && activeEl) {
-        const textToReplace = typeof response.data === 'string' ? response.data : response.data.translation;
-        replaceTextInElement(activeEl, textToReplace);
+        replaceTextInElement(activeEl, typeof response.data === 'string' ? response.data : response.data.translation);
       } else {
         tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, result: response.data, error: null, hasEditableTarget: !!activeEl };
       }
@@ -189,8 +138,7 @@ const handleModeChange = (newMode: 'translate' | 'rewrite' | 'improve' | 'summar
     renderApp();
     return;
   }
-  const tone = newMode === 'translate' ? 'translate_explain' : newMode === 'summary' ? 'summarize' : currentDefaultTone;
-  handleTriggerOptimize(tone, undefined, tooltipState.originalText, newMode);
+  handleTriggerOptimize(newMode === 'translate' ? 'translate_explain' : newMode === 'summary' ? 'summarize' : currentDefaultTone, undefined, tooltipState.originalText, newMode);
 };
 
 const handleFollowUp = async (query: string) => {
@@ -223,8 +171,7 @@ const handleFollowUp = async (query: string) => {
 
 const handleRegenerate = () => {
   if (!tooltipState.originalText) return;
-  const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : currentDefaultTone;
-  handleTriggerOptimize(tone, undefined, tooltipState.originalText, tooltipState.mode);
+  handleTriggerOptimize(tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : currentDefaultTone, undefined, tooltipState.originalText, tooltipState.mode);
 };
 
 const applySettings = (settings: AppSettings) => {
@@ -234,24 +181,14 @@ const applySettings = (settings: AppSettings) => {
   renderApp();
 };
 
-void loadSettings().then(applySettings).catch(() => {
-  renderApp();
-});
-
-void loadTargetLanguages().then((languages) => {
-  targetLanguages = languages;
-});
+void loadSettings().then(applySettings).catch(() => { renderApp(); });
+void loadTargetLanguages().then((languages) => { targetLanguages = languages; });
 
 if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
   chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName === 'local' && changes.engchat_settings?.newValue) {
-      void loadSettings().then(applySettings).catch(() => {});
-    }
-    if (areaName === 'local' && changes.engchat_target_languages) {
-      void loadTargetLanguages().then((languages) => {
-        targetLanguages = languages;
-      });
-    }
+    if (areaName !== 'local') return;
+    if (changes.engchat_settings?.newValue) void loadSettings().then(applySettings).catch(() => {});
+    if (changes.engchat_target_languages) void loadTargetLanguages().then((l) => { targetLanguages = l; });
   });
 }
 
@@ -267,12 +204,8 @@ const handleRewriteOptionsChange = async (opts: RewriteOptions) => {
   tooltipState = { ...tooltipState, rewriteOptions: opts };
   renderApp();
   if (!tooltipState.originalText) return;
-  const parts: string[] = [];
-  if (opts.length !== 'Auto') parts.push(`Length: ${opts.length}`);
-  if (opts.formality !== 'Auto') parts.push(`Formality: ${opts.formality}`);
-  if (opts.format !== 'Auto') parts.push(`Format: ${opts.format}`);
-  if (opts.tone !== 'Auto') parts.push(`Tone: ${opts.tone}`);
-  await handleFollowUp(parts.length > 0 ? `Apply these selected options while rewriting the text: ${parts.join(', ')}.` : 'Rewrite naturally.');
+  const parts = [opts.length !== 'Auto' && `Length: ${opts.length}`, opts.formality !== 'Auto' && `Formality: ${opts.formality}`, opts.format !== 'Auto' && `Format: ${opts.format}`, opts.tone !== 'Auto' && `Tone: ${opts.tone}`].filter(Boolean).join(', ');
+  await handleFollowUp(parts ? `Apply these selected options while rewriting the text: ${parts}.` : 'Rewrite naturally.');
 };
 
 const cleanupDOMEvents = setupDOMEvents({
@@ -290,26 +223,25 @@ const cleanupDOMEvents = setupDOMEvents({
     renderApp();
   },
   onClickOutside: () => {
-    let changed = false;
-    if (toolbarState.visible) { toolbarState = { ...toolbarState, visible: false }; changed = true; }
-    if (changed) renderApp();
+    if (toolbarState.visible) {
+      toolbarState = { ...toolbarState, visible: false };
+      renderApp();
+    }
   },
 });
+
 window.addEventListener('pagehide', (event) => {
   if (!event.persisted) cleanupDOMEvents();
 });
 
-// Mount immediately so the content script remains usable even if settings storage is slow.
 renderApp();
 
 if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    if (message?.action === 'TRIGGER_OPTIMIZE') {
-      toolbarState = { ...toolbarState, visible: false };
-      handleTriggerOptimize(message.tone, message.settings, undefined, message.mode);
-      sendResponse({ received: true });
-      return true;
-    }
-    return false;
+    if (message?.action !== 'TRIGGER_OPTIMIZE') return false;
+    toolbarState = { ...toolbarState, visible: false };
+    handleTriggerOptimize(message.tone, message.settings, undefined, message.mode);
+    sendResponse({ received: true });
+    return true;
   });
 }

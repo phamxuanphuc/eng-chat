@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0e1a" />
+      <stop offset="50%" stop-color="#12172b" />
+      <stop offset="100%" stop-color="#18132e" />
+    </linearGradient>
+
+    <!-- Border Glow Gradient -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="35%" stop-color="#6366f1" />
+      <stop offset="70%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+
+    <!-- Flow Loop 1: Cyan to Indigo -->
+    <linearGradient id="flowLoop1" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="45%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+
+    <!-- Flow Loop 2: Indigo to Magenta -->
+    <linearGradient id="flowLoop2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" />
+      <stop offset="55%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#f43f5e" />
+    </linearGradient>
+
+    <!-- Sparkle Gradient -->
+    <linearGradient id="sparkleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="50%" stop-color="#e0e7ff" />
+      <stop offset="100%" stop-color="#a5b4fc" />
+    </linearGradient>
+
+    <!-- Ambient Glow Filter -->
+    <filter id="coreGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- Base Squircle -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bgGrad)" stroke="url(#borderGrad)" stroke-width="6" filter="url(#softShadow)" />
+
+  <!-- Ambient Internal Glow -->
+  <circle cx="256" cy="256" r="140" fill="#6366f1" opacity="0.12" filter="url(#coreGlow)" />
+  <circle cx="340" cy="180" r="80" fill="#a855f7" opacity="0.15" filter="url(#coreGlow)" />
+  <circle cx="170" cy="330" r="80" fill="#06b6d4" opacity="0.12" filter="url(#coreGlow)" />
+
+  <!-- Flowing Intertwined Ribbons (Symbolizing Language Flow & Translation) -->
+  <g filter="url(#softShadow)">
+    <!-- Primary Flow Stream ("L" & Speech Arch) -->
+    <path d="M 148 152 
+             C 148 132, 168 120, 188 126
+             C 240 142, 280 200, 310 248
+             C 336 290, 368 334, 348 368
+             C 332 394, 290 398, 252 380
+             C 200 356, 148 298, 148 236
+             Z" 
+          fill="url(#flowLoop1)" 
+          opacity="0.94" />
+
+    <!-- Secondary Wave (Cross-Translation Ribbon) -->
+    <path d="M 364 360
+             C 364 380, 344 392, 324 386
+             C 272 370, 232 312, 202 264
+             C 176 222, 144 178, 164 144
+             C 180 118, 222 114, 260 132
+             C 312 156, 364 214, 364 276
+             Z" 
+          fill="url(#flowLoop2)" 
+          opacity="0.88" />
+
+    <!-- Center AI Transformation Sparkle (4-Point Celestial Star) -->
+    <!-- Glow behind sparkle -->
+    <circle cx="256" cy="256" r="32" fill="#ffffff" opacity="0.35" filter="url(#coreGlow)" />
+
+    <!-- Main Star -->
+    <path d="M 256 188
+             Q 256 256, 324 256
+             Q 256 256, 256 324
+             Q 256 256, 188 256
+             Q 256 256, 256 188 Z"
+          fill="url(#sparkleGrad)" />
+
+    <!-- Inner Core Highlight -->
+    <circle cx="256" cy="256" r="10" fill="#ffffff" />
+
+    <!-- Companion Micro Star 1 (Top-Right) -->
+    <path d="M 374 136
+             Q 374 156, 394 156
+             Q 374 156, 374 176
+             Q 374 156, 354 156
+             Q 374 156, 374 136 Z"
+          fill="#38bdf8"
+          opacity="0.9" />
+
+    <!-- Companion Micro Star 2 (Bottom-Left) -->
+    <path d="M 138 344
+             Q 138 358, 152 358
+             Q 138 358, 138 372
+             Q 138 358, 124 358
+             Q 138 358, 138 344 Z"
+          fill="#d946ef"
+          opacity="0.85" />
+  </g>
+</svg>

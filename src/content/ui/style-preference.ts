@@ -12,7 +12,5 @@ export const saveSelectedStyle = (style: string): void => {
   try {
     window.localStorage.setItem(STYLE_PREFERENCE_KEY, style);
     window.dispatchEvent(new CustomEvent('engchat-style-preference-changed', { detail: style }));
-  } catch {
-    // localStorage may be unavailable in restricted extension contexts.
-  }
+  } catch {}
 };

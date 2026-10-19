@@ -16,14 +16,10 @@ export interface TranslatePopupProps {
   language?: Language; mode?: 'translate' | 'rewrite' | 'improve' | 'summary'; originalText: string;
   result?: string | TranslateExplainResult | null;
   isLoading: boolean; error?: string | null; targetLanguage?: string;
-  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark';
-  hasEditableTarget?: boolean;
-  onLanguageChange?: (lang: string) => void;
-  onModeChange?: (mode: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
-  onRewriteOptionsChange?: (options: RewriteOptions) => void;
-  onFollowUp?: (query: string) => void; onRegenerate?: () => void;
-  onInsert?: (text: string) => void; onClose: () => void;
-  onTranslateVi?: (text: string) => Promise<string>;
+  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark'; hasEditableTarget?: boolean;
+  onLanguageChange?: (lang: string) => void; onModeChange?: (mode: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
+  onRewriteOptionsChange?: (options: RewriteOptions) => void; onFollowUp?: (query: string) => void;
+  onRegenerate?: () => void; onInsert?: (text: string) => void; onClose: () => void; onTranslateVi?: (text: string) => Promise<string>;
 }
 
 export const TranslatePopup: React.FC<TranslatePopupProps> = ({
