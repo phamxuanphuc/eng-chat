@@ -6,6 +6,9 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { MessageSquare } from 'lucide-react';
 import { getTranslator } from '../../i18n';
+import { PageHeader } from '../PageHeader';
+
+const QUICK_COUNTS = [2, 4, 6, 8];
 
 export const ContextPage: React.FC = () => {
   const { language, chatContext, setChatContext, maxContext, setMaxContext } = useOptions();
@@ -13,15 +16,15 @@ export const ContextPage: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6 animate-fadeIn">
-      <div className="flex flex-col gap-5">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight text-slate-100">
-          <MessageSquare size={18} className="text-indigo-400" /> {t('context.title')}
-        </h2>
-        <Badge variant={chatContext ? 'success' : 'secondary'} size="sm">
-          {chatContext ? t('context.enabled') : t('context.disabled')}
-        </Badge>
-      </div>
+      <PageHeader
+        icon={<MessageSquare size={19} />}
+        title={t('context.title')}
+        aside={
+          <Badge variant={chatContext ? 'success' : 'secondary'} size="sm">
+            {chatContext ? t('context.enabled') : t('context.disabled')}
+          </Badge>
+        }
+      />
 
       <Switch
         label={t('context.extract')}
@@ -31,7 +34,7 @@ export const ContextPage: React.FC = () => {
       />
 
       {chatContext && (
-        <div className="mt-5 flex flex-col gap-4 border-t border-slate-800/80 pt-5">
+        <div className="flex flex-col gap-4 border-t border-slate-800/80 pt-6">
           <Input
             label={t('context.max')}
             type="number"
@@ -41,14 +44,15 @@ export const ContextPage: React.FC = () => {
             onChange={(e) => setMaxContext(Math.max(1, Math.min(10, Number(e.target.value))))}
           />
 
-          <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-slate-950/45 p-3 ring-1 ring-slate-800/80">
+          <div role="group" aria-label={t('context.quick')} className="flex flex-wrap items-center gap-2">
             <span className="text-xs text-slate-400">{t('context.quick')}</span>
-            {[2, 4, 6, 8].map((num) => (
+            {QUICK_COUNTS.map((num) => (
               <Button
                 key={num}
                 type="button"
                 variant={maxContext === num ? 'primary' : 'secondary'}
                 size="sm"
+                aria-pressed={maxContext === num}
                 onClick={() => setMaxContext(num)}
               >
                 {t('context.messages', { count: num })}
@@ -57,7 +61,6 @@ export const ContextPage: React.FC = () => {
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 };

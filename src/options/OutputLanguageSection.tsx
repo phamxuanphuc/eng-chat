@@ -2,6 +2,7 @@ import React from 'react';
 import { FileText, Globe, Languages, LucideIcon, PenLine, Wand2 } from 'lucide-react';
 import { useOptions } from './OptionsContext';
 import { Select } from '../components/ui/Select';
+import { Badge } from '../components/ui/Badge';
 import { getTranslator, TranslationKey } from '../i18n';
 import { PopupMode } from '../content/target-languages';
 import { POPUP_LANGUAGES } from '../content/ui/popup-theme';
@@ -23,15 +24,15 @@ export const OutputLanguageSection: React.FC = () => {
     <section className="border-t border-slate-800/80 pt-6 first:border-t-0 first:pt-0">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-400/20">
-            <Globe size={19} />
+          <div aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-indigo-300">
+            <Globe size={17} />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-slate-100">{t('outputLanguage.title')}</h2>
+            <h3 className="text-base font-semibold text-slate-100">{t('outputLanguage.title')}</h3>
             <p className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-400">{t('outputLanguage.description')}</p>
           </div>
         </div>
-        <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-300">{t('tone.modesCount', { count: MODES.length })}</span>
+        <Badge variant="secondary" size="sm">{t('tone.modesCount', { count: MODES.length })}</Badge>
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">

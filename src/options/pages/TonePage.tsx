@@ -3,7 +3,8 @@ import { useOptions } from '../OptionsContext';
 import { ToneCard } from '../../components/ui/ToneCard';
 import { Textarea } from '../../components/ui/Textarea';
 import { Badge } from '../../components/ui/Badge';
-import { Sparkles } from 'lucide-react';
+import { Palette } from 'lucide-react';
+import { PageHeader } from '../PageHeader';
 import { TONES_LIST } from '../../constants/tones';
 import { getTranslator } from '../../i18n';
 import { OutputLanguageSection } from '../OutputLanguageSection';
@@ -21,18 +22,12 @@ export const TonePage: React.FC = () => {
     <div className="flex flex-col gap-6 animate-fadeIn">
       <section>
         <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-300 ring-1 ring-indigo-400/20">
-                <Sparkles size={19} />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-slate-100">{t('tone.title')}</h2>
-                <p className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-400">{t('tone.description')}</p>
-              </div>
-            </div>
-            <Badge variant="primary" size="sm">{selectedToneLabel}</Badge>
-          </div>
+          <PageHeader
+            icon={<Palette size={19} />}
+            title={t('tone.title')}
+            description={t('tone.description')}
+            aside={<Badge variant="primary" size="sm">{selectedToneLabel}</Badge>}
+          />
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {TONES_LIST.map((item, index) => (

@@ -158,4 +158,22 @@ describe('Options Multi-Page React Router', () => {
       });
     });
   });
+
+  it('TC-OR-06: Uses one page heading per route and toggles quick context counts', async () => {
+    render(
+      <QueryClientProvider client={createTestQueryClient()}>
+        <OptionsApp />
+      </QueryClientProvider>
+    );
+
+    fireEvent.click(screen.getByRole('link', { name: /context/i }));
+    expect(await screen.findByRole('heading', { level: 2, name: 'Conversation context (Chat Context)' })).toBeDefined();
+    expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(1);
+
+    const group = screen.getByRole('group');
+    const pressed = () => Array.from(group.querySelectorAll('button')).filter((b) => b.getAttribute('aria-pressed') === 'true');
+    const target = group.querySelectorAll('button')[3];
+    fireEvent.click(target);
+    expect(pressed()).toEqual([target]);
+  });
 });

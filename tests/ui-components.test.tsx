@@ -10,6 +10,7 @@ import { ToneCard } from '../src/components/ui/ToneCard';
 import { Alert } from '../src/components/ui/Alert';
 import { Badge } from '../src/components/ui/Badge';
 import { Select } from '../src/components/ui/Select';
+import { PageHeader } from '../src/options/PageHeader';
 
 describe('Uiverse Galaxy UI Components', () => {
   it('TC-UI-01: Button renders variants and handles click & loading', () => {
@@ -189,5 +190,15 @@ describe('Uiverse Galaxy UI Components', () => {
     expect(screen.getByText("Tag").parentElement!.className).toContain('text-xs');
   });
 
+  it('TC-UI-13: PageHeader renders title, description, aside and hides decorative icon', () => {
+    const { container } = render(
+      <PageHeader icon={<svg data-testid="icon" />} title="Context" description="Desc" aside={<span>Aside</span>} />
+    );
+    expect(screen.getByRole('heading', { level: 2, name: 'Context' })).toBeDefined();
+    expect(screen.getByText('Desc')).toBeDefined();
+    expect(screen.getByText('Aside')).toBeDefined();
+    expect(screen.getByTestId('icon').parentElement!.getAttribute('aria-hidden')).toBe('true');
+    render(<PageHeader icon={null} title="Bare" />, { container: container.appendChild(document.createElement('div')) });
+    expect(screen.getByRole('heading', { name: 'Bare' }).nextSibling).toBeNull();
+  });
 });
-

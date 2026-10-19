@@ -90,9 +90,9 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
   return (
     <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+        <h3 className="flex items-center gap-2 text-base font-semibold text-slate-100">
           <KeyRound size={16} className="text-indigo-400" /> {t('api.googleKeyManagement')}
-        </h2>
+        </h3>
         <Badge variant={apiKeys.length > 0 ? 'success' : 'warning'} size="sm">
           {apiKeys.length} {t('api.keys')}
         </Badge>

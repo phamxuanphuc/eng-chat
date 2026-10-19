@@ -5,6 +5,8 @@ import { ApiKeyManager } from '../ApiKeyManager';
 import { ModelSelector } from '../ModelSelector';
 import { CustomProviderManager } from '../CustomProviderManager';
 import { getTranslator } from '../../i18n';
+import { PageHeader } from '../PageHeader';
+import { Cpu } from 'lucide-react';
 
 export const AiProviderPage: React.FC = () => {
   const {
@@ -29,15 +31,7 @@ export const AiProviderPage: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-7 animate-fadeIn">
-      <div>
-        <div className="flex items-start gap-3">
-          <div className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-400" />
-          <div>
-            <h2 className="text-xl font-bold tracking-tight text-slate-100 sm:text-2xl">{t('provider.heroTitle')}</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">{t('provider.heroDescription')}</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader icon={<Cpu size={19} />} title={t('provider.heroTitle')} description={t('provider.heroDescription')} />
       <ProviderSelector language={language} provider={provider} onSelectProvider={setProvider} />
 
       {provider === 'gemini' ? (

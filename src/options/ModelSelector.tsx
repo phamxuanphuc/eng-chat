@@ -70,9 +70,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   return (
     <section className="flex flex-col gap-5 border-t border-slate-800/80 pt-6 first:border-t-0 first:pt-0">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-base font-bold tracking-tight text-slate-100">
+        <h3 className="flex items-center gap-2 text-base font-semibold text-slate-100">
           <Sparkles size={16} className="text-indigo-400" /> {t('model.title')}
-        </h2>
+        </h3>
         <Badge variant="primary" size="sm">
           {GEMINI_MODELS.find((m) => m.id === selectedModel)?.name || selectedModel}
         </Badge>
