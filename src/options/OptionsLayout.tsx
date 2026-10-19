@@ -32,7 +32,7 @@ export const OptionsLayout: React.FC = () => {
                 <h1 className="truncate text-base font-bold tracking-tight text-slate-100">LingoFlow</h1>
                 <Badge variant="primary" size="sm">{t('app.settings')}</Badge>
               </div>
-              <p className="mt-0.5 hidden truncate text-[11px] text-slate-400 sm:block">{t('options.subtitle')}</p>
+              <p className="mt-0.5 hidden truncate text-xs text-slate-400 sm:block">{t('options.subtitle')}</p>
             </div>
           </div>
 

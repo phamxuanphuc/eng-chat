@@ -133,7 +133,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
                 </Badge>
                 <div className="flex flex-col min-w-0">
                   <span className="text-xs font-semibold text-slate-200 truncate">{item.label}</span>
-                  <span className="text-[11px] font-mono text-slate-400 truncate">
+                  <span className="text-xs font-mono text-slate-400 truncate">
                     {item.key.slice(0, 7)}••••••••{item.key.slice(-4)}
                   </span>
                 </div>

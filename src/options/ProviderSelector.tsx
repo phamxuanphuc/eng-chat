@@ -58,7 +58,7 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
                 <span className={`text-sm font-bold ${isGemini ? 'text-indigo-200' : 'text-slate-200'}`}>
                   Google Gemini
                 </span>
-                <span className="text-[11px] text-slate-400">{t('provider.googleStudio')}</span>
+                <span className="text-xs text-slate-400">{t('provider.googleStudio')}</span>
               </div>
             </div>
             {isGemini && (
@@ -102,7 +102,7 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
                 <span className={`text-sm font-bold ${isOpenAi ? 'text-indigo-200' : 'text-slate-200'}`}>
                   {t('provider.custom')}
                 </span>
-                <span className="text-[11px] text-slate-400">{t('provider.openai')}</span>
+                <span className="text-xs text-slate-400">{t('provider.openai')}</span>
               </div>
             </div>
             {isOpenAi && (

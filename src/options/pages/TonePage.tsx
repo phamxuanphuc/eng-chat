@@ -27,7 +27,6 @@ export const TonePage: React.FC = () => {
                 <Sparkles size={19} />
               </div>
               <div>
-                <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-indigo-300/80">{t('tone.sectionLabel')}</p>
                 <h2 className="text-lg font-semibold text-slate-100">{t('tone.title')}</h2>
                 <p className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-400">{t('tone.description')}</p>
               </div>

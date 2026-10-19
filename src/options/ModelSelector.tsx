@@ -119,7 +119,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                   )}
                 </div>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+              <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
                 {t(modelText[m.id as keyof typeof modelText]?.[1] || 'model.standardDescription')}
               </p>
             </div>
