@@ -1,7 +1,7 @@
 {
   "name": "eng-chat",
   "version": "1.0.3",
-  "description": "Chrome extension to optimize text into English using Gemini LLM with chat context awareness",
+  "description": "LingoFlow — AI writing, rewriting and translation assistant for any text box",
   "type": "module",
   "scripts": {
     "dev": "vite",

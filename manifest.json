@@ -57,7 +57,7 @@
         "default": "Ctrl+Shift+E",
         "mac": "Command+Shift+E"
       },
-      "description": "Tối ưu hóa văn bản với văn phong mặc định"
+      "description": "Improve selected text with your default tone"
     }
   }
 }
