@@ -22,8 +22,8 @@ export const OptionsLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-16">
       <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 shadow-lg shadow-black/20 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-8">
-          <div className="flex min-w-0 items-center gap-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-5 py-3.5 sm:px-8">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-300 ring-1 ring-indigo-400/25">
               <Sparkles size={19} />
             </div>
@@ -36,17 +36,7 @@ export const OptionsLayout: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <LanguageToggle language={language} onChange={setLanguage} />
-            <ThemeToggle language={language} />
-            {saveSuccess && (
-              <Badge variant="success" size="sm" icon={<Check size={12} />}>
-                {t('options.saved')}
-              </Badge>
-            )}
-          </div>
-
-          <nav aria-label={t('app.settings')} className="order-last flex w-full items-center gap-1 overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/70 p-1 text-xs sm:order-none sm:w-auto">
+          <nav aria-label={t('app.settings')} className="order-3 flex w-full items-center gap-1 overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/70 p-1 text-xs md:order-2 md:w-auto">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               return (
@@ -68,6 +58,16 @@ export const OptionsLayout: React.FC = () => {
               );
             })}
           </nav>
+
+          <div className="order-2 flex shrink-0 items-center justify-end gap-2 md:order-3">
+            <LanguageToggle language={language} onChange={setLanguage} />
+            <ThemeToggle language={language} />
+            {saveSuccess && (
+              <Badge variant="success" size="sm" icon={<Check size={12} />}>
+                {t('options.saved')}
+              </Badge>
+            )}
+          </div>
         </div>
       </header>
 
