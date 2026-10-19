@@ -1,6 +1,6 @@
 {
   "name": "eng-chat",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Chrome extension to optimize text into English using Gemini LLM with chat context awareness",
   "type": "module",
   "scripts": {

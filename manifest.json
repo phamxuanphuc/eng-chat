@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LingoFlow - Write, Rewrite & Translate Anywhere",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Improve, rewrite, summarize and translate text in any text box with AI. Works with Gemini or any OpenAI-compatible provider.",
   "permissions": [
     "storage",

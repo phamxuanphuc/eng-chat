@@ -21,7 +21,7 @@ export const App: React.FC = () => {
     <div className="w-[380px] p-6 flex flex-col gap-6 font-sans bg-slate-950 text-slate-100">
       <div className="flex items-center gap-3">
         <Logo size={36} />
-        <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
+        <h1 className="text-lg font-bold bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">
           {t('app.name')}
         </h1>
       </div>

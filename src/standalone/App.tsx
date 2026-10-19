@@ -115,7 +115,7 @@ export const StandaloneApp: React.FC = () => {
         <div className="flex items-center gap-3">
           <Logo size={36} />
           <div>
-            <h1 className="font-bold text-base bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">{t('standalone.title')}</h1>
+            <h1 className="font-bold text-base bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">{t('standalone.title')}</h1>
             <p className="text-xs text-slate-400">{t('standalone.subtitle')}</p>
           </div>
         </div>

@@ -30,7 +30,7 @@ export const Logo: React.FC<LogoProps> = ({
         className="shrink-0 rounded-xl transition-transform duration-300 hover:scale-105 shadow-md shadow-indigo-950/50"
       />
       {showText && (
-        <span className="font-bold tracking-tight bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
+        <span className="font-bold tracking-tight bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">
           LingoFlow
         </span>
       )}
