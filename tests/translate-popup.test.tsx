@@ -220,7 +220,23 @@ describe('TranslatePopup Component', () => {
     expect(card).not.toBeNull();
   });
 
-  it('TC-TP-09: Header remains sticky on top with scrollable content body', () => {
+  it('TC-TP-09: Short content does not force a tall popup', () => {
+    const { container } = render(
+      <TranslatePopup
+        originalText="labels"
+        result="nhãn"
+        isLoading={false}
+        onClose={() => {}}
+      />
+    );
+
+    const popup = container.querySelector('[role="dialog"]');
+    expect(popup?.className).toContain('min-h-0');
+    expect(popup?.className).not.toContain('min-h-[360px]');
+    expect(container.querySelector('.min-h-\\[70px\\]')).toBeNull();
+  });
+
+  it('TC-TP-10: Header remains sticky on top with scrollable content body', () => {
     const { container } = render(
       <TranslatePopup
         originalText="Hello world"

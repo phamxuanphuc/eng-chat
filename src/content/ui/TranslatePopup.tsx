@@ -89,7 +89,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
       role="dialog"
     aria-label={mode === 'rewrite' ? `${t('app.name')} Rewrite Popup` : mode === 'summary' ? `${t('app.name')} Summary Popup` : `${t('app.name')} Translate Popup`}
       style={position ? { left: `${position.x}px`, top: `${position.y}px`, bottom: 'auto', right: 'auto' } : undefined}
-      className={`fixed pointer-events-auto ${!position ? 'bottom-6 right-6' : ''} z-[2147483647] w-[560px] max-w-[94vw] min-h-[360px] max-h-[88vh] rounded-2xl border backdrop-blur-2xl font-sans flex flex-col overflow-hidden ${isDragging ? 'select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)]' : ''} ${th.card}`}
+      className={`fixed pointer-events-auto ${!position ? 'bottom-6 right-6' : ''} z-[2147483647] w-[560px] max-w-[94vw] min-h-0 max-h-[88vh] rounded-2xl border backdrop-blur-2xl font-sans flex flex-col overflow-hidden ${isDragging ? 'select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)]' : ''} ${th.card}`}
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
     >
@@ -120,7 +120,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           <div className={`text-[11px] font-normal px-0.5 ${th.subText}`}>{t('content.translationDisclaimer')}</div>
         )}
 
-        <div className="min-h-[70px] max-h-56 overflow-y-auto px-0.5 flex flex-col gap-2">
+        <div className="max-h-56 overflow-y-auto px-0.5 flex flex-col gap-2">
           {isLoading && (
             <div className="flex items-center justify-center py-6 gap-2 text-xs text-indigo-400">
               <Loader2 size={16} className="animate-spin text-indigo-400" />
