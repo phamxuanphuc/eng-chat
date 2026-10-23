@@ -91,7 +91,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
         />
       </form>
 
-      {hasEditableTarget && (
+      {hasEditableTarget && mode === 'improve' && (
         <button
           type="button"
           onClick={() => onInsert?.(translationText)}

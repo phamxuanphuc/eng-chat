@@ -115,6 +115,36 @@ describe('TranslatePopup Component', () => {
     expect(handleRegenerate).toHaveBeenCalled();
   });
 
+  it('only shows replace in improve mode', () => {
+    const { rerender } = render(
+      <TranslatePopup
+        mode="rewrite"
+        originalText="Original content"
+        result="Rewritten content"
+        isLoading={false}
+        hasEditableTarget
+        onInsert={() => {}}
+        onClose={() => {}}
+      />
+    );
+
+    expect(screen.queryByRole('button', { name: /replace/i })).toBeNull();
+
+    rerender(
+      <TranslatePopup
+        mode="improve"
+        originalText="Original content"
+        result="Improved content"
+        isLoading={false}
+        hasEditableTarget
+        onInsert={() => {}}
+        onClose={() => {}}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: /replace/i })).toBeDefined();
+  });
+
   it('uses the light-theme accent on the regenerate button hover state', () => {
     render(
       <TranslatePopup
