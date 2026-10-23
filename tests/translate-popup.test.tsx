@@ -115,6 +115,23 @@ describe('TranslatePopup Component', () => {
     expect(handleRegenerate).toHaveBeenCalled();
   });
 
+  it('uses the light-theme accent on the regenerate button hover state', () => {
+    render(
+      <TranslatePopup
+        mode="rewrite"
+        theme="light"
+        originalText="Original content"
+        result="Rewritten content"
+        isLoading={false}
+        onRegenerate={() => {}}
+        onClose={() => {}}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: /regenerate/i }).className).toContain('hover:text-indigo-600');
+    expect(screen.getByRole('button', { name: /regenerate/i }).className).toContain('hover:bg-indigo-50');
+  });
+
   it('TC-TP-06: Displays detailed explanation breakdown when available', () => {
     render(
       <TranslatePopup

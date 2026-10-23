@@ -41,7 +41,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
   const isLight = theme === 'light';
   const t = getTranslator(language);
   const iconBtnClass = isLight
-    ? 'p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer'
+    ? 'p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer'
     : 'p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer';
 
   const placeholderText =
