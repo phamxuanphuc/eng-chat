@@ -141,7 +141,13 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
                   <Badge
                     variant={value !== 'Auto' ? 'primary' : 'secondary'}
                     size="sm"
-                    className="whitespace-nowrap px-2 py-0.5 text-[9px]"
+                    className={`whitespace-nowrap px-2 py-0.5 text-[9px] ${
+                      isLight
+                        ? value !== 'Auto'
+                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200 shadow-sm'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 shadow-sm'
+                        : ''
+                    }`}
                   >
                     {t(`content.${key}` as never)}: {value}
                   </Badge>

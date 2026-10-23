@@ -180,7 +180,31 @@ describe('RewriteOptionsPanel Component', () => {
     });
   });
 
-  it('TC-RO-07: Header remains sticky on top with scrollable chip body', () => {
+  it('TC-RO-07: Light theme uses readable chip colors in the popup header', () => {
+    render(
+      <TranslatePopup
+        mode="rewrite"
+        theme="light"
+        originalText="Original content"
+        result="Rewritten content"
+        isLoading={false}
+        rewriteOptions={{ length: 'Short', formality: 'Auto', format: 'Email', tone: 'Auto' }}
+        onRewriteOptionsChange={() => {}}
+        onClose={() => {}}
+      />
+    );
+
+    const selectedChip = screen.getByText('Length: Short').parentElement;
+    const autoChip = screen.getByText('Formality: Auto').parentElement;
+    expect(selectedChip?.className).toContain('bg-indigo-50');
+    expect(selectedChip?.className).toContain('text-indigo-700');
+    expect(selectedChip?.className).toContain('border-indigo-200');
+    expect(autoChip?.className).toContain('bg-slate-50');
+    expect(autoChip?.className).toContain('text-slate-600');
+    expect(autoChip?.className).toContain('border-slate-200');
+  });
+
+  it('TC-RO-08: Header remains sticky on top with scrollable chip body', () => {
     const { container } = render(
       <RewriteOptionsPanel
         options={DEFAULT_REWRITE_OPTIONS}
