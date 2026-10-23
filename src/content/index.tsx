@@ -9,7 +9,7 @@ import { getRuntimeErrorMessage, sendRuntimeMessage } from '../services/extensio
 import { loadSettings } from '../services/storage';
 import { DEFAULT_TARGET_LANGUAGES, loadTargetLanguages, saveTargetLanguages, TargetLanguages } from './target-languages';
 import { ensureShadowHost } from './shadow-host';
-import { initialToolbarState, initialTooltipState, ToolbarState, TooltipState } from './overlay-state';
+import { initialToolbarState, initialTooltipState, loadToolbarCollapsed, saveToolbarCollapsed, ToolbarState, TooltipState } from './overlay-state';
 
 let currentEditableEl: HTMLElement | null = null;
 let currentTheme: 'light' | 'dark' = 'dark';
@@ -18,7 +18,7 @@ let currentDefaultTone: ToneType = 'professional';
 let latestRequestId = 0;
 let currentSettings: AppSettings | null = null;
 let targetLanguages: TargetLanguages = { ...DEFAULT_TARGET_LANGUAGES };
-let toolbarState: ToolbarState = { ...initialToolbarState };
+let toolbarState: ToolbarState = { ...initialToolbarState, collapsed: loadToolbarCollapsed() };
 let tooltipState: TooltipState = { ...initialTooltipState };
 
 try {
@@ -42,6 +42,12 @@ const renderApp = () => {
         handleTriggerOptimize(mode === 'translate' ? tone : mode === 'summary' ? 'summarize' : currentDefaultTone, undefined, undefined, mode);
       }}
       onCloseToolbar={() => { toolbarState = { ...toolbarState, visible: false }; renderApp(); }}
+      onToggleToolbarCollapse={() => {
+        const collapsed = !toolbarState.collapsed;
+        toolbarState = { ...toolbarState, collapsed };
+        saveToolbarCollapsed(collapsed);
+        renderApp();
+      }}
       onLanguageChange={handleLanguageChange}
       onModeChange={handleModeChange}
       onRewriteOptionsChange={handleRewriteOptionsChange}
@@ -213,13 +219,13 @@ const cleanupDOMEvents = setupDOMEvents({
     currentEditableEl = element;
     if (tooltipState.visible) return;
     const pos = computeToolbarPos(rect);
-    toolbarState = { visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: true };
+    toolbarState = { ...toolbarState, visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: true };
     renderApp();
   },
   onSelect: (rect, isEditable) => {
     if (tooltipState.visible) return;
     const pos = computeToolbarPos(rect);
-    toolbarState = { visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: !!isEditable };
+    toolbarState = { ...toolbarState, visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: !!isEditable };
     renderApp();
   },
   onClickOutside: () => {

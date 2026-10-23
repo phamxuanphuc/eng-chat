@@ -1,7 +1,7 @@
 import React from 'react';
 import { ToneType, Language } from '../../types';
 import { getTranslator } from '../../i18n';
-import { FileText, PenLine, Wand2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, FileText, PenLine, Wand2 } from 'lucide-react';
 
 export interface FloatingToolbarProps {
   language?: Language;
@@ -11,7 +11,9 @@ export interface FloatingToolbarProps {
   isLoading?: boolean;
   theme?: 'light' | 'dark';
   isEditable?: boolean;
+  collapsed?: boolean;
   onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
+  onToggleCollapse?: () => void;
   onClose?: () => void;
 }
 
@@ -23,7 +25,9 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   isLoading = false,
   theme = 'dark',
   isEditable = false,
+  collapsed = false,
   onSelectTone,
+  onToggleCollapse,
   onClose,
 }) => {
   if (!visible) return null;
@@ -54,6 +58,18 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       style={{ left: `${x}px`, top: `${y}px`, pointerEvents: 'auto' }}
     >
       <div className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full border backdrop-blur-xl transition-all ${barStyle}`}>
+        {collapsed ? (
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className={`group relative p-1.5 rounded-full transition-colors cursor-pointer ${btnHover}`}
+            title={t('content.expand')}
+            aria-label={t('content.expand')}
+          >
+            <ChevronUp size={15} />
+          </button>
+        ) : (
+          <>
         <button
           type="button"
           disabled={isLoading}
@@ -120,6 +136,17 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
             ✦
           </div>
         </div>
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          className={`group relative p-1.5 rounded-full transition-colors cursor-pointer ${btnHover}`}
+          title={t('content.collapse')}
+          aria-label={t('content.collapse')}
+        >
+          <ChevronDown size={15} />
+        </button>
+          </>
+        )}
       </div>
     </div>
   );

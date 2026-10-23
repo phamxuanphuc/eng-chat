@@ -6,6 +6,7 @@ export interface ToolbarState {
   y: number;
   isLoading: boolean;
   isEditable: boolean;
+  collapsed: boolean;
 }
 
 export interface TooltipState {
@@ -27,6 +28,25 @@ export const initialToolbarState: ToolbarState = {
   y: 0,
   isLoading: false,
   isEditable: false,
+  collapsed: false,
+};
+
+const TOOLBAR_COLLAPSED_KEY = 'engchat_toolbar_collapsed';
+
+export const loadToolbarCollapsed = (): boolean => {
+  try {
+    return window.sessionStorage.getItem(TOOLBAR_COLLAPSED_KEY) === 'true';
+  } catch {
+    return false;
+  }
+};
+
+export const saveToolbarCollapsed = (collapsed: boolean): void => {
+  try {
+    window.sessionStorage.setItem(TOOLBAR_COLLAPSED_KEY, String(collapsed));
+  } catch {
+    // Storage can be unavailable on restricted pages.
+  }
 };
 
 export const initialTooltipState: TooltipState = {

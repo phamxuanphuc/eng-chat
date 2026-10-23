@@ -12,6 +12,7 @@ export interface ContentOverlayProps {
     y: number;
     isLoading?: boolean;
     isEditable?: boolean;
+    collapsed?: boolean;
   };
   tooltip: {
     visible: boolean;
@@ -26,6 +27,7 @@ export interface ContentOverlayProps {
   };
   onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onCloseToolbar: () => void;
+  onToggleToolbarCollapse?: () => void;
   onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void;
@@ -43,6 +45,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
   tooltip,
   onSelectTone,
   onCloseToolbar,
+  onToggleToolbarCollapse,
   onLanguageChange,
   onModeChange,
   onRewriteOptionsChange,
@@ -62,7 +65,9 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
         language={language}
         theme={theme}
         isEditable={toolbar.isEditable}
+        collapsed={toolbar.collapsed}
         onSelectTone={onSelectTone}
+        onToggleCollapse={onToggleToolbarCollapse}
         onClose={onCloseToolbar}
       />
 

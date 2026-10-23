@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { FloatingToolbar } from '../src/content/ui/FloatingToolbar';
 import { ContentOverlay } from '../src/content/ui/ContentOverlay';
+import { loadToolbarCollapsed, saveToolbarCollapsed } from '../src/content/overlay-state';
 
 describe('FloatingToolbar Component', () => {
   it('TC-FT-01: Does not render when visible is false', () => {
@@ -145,13 +146,40 @@ describe('FloatingToolbar Component', () => {
     expect(onSelectTone).toHaveBeenCalledWith('professional', 'improve');
   });
 
-  it('TC-FT-09: ContentOverlay hides FloatingToolbar when tooltip popup is visible', () => {
+  it('TC-FT-09: Persists collapsed state in the current tab session store', () => {
+    window.sessionStorage.clear();
+    expect(loadToolbarCollapsed()).toBe(false);
+    saveToolbarCollapsed(true);
+    expect(loadToolbarCollapsed()).toBe(true);
+    saveToolbarCollapsed(false);
+    expect(loadToolbarCollapsed()).toBe(false);
+  });
+
+  it('TC-FT-10: Collapses and expands the toolbar', () => {
+    const onToggleCollapse = vi.fn();
+    const { rerender } = render(
+      <FloatingToolbar visible={true} x={150} y={250} onSelectTone={() => {}} onToggleCollapse={onToggleCollapse} />
+    );
+
+    expect(screen.getByRole('button', { name: /collapse/i })).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: /collapse/i }));
+    expect(onToggleCollapse).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <FloatingToolbar visible={true} x={150} y={250} collapsed onSelectTone={() => {}} onToggleCollapse={onToggleCollapse} />
+    );
+    expect(screen.queryByRole('button', { name: /rewrite text/i })).toBeNull();
+    expect(screen.getByRole('button', { name: /expand/i })).toBeDefined();
+  });
+
+  it('TC-FT-11: ContentOverlay hides FloatingToolbar when tooltip popup is visible', () => {
     const { rerender } = render(
       <ContentOverlay
         toolbar={{ visible: true, x: 100, y: 100 }}
         tooltip={{ visible: false, isLoading: false, originalText: 'Hello', hasEditableTarget: false }}
         onSelectTone={() => {}}
         onCloseToolbar={() => {}}
+        onToggleToolbarCollapse={() => {}}
         onInsertText={() => {}}
         onCloseTooltip={() => {}}
       />
@@ -164,6 +192,7 @@ describe('FloatingToolbar Component', () => {
         tooltip={{ visible: true, isLoading: false, originalText: 'Hello', hasEditableTarget: false }}
         onSelectTone={() => {}}
         onCloseToolbar={() => {}}
+        onToggleToolbarCollapse={() => {}}
         onInsertText={() => {}}
         onCloseTooltip={() => {}}
       />
