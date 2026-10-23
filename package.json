@@ -7,6 +7,7 @@
     "dev": "vite",
     "dev:standalone": "vite --open standalone.html",
     "build": "tsc && vite build",
+    "package": "tsc && vite build && cd dist && zip -r ../lingoflow.zip . -x '*.DS_Store'",
     "test": "vitest run",
     "test:watch": "vitest"
   },
