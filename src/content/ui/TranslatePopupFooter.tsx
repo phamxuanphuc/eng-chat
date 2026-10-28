@@ -73,8 +73,8 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
         onSubmit={handleFollowUpSubmit}
         className={`flex-1 flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 transition-all border ${
           isLight
-            ? 'bg-slate-100 border-slate-200 focus-within:border-indigo-500/80 focus-within:ring-1 focus-within:ring-indigo-500/20'
-            : 'bg-slate-950/80 border-slate-800/80 focus-within:border-indigo-500/60 focus-within:ring-1 focus-within:ring-indigo-500/20'
+            ? 'bg-slate-100 border-slate-200'
+            : 'bg-slate-950/80 border-slate-800/80'
         }`}
       >
         <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[9px] font-bold">

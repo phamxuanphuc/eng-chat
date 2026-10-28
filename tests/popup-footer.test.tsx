@@ -14,6 +14,15 @@ describe('TranslatePopupFooter', () => {
     expect(screen.queryByRole('button', { name: /^Save$/i })).toBeNull();
   });
 
+  it('keeps the follow-up input container unchanged when focused', () => {
+    render(<TranslatePopupFooter translationText="hi" isLoading={false} />);
+    const input = screen.getByRole('textbox');
+    const form = input.closest('form');
+
+    expect(form?.className).not.toContain('focus-within:ring');
+    expect(form?.className).not.toContain('focus-within:border-indigo');
+  });
+
   it('asks the service worker to open the options page', () => {
     const sendMessage = vi.fn(async () => ({ success: true }));
     (globalThis as any).chrome = { runtime: { sendMessage } };
