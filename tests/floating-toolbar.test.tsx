@@ -128,7 +128,16 @@ describe('FloatingToolbar Component', () => {
     expect(toolbarEl).not.toBeNull();
   });
 
-  it('TC-FT-08: Renders improve button and triggers improve mode', () => {
+  it('TC-FT-08: Uses the same indigo accent for every floating action icon', () => {
+    const { container } = render(
+      <FloatingToolbar visible={true} x={150} y={250} onSelectTone={() => {}} />
+    );
+
+    expect(container.querySelectorAll('.text-indigo-400')).toHaveLength(4);
+    expect(container.querySelector('.bg-indigo-500')).not.toBeNull();
+  });
+
+  it('TC-FT-09: Renders improve button and triggers improve mode', () => {
     const onSelectTone = vi.fn();
     render(
       <FloatingToolbar
