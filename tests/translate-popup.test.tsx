@@ -109,6 +109,7 @@ describe('TranslatePopup Component', () => {
     const handleRegenerate = vi.fn();
     render(
       <TranslatePopup
+        mode="rewrite"
         originalText="Test phrase."
         result="Cụm từ kiểm tra."
         isLoading={false}
@@ -119,6 +120,7 @@ describe('TranslatePopup Component', () => {
       />
     );
 
+    expect(screen.getByRole('button', { name: /length & format/i })).toBeDefined();
     const langBtn = screen.getByRole('button', { name: /select language/i });
     fireEvent.click(langBtn);
 

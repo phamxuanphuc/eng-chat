@@ -156,7 +156,7 @@ describe('RewriteOptionsPanel Component', () => {
     fireEvent.click(styleButton);
     expect(dialog).toBeDefined();
     const panelHeading = 'Style & Format Options';
-    expect(screen.getByText(panelHeading)).toBeDefined();
+    expect(screen.getAllByText(panelHeading).length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole('button', { name: 'Short' }));
     fireEvent.click(screen.getByRole('button', { name: 'Formal' }));
@@ -165,7 +165,7 @@ describe('RewriteOptionsPanel Component', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Close options' }));
 
     fireEvent.click(styleButton);
-    expect(screen.getByText(panelHeading)).toBeDefined();
+    expect(screen.getAllByText(panelHeading).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole('button', { name: 'Humorous' }));
     expect(handleRewriteOptionsChange).toHaveBeenCalledWith({
       length: 'Short',

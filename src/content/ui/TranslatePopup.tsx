@@ -188,7 +188,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
               aria-label={t('common.lengthFormat')}
             >
               <AudioWaveform size={14} className="text-indigo-400" />
-              <span>{t('content.rewrite')}</span>
+              <span>{t('content.styleOptions')}</span>
             </button>
             <span className={isLight ? 'text-slate-300' : 'text-slate-600'}>|</span>
           </>}
