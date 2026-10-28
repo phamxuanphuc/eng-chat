@@ -134,7 +134,7 @@ describe('FloatingToolbar Component', () => {
     );
 
     expect(container.querySelectorAll('.text-indigo-400')).toHaveLength(4);
-    expect(container.querySelector('.bg-indigo-500')).not.toBeNull();
+    expect(container.querySelector('[title="LingoFlow"]')).toBeNull();
   });
 
   it('TC-FT-09: Renders improve button and triggers improve mode', () => {

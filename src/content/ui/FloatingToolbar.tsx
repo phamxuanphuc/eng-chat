@@ -129,14 +129,6 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           </span>
         </button>
 
-        <div className="pl-1">
-          <div
-            className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-white text-[10px] font-bold shadow-sm ring-1 ring-indigo-400/30"
-            title="LingoFlow"
-          >
-            ✦
-          </div>
-        </div>
         <button
           type="button"
           onClick={onToggleCollapse}
