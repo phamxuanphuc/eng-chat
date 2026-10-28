@@ -19,7 +19,7 @@ export interface TranslatePopupProps {
   rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark'; hasEditableTarget?: boolean;
   onLanguageChange?: (lang: string) => void; onModeChange?: (mode: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void; onFollowUp?: (query: string) => void;
-  onRegenerate?: () => void; onInsert?: (text: string) => void; onClose: () => void; onTranslateVi?: (text: string) => Promise<string>;
+  onRegenerate?: () => void; onInsert?: (text: string) => void; onClose: () => void; isPinned?: boolean; onTogglePin?: () => void; onTranslateVi?: (text: string) => Promise<string>;
 }
 
 export const TranslatePopup: React.FC<TranslatePopupProps> = ({
@@ -27,7 +27,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   targetLanguage, rewriteOptions, theme = 'dark',
   hasEditableTarget = false,
   onLanguageChange, onModeChange, onRewriteOptionsChange,
-  onFollowUp, onRegenerate, onInsert, onClose, onTranslateVi,
+  onFollowUp, onRegenerate, onInsert, onClose, isPinned = false, onTogglePin, onTranslateVi,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -99,6 +99,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         onLanguageChange={onLanguageChange} onModeChange={onModeChange}
         rewriteOptions={rewriteOptions || DEFAULT_REWRITE_OPTIONS}
         onOpenRewriteOptions={() => setShowRewriteOptions(true)}
+        isPinned={isPinned} onTogglePin={onTogglePin}
         onClose={onClose} onDragStart={handleMouseDown}
       />
 

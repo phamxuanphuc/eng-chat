@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Languages, PenLine, Wand2, FileText, ChevronDown, X } from 'lucide-react';
+import { Languages, PenLine, Wand2, FileText, ChevronDown, X, Pin } from 'lucide-react';
 import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
 import { Badge } from '../../components/ui/Badge';
 import { Language, RewriteOptions } from '../../types';
@@ -10,6 +10,7 @@ export interface TranslatePopupHeaderProps {
   mode: 'translate' | 'rewrite' | 'improve' | 'summary';
   targetLanguage: string;
   isPinned?: boolean;
+  onTogglePin?: () => void;
   theme: 'light' | 'dark';
   onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
@@ -29,6 +30,8 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   rewriteOptions,
   onOpenRewriteOptions,
   onClose,
+  onTogglePin,
+  isPinned = false,
   onDragStart,
 }) => {
   const [langMenuOpen, setLangMenuOpen] = useState(false);
@@ -187,14 +190,26 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
           )}
 
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className={`absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-lg cursor-pointer ${th.iconBtn}`}
-          aria-label={t('content.close')}
-        >
-          <X size={15} />
-        </button>
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          <button
+            type="button"
+            onClick={onTogglePin}
+            className={`p-1 rounded-lg cursor-pointer ${isPinned ? 'text-indigo-400 bg-indigo-500/15' : th.iconBtn}`}
+            aria-label={isPinned ? 'Unpin dialog' : 'Pin dialog'}
+            aria-pressed={isPinned}
+            title={isPinned ? 'Unpin dialog' : 'Pin dialog'}
+          >
+            <Pin size={15} className={isPinned ? 'fill-current' : ''} />
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className={`p-1 rounded-lg cursor-pointer ${th.iconBtn}`}
+            aria-label={t('content.close')}
+          >
+            <X size={15} />
+          </button>
+        </div>
       </div>
     </div>
   );

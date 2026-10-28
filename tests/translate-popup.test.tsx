@@ -11,6 +11,22 @@ describe('TranslatePopup Component', () => {
     expect(await screen.findByRole('dialog', { name: 'LLM model picker' })).toBeDefined();
   });
 
+  it('renders pin control beside close and toggles pin state', () => {
+    const onTogglePin = vi.fn();
+    const { rerender } = render(
+      <TranslatePopup originalText="Hello" result="Xin chào" isLoading={false} onClose={() => {}} onTogglePin={onTogglePin} />
+    );
+
+    const pinButton = screen.getByRole('button', { name: /pin dialog/i });
+    fireEvent.click(pinButton);
+    expect(onTogglePin).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <TranslatePopup originalText="Hello" result="Xin chào" isLoading={false} onClose={() => {}} isPinned onTogglePin={onTogglePin} />
+    );
+    expect(screen.getByRole('button', { name: /unpin dialog/i }).getAttribute('aria-pressed')).toBe('true');
+  });
+
   it('TC-TP-01: Renders original text, translation and handles close', () => {
     const handleClose = vi.fn();
     render(

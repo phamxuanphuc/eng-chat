@@ -7,6 +7,7 @@ import { ContentOverlay } from './ui/ContentOverlay';
 import { detectPageTheme, observePageTheme } from './theme-detector';
 import { getRuntimeErrorMessage, sendRuntimeMessage } from '../services/extension-messaging';
 import { loadSettings } from '../services/storage';
+import { usePresetSectionStore, PresetSection } from '../store/usePresetSectionStore';
 import { DEFAULT_TARGET_LANGUAGES, loadTargetLanguages, saveTargetLanguages, TargetLanguages } from './target-languages';
 import { ensureShadowHost } from './shadow-host';
 import { initialToolbarState, initialTooltipState, loadToolbarCollapsed, saveToolbarCollapsed, ToolbarState, TooltipState } from './overlay-state';
@@ -20,6 +21,9 @@ let currentSettings: AppSettings | null = null;
 let targetLanguages: TargetLanguages = { ...DEFAULT_TARGET_LANGUAGES };
 let toolbarState: ToolbarState = { ...initialToolbarState, collapsed: loadToolbarCollapsed() };
 let tooltipState: TooltipState = { ...initialTooltipState };
+
+const getPresetSection = (mode: TooltipState['mode']): PresetSection => mode;
+const getPinnedForMode = (mode: TooltipState['mode']): boolean => usePresetSectionStore.getState().pinnedBySection[getPresetSection(mode)];
 
 try {
   currentTheme = detectPageTheme();
@@ -35,7 +39,14 @@ const renderApp = () => {
       language={currentLanguage}
       theme={currentTheme}
       toolbar={toolbarState}
-      tooltip={tooltipState}
+      tooltip={{ ...tooltipState, isPinned: getPinnedForMode(tooltipState.mode) }}
+      onTogglePin={() => {
+        const mode = getPresetSection(tooltipState.mode);
+        const pinned = !getPinnedForMode(tooltipState.mode);
+        usePresetSectionStore.getState().setPinned(mode, pinned);
+        tooltipState = { ...tooltipState, isPinned: pinned };
+        renderApp();
+      }}
       onSelectTone={(tone, mode) => {
         toolbarState = { ...toolbarState, visible: false };
         renderApp();
@@ -149,7 +160,7 @@ const handleModeChange = (newMode: 'translate' | 'rewrite' | 'improve' | 'summar
 
 const handleFollowUp = async (query: string) => {
   if (!tooltipState.originalText) return;
-  tooltipState = { ...tooltipState, isLoading: true, error: null, isPinned: false };
+  tooltipState = { ...tooltipState, isLoading: true, error: null };
   renderApp();
   const requestId = ++latestRequestId;
 
@@ -229,6 +240,11 @@ const cleanupDOMEvents = setupDOMEvents({
     renderApp();
   },
   onClickOutside: () => {
+    if (tooltipState.visible && !getPinnedForMode(tooltipState.mode)) {
+      tooltipState = { ...tooltipState, visible: false };
+      renderApp();
+      return;
+    }
     if (toolbarState.visible) {
       toolbarState = { ...toolbarState, visible: false };
       renderApp();

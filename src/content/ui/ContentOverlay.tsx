@@ -24,6 +24,7 @@ export interface ContentOverlayProps {
     targetLanguage?: string;
     rewriteOptions?: RewriteOptions;
     hasEditableTarget: boolean;
+    isPinned?: boolean;
   };
   onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onCloseToolbar: () => void;
@@ -35,6 +36,7 @@ export interface ContentOverlayProps {
   onRegenerate?: () => void;
   onInsertText: (text: string) => void;
   onCloseTooltip: () => void;
+  onTogglePin?: () => void;
   onTranslateVi?: (text: string) => Promise<string>;
 }
 
@@ -53,6 +55,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
   onRegenerate,
   onInsertText,
   onCloseTooltip,
+  onTogglePin,
   onTranslateVi,
 }) => {
   return (
@@ -83,6 +86,8 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
           targetLanguage={tooltip.targetLanguage}
           rewriteOptions={tooltip.rewriteOptions}
           hasEditableTarget={tooltip.hasEditableTarget}
+          isPinned={tooltip.isPinned}
+          onTogglePin={onTogglePin}
           onLanguageChange={onLanguageChange}
           onModeChange={onModeChange}
           onRewriteOptionsChange={onRewriteOptionsChange}
