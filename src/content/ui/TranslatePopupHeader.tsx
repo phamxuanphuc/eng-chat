@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Languages, PenLine, Wand2, FileText, ChevronDown, X, Pin } from 'lucide-react';
-import { getPopupTheme, POPUP_LANGUAGES } from './popup-theme';
-import { Badge } from '../../components/ui/Badge';
-import { Language, RewriteOptions } from '../../types';
+import { getPopupTheme } from './popup-theme';
+import { Language } from '../../types';
 import { getTranslator } from '../../i18n';
 
 export interface TranslatePopupHeaderProps {
@@ -14,8 +13,6 @@ export interface TranslatePopupHeaderProps {
   theme: 'light' | 'dark';
   onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
-  rewriteOptions?: RewriteOptions;
-  onOpenRewriteOptions?: () => void;
   onClose: () => void;
   onDragStart?: (e: React.MouseEvent) => void;
 }
@@ -27,32 +24,26 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   theme,
   onLanguageChange,
   onModeChange,
-  rewriteOptions,
-  onOpenRewriteOptions,
   onClose,
   onTogglePin,
   isPinned = false,
   onDragStart,
 }) => {
-  const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
   const modeMenuRef = useRef<HTMLDivElement>(null);
-  const languageMenuRef = useRef<HTMLDivElement>(null);
   const isLight = theme === 'light';
   const t = getTranslator(language);
   const th = getPopupTheme(theme);
 
   useEffect(() => {
-    if (!modeMenuOpen && !langMenuOpen) return;
+    if (!modeMenuOpen) return;
     const handleOutsidePointerDown = (event: PointerEvent) => {
       const path = event.composedPath();
-      const isInside = (el: HTMLElement | null) => !!el && path.includes(el);
-      if (modeMenuOpen && !isInside(modeMenuRef.current)) setModeMenuOpen(false);
-      if (langMenuOpen && !isInside(languageMenuRef.current)) setLangMenuOpen(false);
+      if (modeMenuRef.current && !path.includes(modeMenuRef.current)) setModeMenuOpen(false);
     };
     document.addEventListener('pointerdown', handleOutsidePointerDown, true);
     return () => document.removeEventListener('pointerdown', handleOutsidePointerDown, true);
-  }, [modeMenuOpen, langMenuOpen]);
+  }, [modeMenuOpen]);
 
   const handleHeaderMouseDown = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -129,65 +120,6 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
               </div>
             )}
           </div>
-
-          {rewriteOptions && mode !== 'translate' && mode !== 'summary' && (
-            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1" aria-label={t('common.rewriteStyleOptions')}>
-              {(Object.entries(rewriteOptions) as Array<[keyof RewriteOptions, string]>).map(([key, value]) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => onOpenRewriteOptions?.()}
-                  onMouseDown={(event) => event.stopPropagation()}
-                  className="cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-                  aria-label={`${t(`content.${key}` as never)}: ${value}`}
-                >
-                  <Badge
-                    variant={value !== 'Auto' ? 'primary' : 'secondary'}
-                    size="sm"
-                    className={`whitespace-nowrap px-2 py-0.5 text-[9px] ${
-                      isLight
-                        ? value !== 'Auto'
-                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200 shadow-sm'
-                          : 'bg-slate-50 text-slate-600 border-slate-200 shadow-sm'
-                        : ''
-                    }`}
-                  >
-                    {t(`content.${key}` as never)}: {value}
-                  </Badge>
-                </button>
-              ))}
-            </div>
-          )}
-          {(mode === 'translate' || mode === 'summary') && (
-            <div ref={languageMenuRef} className="relative">
-              <button
-                type="button"
-                onClick={() => setLangMenuOpen((p) => !p)}
-                onPointerDown={(event) => event.stopPropagation()}
-                onMouseDown={(event) => event.stopPropagation()}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer ${th.pill}`}
-              >
-                <span>{targetLanguage}</span>
-                <ChevronDown size={12} className="text-slate-400" />
-              </button>
-              {langMenuOpen && (
-                <div className={`absolute right-0 top-full mt-1.5 w-32 rounded-xl border shadow-xl p-1 z-50 flex flex-col gap-0.5 ${th.menu}`}>
-                  {POPUP_LANGUAGES.map((l) => (
-                    <button
-                      key={l}
-                      type="button"
-                      onClick={() => { setLangMenuOpen(false); onLanguageChange?.(l); }}
-                      onPointerDown={(event) => event.stopPropagation()}
-                      onMouseDown={(event) => event.stopPropagation()}
-                      className={`px-2.5 py-1 text-xs text-left rounded-lg ${targetLanguage === l ? th.menuActive : th.menuItem}`}
-                    >
-                      {l}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
 
         </div>
         <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">

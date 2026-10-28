@@ -119,7 +119,7 @@ describe('TranslatePopup Component', () => {
       />
     );
 
-    const langBtn = screen.getByRole('button', { name: /vietnamese/i });
+    const langBtn = screen.getByRole('button', { name: /select language/i });
     fireEvent.click(langBtn);
 
     const japaneseBtn = screen.getByRole('button', { name: /japanese/i });

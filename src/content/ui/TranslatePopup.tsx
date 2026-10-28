@@ -97,8 +97,6 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         language={language}
         mode={mode} targetLanguage={currentLang} theme={theme}
         onLanguageChange={onLanguageChange} onModeChange={onModeChange}
-        rewriteOptions={rewriteOptions || DEFAULT_REWRITE_OPTIONS}
-        onOpenRewriteOptions={() => setShowRewriteOptions(true)}
         isPinned={isPinned} onTogglePin={onTogglePin}
         onClose={onClose} onDragStart={handleMouseDown}
       />
@@ -180,9 +178,9 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         )}
       </div>
 
-      <div className={`relative z-30 px-4 pb-3 flex flex-col gap-1.5 ${mode === 'translate' ? '' : `border-t pt-2 ${isLight ? 'border-slate-200/80' : 'border-slate-800/80'}`}`}>
-        {(mode === 'rewrite' || mode === 'improve') && (
-          <div className="relative flex items-center gap-2 px-1 py-0.5 text-xs select-none">
+      <div className={`relative z-30 px-4 pb-3 flex flex-col gap-1.5 ${mode === 'translate' ? '' : `border-t pt-2 ${isLight ? 'border-slate-200/80' : 'border-slate-800/80'}`} `}>
+        <div className="relative flex items-center gap-2 px-1 py-0.5 text-xs select-none">
+          {(mode === 'rewrite' || mode === 'improve') && <>
             <button
               type="button"
               onClick={() => setShowRewriteOptions((p) => !p)}
@@ -193,6 +191,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
               <span>{t('content.rewrite')}</span>
             </button>
             <span className={isLight ? 'text-slate-300' : 'text-slate-600'}>|</span>
+          </>}
             <div ref={langDropdownRef} className="relative">
               <button
                 type="button"
@@ -202,6 +201,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
               >
                 <Languages size={14} className="text-indigo-400" />
                 <span>{currentLang}</span>
+                <ChevronDown size={12} className="text-slate-400" />
               </button>
               {langMenuOpen && (
                 <div className={`absolute left-0 bottom-full mb-1.5 w-32 max-h-52 overflow-y-auto rounded-xl border shadow-2xl p-1 z-50 flex flex-col gap-0.5 ${th.menu}`}>
@@ -220,7 +220,6 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
               )}
             </div>
           </div>
-        )}
 
         <TranslatePopupFooter
           language={language}
