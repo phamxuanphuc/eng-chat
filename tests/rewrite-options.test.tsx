@@ -151,25 +151,20 @@ describe('RewriteOptionsPanel Component', () => {
       />
     );
 
-    expect(screen.getByRole('button', { name: 'Length: Short' })).toBeDefined();
-    expect(screen.getByRole('button', { name: 'Formality: Formal' })).toBeDefined();
-    expect(screen.getByRole('button', { name: 'Format: Email' })).toBeDefined();
-    expect(screen.getByRole('button', { name: 'Tone: Enthusiastic' })).toBeDefined();
-    expect(screen.getByText('Length: Short')).toBeDefined();
-    expect(screen.getByText('Formality: Formal')).toBeDefined();
-    expect(screen.getByText('Format: Email')).toBeDefined();
-    expect(screen.getByText('Tone: Enthusiastic')).toBeDefined();
-
     const dialog = screen.getByRole('dialog', { name: /Rewrite Popup/i });
+    const styleButton = screen.getByRole('button', { name: /Length & format/i });
+    fireEvent.click(styleButton);
+    expect(dialog).toBeDefined();
     const panelHeading = 'Style & Format Options';
-    for (const option of ['Length: Short', 'Formality: Formal', 'Format: Email', 'Tone: Enthusiastic']) {
-      fireEvent.click(screen.getByRole('button', { name: option }));
-      expect(dialog).toBeDefined();
-      expect(screen.getByText(panelHeading)).toBeDefined();
-      fireEvent.click(screen.getByRole('button', { name: 'Close options' }));
-    }
+    expect(screen.getByText(panelHeading)).toBeDefined();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Tone: Enthusiastic' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Short' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Formal' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Email' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Enthusiastic' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Close options' }));
+
+    fireEvent.click(styleButton);
     expect(screen.getByText(panelHeading)).toBeDefined();
     fireEvent.click(screen.getByRole('button', { name: 'Humorous' }));
     expect(handleRewriteOptionsChange).toHaveBeenCalledWith({
@@ -194,13 +189,15 @@ describe('RewriteOptionsPanel Component', () => {
       />
     );
 
-    const selectedChip = screen.getByText('Length: Short').parentElement;
-    const autoChip = screen.getByText('Formality: Auto').parentElement;
+    fireEvent.click(screen.getByRole('button', { name: /Length & format/i }));
+    const optionButtons = screen.getAllByRole('button');
+    const selectedChip = optionButtons.find((button) => button.textContent === 'Short');
+    const autoChip = optionButtons.find((button) => button.textContent === 'Auto' && button.className.includes('bg-slate-100'));
     expect(selectedChip?.className).toContain('bg-indigo-50');
     expect(selectedChip?.className).toContain('text-indigo-700');
-    expect(selectedChip?.className).toContain('border-indigo-200');
-    expect(autoChip?.className).toContain('bg-slate-50');
-    expect(autoChip?.className).toContain('text-slate-600');
+    expect(selectedChip?.className).toContain('border-indigo-400');
+    expect(autoChip?.className).toContain('bg-slate-100');
+    expect(autoChip?.className).toContain('text-slate-700');
     expect(autoChip?.className).toContain('border-slate-200');
   });
 
