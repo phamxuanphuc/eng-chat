@@ -93,7 +93,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', theme
   const itemClass = isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800';
 
   return (
-    <div className="absolute inset-0 z-50 flex items-end justify-end p-3 pointer-events-none">
+    <div className="fixed inset-0 z-[2147483648] flex items-end justify-end p-3 pointer-events-none">
       <div className={`pointer-events-auto w-[min(350px,calc(100vw-24px))] rounded-2xl border shadow-2xl p-3 ${panelClass}`} role="dialog" aria-label={t('content.modelPickerDialog')}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2 text-sm font-semibold"><Star size={15} className="text-amber-400 fill-amber-400" /> {t('content.chooseModelTitle')}</div>

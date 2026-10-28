@@ -84,6 +84,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   };
 
   return (
+    <>
     <div
       ref={popupRef}
       role="dialog"
@@ -230,17 +231,17 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         />
       </div>
 
-      {showModelPicker && (
-        <ModelPicker language={language} theme={theme} onClose={() => setShowModelPicker(false)} />
-      )}
-
-      {showRewriteOptions && (mode === 'rewrite' || mode === 'improve') && (
-        <RewriteOptionsPanel
-          language={language}
-          options={rewriteOptions || DEFAULT_REWRITE_OPTIONS} theme={theme}
-          onChange={(opts) => onRewriteOptionsChange?.(opts)} onClose={() => setShowRewriteOptions(false)}
-        />
-      )}
     </div>
+    {showModelPicker && (
+      <ModelPicker language={language} theme={theme} onClose={() => setShowModelPicker(false)} />
+    )}
+    {showRewriteOptions && (mode === 'rewrite' || mode === 'improve') && (
+      <RewriteOptionsPanel
+        language={language}
+        options={rewriteOptions || DEFAULT_REWRITE_OPTIONS} theme={theme}
+        onChange={(opts) => onRewriteOptionsChange?.(opts)} onClose={() => setShowRewriteOptions(false)}
+      />
+    )}
+    </>
   );
 };
