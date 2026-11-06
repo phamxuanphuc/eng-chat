@@ -5,9 +5,15 @@ export const COOLDOWN_MS: Record<KeyFailure, number> = {
   invalid: 30 * 60 * 1000,
 };
 
-const STORAGE_KEY = 'engchat_key_cooldowns';
+export const COOLDOWN_STORAGE_KEY = 'engchat_key_cooldowns';
+const STORAGE_KEY = COOLDOWN_STORAGE_KEY;
 
-type CooldownMap = Record<string, number>;
+export interface KeyCooldown {
+  until: number;
+  reason: KeyFailure;
+}
+
+type CooldownMap = Record<string, KeyCooldown>;
 
 const fingerprint = (key: string): string => {
   let hash = 5381;
@@ -29,8 +35,11 @@ const readMap = async (now: number): Promise<CooldownMap> => {
   }
   const map: CooldownMap = {};
   if (raw && typeof raw === 'object') {
-    for (const [id, until] of Object.entries(raw as Record<string, unknown>)) {
-      if (typeof until === 'number' && until > now) map[id] = until;
+    for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
+      const entry = typeof value === 'number' ? { until: value, reason: 'quota' as KeyFailure } : (value as Partial<KeyCooldown>);
+      if (entry && typeof entry.until === 'number' && entry.until > now) {
+        map[id] = { until: entry.until, reason: entry.reason === 'invalid' ? 'invalid' : 'quota' };
+      }
     }
   }
   return map;
@@ -54,7 +63,7 @@ export const classifyKeyFailure = (message: string): KeyFailure | null => {
 
 export const markKeyCooldown = async (key: string, reason: KeyFailure, now = Date.now()): Promise<void> => {
   const map = await readMap(now);
-  map[fingerprint(key)] = now + COOLDOWN_MS[reason];
+  map[fingerprint(key)] = { until: now + COOLDOWN_MS[reason], reason };
   await writeMap(map);
 };
 
@@ -71,8 +80,18 @@ export const orderKeysByAvailability = async (keys: string[], now = Date.now()):
   const available = keys.filter((key) => !(fingerprint(key) in map));
   const cooling = keys
     .filter((key) => fingerprint(key) in map)
-    .sort((a, b) => map[fingerprint(a)] - map[fingerprint(b)]);
+    .sort((a, b) => map[fingerprint(a)].until - map[fingerprint(b)].until);
   return [...available, ...cooling];
+};
+
+export const getKeyCooldowns = async (keys: string[], now = Date.now()): Promise<Record<string, KeyCooldown>> => {
+  const map = await readMap(now);
+  const result: Record<string, KeyCooldown> = {};
+  for (const key of keys) {
+    const entry = map[fingerprint(key)];
+    if (entry) result[key] = entry;
+  }
+  return result;
 };
 
 export const resetKeyCooldowns = async (): Promise<void> => {

@@ -8,6 +8,8 @@ import { Switch } from '../components/ui/Switch';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
 import { callGeminiApi } from '../services/gemini';
+import { KeyCooldownBadge } from './KeyCooldownBadge';
+import { useKeyCooldowns } from './useKeyCooldowns';
 import { KeyRound, Sparkles, Plus, Trash2, Star, ExternalLink, Save } from 'lucide-react';
 
 interface ApiKeyManagerProps {
@@ -34,6 +36,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
   const t = getTranslator(language);
 
   const primaryKey = apiKeys[0]?.key || '';
+  const cooldowns = useKeyCooldowns(autoRotate ? apiKeys.map((k) => k.key).filter(Boolean) : []);
 
   const handlePrimaryChange = (val: string) => {
     const trimmed = val.trim();
@@ -105,6 +108,11 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
         value={primaryKey}
         onChange={(e) => handlePrimaryChange(e.target.value)}
       />
+      {apiKeys.length <= 1 && cooldowns[primaryKey] && (
+        <div className="flex">
+          <KeyCooldownBadge language={language} status={cooldowns[primaryKey]} />
+        </div>
+      )}
 
       <div className="flex items-center justify-between text-xs px-0.5 text-slate-400">
         <span>{t('api.noToken')}</span>
@@ -136,6 +144,11 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
                   <span className="text-xs font-mono text-slate-400 truncate">
                     {item.key.slice(0, 7)}••••••••{item.key.slice(-4)}
                   </span>
+                  {cooldowns[item.key] && (
+                    <span className="mt-1 flex">
+                      <KeyCooldownBadge language={language} status={cooldowns[item.key]} />
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">

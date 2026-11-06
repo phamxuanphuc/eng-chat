@@ -146,6 +146,8 @@
   "api.connectionSuccess": "Connection successful! The API key is working.",
   "api.connectionFailed": "Connection test failed",
   "api.missingKey": "Add at least one API key to test.",
+  "api.cooldownQuota": "Quota reached · skipped for {{time}}",
+  "api.cooldownInvalid": "Key rejected · skipped for {{time}}",
   "custom.title": "Custom LLM Configuration (OpenAI Compatible)",
   "custom.noModel": "No model selected",
   "custom.baseUrl": "Base URL (Endpoint)",

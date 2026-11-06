@@ -145,6 +145,8 @@
   "api.connectionSuccess": "Kết nối thành công! Khóa API đang hoạt động.",
   "api.connectionFailed": "Kiểm tra kết nối thất bại",
   "api.missingKey": "Thêm ít nhất một khóa API để kiểm tra.",
+  "api.cooldownQuota": "Hết hạn mức · bỏ qua trong {{time}}",
+  "api.cooldownInvalid": "Khóa bị từ chối · bỏ qua trong {{time}}",
   "custom.title": "Cấu hình LLM tùy chỉnh (Tương thích OpenAI)",
   "custom.noModel": "Chưa chọn mô hình",
   "custom.baseUrl": "Base URL (Endpoint)",
