@@ -10,6 +10,7 @@ export interface OptionsContextValue {
   setProvider: (p: LLMProvider) => void;
   apiKeys: ApiKeyItem[];
   setApiKeys: (keys: ApiKeyItem[] | ((prev: ApiKeyItem[]) => ApiKeyItem[])) => void;
+  commitApiKeys: (keys: ApiKeyItem[]) => Promise<void>;
   autoRotate: boolean;
   setAutoRotate: (v: boolean | ((prev: boolean) => boolean)) => void;
   model: string;
@@ -139,12 +140,30 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
+  const commitApiKeys = async (keys: ApiKeyItem[]) => {
+    const geminiApiKey = keys[0]?.key || '';
+    setApiKeys(keys);
+    const saved = await updateSettings({ apiKeys: keys, geminiApiKey });
+    setSaveError(!saved);
+    if (!saved) return;
+    setSavedSnapshot((previous) => {
+      if (previous === null) return previous;
+      try {
+        return JSON.stringify({ ...JSON.parse(previous), apiKeys: keys, geminiApiKey });
+      } catch {
+        return previous;
+      }
+    });
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
+  };
+
   return (
     <OptionsContext.Provider
       value={{
         language, setLanguage,
         provider, setProvider,
-        apiKeys, setApiKeys,
+        apiKeys, setApiKeys, commitApiKeys,
         autoRotate, setAutoRotate,
         model, setModel,
         customBaseUrl, setCustomBaseUrl,

@@ -15,6 +15,7 @@ export const AiProviderPage: React.FC = () => {
     setProvider,
     apiKeys,
     setApiKeys,
+    commitApiKeys,
     autoRotate,
     setAutoRotate,
     model,
@@ -40,6 +41,7 @@ export const AiProviderPage: React.FC = () => {
             language={language}
             apiKeys={apiKeys}
             onUpdateKeys={setApiKeys}
+            onCommitKeys={commitApiKeys}
             autoRotate={autoRotate}
             onToggleAutoRotate={setAutoRotate}
             selectedModel={model}

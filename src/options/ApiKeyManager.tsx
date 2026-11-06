@@ -16,6 +16,7 @@ interface ApiKeyManagerProps {
   language: Language;
   apiKeys: ApiKeyItem[];
   onUpdateKeys: (keys: ApiKeyItem[]) => void;
+  onCommitKeys?: (keys: ApiKeyItem[]) => void;
   autoRotate: boolean;
   onToggleAutoRotate: (val: boolean) => void;
   selectedModel: string;
@@ -26,6 +27,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
   language,
   apiKeys,
   onUpdateKeys,
+  onCommitKeys,
   autoRotate,
   onToggleAutoRotate,
   selectedModel,
@@ -54,6 +56,8 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
     }
   };
 
+  const commitKeys = onCommitKeys ?? onUpdateKeys;
+
   const handleAddBackup = () => {
     const trimmed = newKey.trim();
     if (!trimmed) return;
@@ -62,19 +66,19 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
       label: newLabel.trim() || t('api.backupDefaultName', { index: apiKeys.length }),
       key: trimmed,
     };
-    onUpdateKeys([...apiKeys, newItem]);
+    commitKeys([...apiKeys, newItem]);
     setNewLabel('');
     setNewKey('');
   };
 
   const handleRemoveKey = (id: string) => {
-    onUpdateKeys(apiKeys.filter((k) => k.id !== id));
+    commitKeys(apiKeys.filter((k) => k.id !== id));
   };
 
   const handleSetPrimary = (id: string) => {
     const selected = apiKeys.find((k) => k.id === id);
     if (selected) {
-      onUpdateKeys([selected, ...apiKeys.filter((k) => k.id !== id)]);
+      commitKeys([selected, ...apiKeys.filter((k) => k.id !== id)]);
     }
   };
 
