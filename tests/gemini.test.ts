@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
 import { callGeminiApi, executeOptimize } from '../src/services/gemini';
+import { resetKeyCooldowns } from '../src/services/key-cooldown';
 import {
   mockGeminiSuccessRawResponse,
   mockGeminiJsonRawResponse,
@@ -11,8 +12,9 @@ import { mockDefaultSettings, mockMultiKeySettings, mockEmptySettings } from './
 vi.mock('axios');
 
 describe('Gemini Service & Axios Client', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    await resetKeyCooldowns();
     (axios as any).isAxiosError = vi.fn((err) => !!err?.isAxios);
   });
 

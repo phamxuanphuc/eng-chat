@@ -7,6 +7,7 @@ import {
 } from '../types';
 import { buildSystemInstruction, buildUserPrompt } from './prompt';
 import { callOpenAiApi } from './openai';
+import { classifyKeyFailure, clearKeyCooldown, markKeyCooldown, orderKeysByAvailability } from './key-cooldown';
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
@@ -166,7 +167,9 @@ export const executeOptimize = async (
         prompt: userPrompt,
       });
     } else {
-      const candidateKeys = extractCandidateKeys(settings);
+      const rotate = settings.autoRotateKeys !== false;
+      const configuredKeys = extractCandidateKeys(settings);
+      const candidateKeys = rotate ? await orderKeysByAvailability(configuredKeys) : configuredKeys;
       if (candidateKeys.length === 0) {
         throw new Error('API key is not configured. Open Settings to add a Gemini API key.');
       }
@@ -187,6 +190,7 @@ export const executeOptimize = async (
             prompt: userPrompt,
           });
           lastError = null;
+          if (rotate) await clearKeyCooldown(currentKey);
           break;
         } catch (err: any) {
           lastError = err;
@@ -198,15 +202,10 @@ export const executeOptimize = async (
             continue;
           }
 
-          const isQuotaOrAuth =
-            msg.includes('quota') ||
-            msg.includes('invalid') ||
-            msg.includes('429') ||
-            msg.includes('401') ||
-            msg.includes('403');
-
-          if (settings.autoRotateKeys !== false && isQuotaOrAuth && i < candidateKeys.length - 1) {
-            continue;
+          const failure = classifyKeyFailure(msg);
+          if (rotate && failure) {
+            await markKeyCooldown(currentKey, failure);
+            if (i < candidateKeys.length - 1) continue;
           }
           throw err;
         }
