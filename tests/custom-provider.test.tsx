@@ -58,9 +58,7 @@ describe('CustomProviderManager Component', () => {
     expect(onUpdateModel).toHaveBeenCalledWith('deepseek-chat');
   });
 
-  it('TC-CPM-03: Clicking save button triggers onSave callback', () => {
-    const onSave = vi.fn();
-
+  it('TC-CPM-03: Leaves saving to the shared settings bar', () => {
     renderWithQuery(
       <CustomProviderManager
         baseUrl="https://api.openai.com/v1"
@@ -69,12 +67,10 @@ describe('CustomProviderManager Component', () => {
         onUpdateApiKey={vi.fn()}
         model="gpt-4o-mini"
         onUpdateModel={vi.fn()}
-        onSave={onSave}
+        onSave={vi.fn()}
       />
     );
 
-    const saveBtn = screen.getByRole('button', { name: /save configuration/i });
-    fireEvent.click(saveBtn);
-    expect(onSave).toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: /save/i })).toBeNull();
   });
 });

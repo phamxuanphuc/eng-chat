@@ -1,11 +1,10 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useOptions } from './OptionsContext';
 import { Button } from '../components/ui/Button';
-import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
 import { Logo } from '../components/ui/Logo';
-import { Check, Save, MessageSquare, Palette, Cpu, EyeOff, ArrowUpRight } from 'lucide-react';
+import { AlertCircle, Check, CircleDot, Save, MessageSquare, Palette, Cpu, EyeOff } from 'lucide-react';
 import { getTranslator } from '../i18n';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageToggle } from './LanguageToggle';
@@ -18,12 +17,23 @@ const NAV_ITEMS = [
 ];
 
 export const OptionsLayout: React.FC = () => {
-  const { language, setLanguage, saveSuccess, saveError, handleSave } = useOptions();
+  const { language, setLanguage, isReady, isDirty, saveSuccess, saveError, handleSave } = useOptions();
   const t = getTranslator(language);
+  const { pathname } = useLocation();
+  const showSaveBar = pathname !== '/sites' || isDirty;
+  const status = saveError
+    ? { Icon: AlertCircle, tone: 'text-rose-400', text: t('options.saveFailed') }
+    : saveSuccess
+    ? { Icon: Check, tone: 'text-emerald-400', text: t('options.savedBrowser', { settings: t('app.settings') }) }
+    : isDirty
+    ? { Icon: CircleDot, tone: 'text-amber-400', text: t('options.unsaved') }
+    : isReady
+    ? { Icon: Check, tone: 'text-slate-400', text: t('options.allSaved') }
+    : null;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-16">
-      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 shadow-lg shadow-black/20 backdrop-blur-xl">
+    <div className="flex min-h-[100dvh] flex-col bg-slate-950 text-slate-100 font-sans">
+      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-5 py-3.5 sm:px-8">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <Logo size={38} />
@@ -36,7 +46,7 @@ export const OptionsLayout: React.FC = () => {
             </div>
           </div>
 
-          <nav aria-label={t('app.settings')} className="order-3 flex w-full items-center gap-1 overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/70 p-1 text-xs md:order-2 md:w-auto">
+          <nav aria-label={t('app.settings')} className="order-3 flex w-full items-center gap-1 overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/70 p-1 text-xs [scrollbar-width:none] md:order-2 md:w-auto">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               return (
@@ -45,7 +55,7 @@ export const OptionsLayout: React.FC = () => {
                   to={item.path}
                   end={item.path === '/'}
                   className={({ isActive }) =>
-                    `flex min-w-max flex-1 items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 transition-all ${
+                    `flex min-w-max flex-1 items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 transition-colors ${
                       isActive
                         ? 'bg-indigo-500/15 font-semibold text-indigo-200 ring-1 ring-indigo-400/30'
                         : 'text-slate-400 hover:bg-slate-800/70 hover:text-slate-200'
@@ -62,35 +72,33 @@ export const OptionsLayout: React.FC = () => {
           <div className="order-2 flex shrink-0 items-center justify-end gap-2 md:order-3">
             <LanguageToggle language={language} onChange={setLanguage} />
             <ThemeToggle language={language} />
-            {saveSuccess && (
-              <Badge variant="success" size="sm" icon={<Check size={12} />}>
-                {t('options.saved')}
-              </Badge>
-            )}
           </div>
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-5xl flex-col gap-6 px-5 py-8 sm:px-8 sm:py-10">
-        {saveSuccess && (
-          <Alert variant="success" message={t('options.savedBrowser', { settings: t('app.settings') })} />
-        )}
-        {saveError && <Alert variant="error" message={t('options.saveFailed')} />}
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-5 pb-6 pt-8 sm:px-8 sm:pt-10">
         <Outlet />
-        <div className="sticky bottom-4 z-30 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-indigo-400/20 bg-slate-900/95 p-4 shadow-xl shadow-slate-950/50 backdrop-blur-xl sm:px-5">
-          <div className="flex min-w-0 items-center gap-3 text-xs text-slate-400">
-            <div className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-300 ring-1 ring-indigo-400/20 sm:flex">
-              <ArrowUpRight size={16} />
+        {showSaveBar && (
+          <div className="sticky bottom-4 z-30 mt-auto flex items-center justify-between gap-4 rounded-2xl border border-slate-700/70 bg-slate-900/95 p-3 pl-4 shadow-xl shadow-slate-950/50 backdrop-blur-xl sm:px-5">
+            <div role="status" aria-live="polite" className="flex min-w-0 items-center gap-2 text-xs text-slate-300">
+              {status && (
+                <>
+                  <status.Icon size={15} className={`shrink-0 ${status.tone}`} />
+                  <span className="min-w-0">{status.text}</span>
+                </>
+              )}
             </div>
-            <div className="flex min-w-0 flex-col">
-              <span className="font-semibold text-slate-200">{t('options.finish')}</span>
-              <span className="truncate">{t('options.saveHint')}</span>
-            </div>
+            <Button
+              variant={isDirty ? 'primary' : 'secondary'}
+              size="md"
+              className="shrink-0 whitespace-nowrap"
+              icon={saveSuccess ? <Check size={16} /> : <Save size={16} />}
+              onClick={handleSave}
+            >
+              {saveSuccess ? t('options.saved') : t('options.saveSettings')}
+            </Button>
           </div>
-          <Button variant="primary" size="md" icon={saveSuccess ? <Check size={16} /> : <Save size={16} />} onClick={handleSave}>
-            {saveSuccess ? t('options.saved') : t('options.saveSettings')}
-          </Button>
-        </div>
+        )}
       </main>
     </div>
   );

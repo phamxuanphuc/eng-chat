@@ -10,7 +10,7 @@ import { Badge } from '../components/ui/Badge';
 import { callGeminiApi } from '../services/gemini';
 import { KeyCooldownBadge } from './KeyCooldownBadge';
 import { useKeyCooldowns } from './useKeyCooldowns';
-import { KeyRound, Sparkles, Plus, Trash2, Star, ExternalLink, Save } from 'lucide-react';
+import { KeyRound, Sparkles, Plus, Trash2, Star, ExternalLink } from 'lucide-react';
 
 interface ApiKeyManagerProps {
   language: Language;
@@ -36,14 +36,17 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
   const t = getTranslator(language);
 
   const primaryKey = apiKeys[0]?.key || '';
+  const keyCount = apiKeys.filter((item) => item.key.trim()).length;
   const cooldowns = useKeyCooldowns(autoRotate ? apiKeys.map((k) => k.key).filter(Boolean) : []);
 
   const handlePrimaryChange = (val: string) => {
     const trimmed = val.trim();
     if (apiKeys.length === 0) {
       if (trimmed) {
-        onUpdateKeys([{ id: 'key-1', label: 'Primary key', key: trimmed }]);
+        onUpdateKeys([{ id: 'key-1', label: t('api.primaryDefaultName'), key: trimmed }]);
       }
+    } else if (!trimmed && apiKeys.length === 1) {
+      onUpdateKeys([]);
     } else {
       const updated = [...apiKeys];
       updated[0] = { ...updated[0], key: trimmed };
@@ -56,7 +59,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
     if (!trimmed) return;
     const newItem: ApiKeyItem = {
       id: `key-${Date.now()}`,
-      label: newLabel.trim() || `Backup key ${apiKeys.length}`,
+      label: newLabel.trim() || t('api.backupDefaultName', { index: apiKeys.length }),
       key: trimmed,
     };
     onUpdateKeys([...apiKeys, newItem]);
@@ -91,13 +94,13 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
   });
 
   return (
-    <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+    <section className="flex flex-col gap-4 border-t border-slate-800/80 pt-6">
+      <div className="flex items-center justify-between gap-3">
         <h3 className="flex items-center gap-2 text-base font-semibold text-slate-100">
           <KeyRound size={16} className="text-indigo-400" /> {t('api.googleKeyManagement')}
         </h3>
-        <Badge variant={apiKeys.length > 0 ? 'success' : 'warning'} size="sm">
-          {apiKeys.length} {t('api.keys')}
+        <Badge variant={keyCount > 0 ? 'success' : 'warning'} size="sm">
+          {keyCount === 1 ? t('api.keyCountOne') : t('api.keyCount', { count: keyCount })}
         </Badge>
       </div>
 
@@ -114,7 +117,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
         </div>
       )}
 
-      <div className="flex items-center justify-between text-xs px-0.5 text-slate-400">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs px-0.5 text-slate-400">
         <span>{t('api.noToken')}</span>
         <a
           href="https://aistudio.google.com/app/apikey"
@@ -133,7 +136,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
           {apiKeys.map((item, idx) => (
             <div
               key={item.id}
-              className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-800/80"
+              className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80"
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <Badge variant={idx === 0 ? 'success' : 'secondary'} size="sm">
@@ -181,14 +184,14 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <Input
             label={t('api.keyName')}
-            placeholder="e.g. Backup 1, Personal..."
+            placeholder={t('api.keyNamePlaceholder')}
             value={newLabel}
             onChange={(e) => setNewLabel(e.target.value)}
           />
           <Input
             label={t('api.backupKey')}
             type="password"
-            placeholder="Enter a backup key..."
+            placeholder={t('api.backupKeyPlaceholder')}
             value={newKey}
             onChange={(e) => setNewKey(e.target.value)}
           />
@@ -213,7 +216,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
         onChange={onToggleAutoRotate}
       />
 
-      <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
+      <div className="flex items-center gap-3 pt-2 border-t border-slate-800">
         <Button
           variant="secondary"
           size="sm"
@@ -224,17 +227,6 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
         >
           {t('api.testConnection')}
         </Button>
-        {onSave && (
-          <Button
-            variant="primary"
-            size="sm"
-            icon={<Save size={14} />}
-            disabled={!primaryKey && !newKey.trim()}
-            onClick={onSave}
-          >
-            {t('api.saveKeys')}
-          </Button>
-        )}
       </div>
       {testMutation.isSuccess && (
         <Alert variant="success" message={t('api.connectionSuccess')} />
@@ -243,6 +235,6 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
       {testMutation.isError && (
         <Alert variant="error" message={t('api.connectionFailed')} description={testMutation.error?.message} />
       )}
-    </div>
+    </section>
   );
 };

@@ -30,6 +30,8 @@ export interface OptionsContextValue {
   setMaxContext: (n: number | ((prev: number) => number)) => void;
   targetLanguages: TargetLanguages;
   setTargetLanguage: (mode: PopupMode, language: string) => void;
+  isReady: boolean;
+  isDirty: boolean;
   saveSuccess: boolean;
   saveError: boolean;
   handleSave: () => Promise<void>;
@@ -40,7 +42,7 @@ const OptionsContext = createContext<OptionsContextValue | null>(null);
 export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { settings, hasLoaded, fetchSettings, updateSettings } = useSettingsStore();
 
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>('en');
   const [provider, setProvider] = useState<LLMProvider>('gemini');
   const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([]);
   const [autoRotate, setAutoRotate] = useState(true);
@@ -56,15 +58,42 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [targetsLoaded, setTargetsLoaded] = useState(false);
+  const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null);
+
+  const draft = {
+    llmProvider: provider,
+    geminiApiKey: apiKeys[0]?.key || '',
+    apiKeys,
+    autoRotateKeys: autoRotate,
+    selectedModel: model,
+    customBaseUrl,
+    customApiKey,
+    customModel,
+    defaultTone: tone,
+    tonePrompts,
+    enableChatContext: chatContext,
+    maxContextMessages: Number(maxContext) || 4,
+  };
+  const snapshot = JSON.stringify({ ...draft, targetLanguages });
+  const isDirty = savedSnapshot !== null && snapshot !== savedSnapshot;
+
+  const setLanguage = (next: Language) => {
+    setLanguageState(next);
+    void updateSettings({ language: next });
+  };
 
   useEffect(() => {
     fetchSettings();
-    void loadTargetLanguages().then(setTargetLanguages);
+    void loadTargetLanguages().then((loaded) => {
+      setTargetLanguages(loaded);
+      setTargetsLoaded(true);
+    });
   }, [fetchSettings]);
 
   useEffect(() => {
     if (hasLoaded && !isInitialized) {
-      setLanguage(settings.language || 'en');
+      setLanguageState(settings.language || 'en');
       setProvider(settings.llmProvider || 'gemini');
       const keys = settings.apiKeys && settings.apiKeys.length > 0
         ? settings.apiKeys
@@ -85,25 +114,27 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [settings, hasLoaded, isInitialized]);
 
+  useEffect(() => {
+    if (isInitialized && targetsLoaded && savedSnapshot === null) setSavedSnapshot(snapshot);
+  }, [isInitialized, targetsLoaded, savedSnapshot, snapshot]);
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener('beforeunload', warnBeforeLeaving);
+    return () => window.removeEventListener('beforeunload', warnBeforeLeaving);
+  }, [isDirty]);
+
   const handleSave = async () => {
     await saveTargetLanguages(targetLanguages);
-    const saved = await updateSettings({
-      language,
-      llmProvider: provider,
-      geminiApiKey: apiKeys[0]?.key || '',
-      apiKeys,
-      autoRotateKeys: autoRotate,
-      selectedModel: model,
-      customBaseUrl,
-      customApiKey,
-      customModel,
-      defaultTone: tone,
-      tonePrompts,
-      enableChatContext: chatContext,
-      maxContextMessages: Number(maxContext) || 4,
-    });
+    const saved = await updateSettings({ language, ...draft });
     setSaveError(!saved);
     if (!saved) return;
+    setSavedSnapshot(snapshot);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
   };
@@ -126,7 +157,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
         maxContext, setMaxContext,
         targetLanguages,
         setTargetLanguage: (mode, value) => setTargetLanguages((current) => ({ ...current, [mode]: value })),
-        saveSuccess, saveError, handleSave,
+        isReady: savedSnapshot !== null, isDirty, saveSuccess, saveError, handleSave,
       }}
     >
       {children}

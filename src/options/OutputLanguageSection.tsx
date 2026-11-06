@@ -5,7 +5,7 @@ import { Select } from '../components/ui/Select';
 import { Badge } from '../components/ui/Badge';
 import { getTranslator, TranslationKey } from '../i18n';
 import { PopupMode } from '../content/target-languages';
-import { POPUP_LANGUAGES } from '../content/ui/popup-theme';
+import { getLanguageLabel, POPUP_LANGUAGES } from '../content/ui/popup-theme';
 
 const MODES: Array<{ mode: PopupMode; labelKey: TranslationKey; Icon: LucideIcon }> = [
   { mode: 'improve', labelKey: 'outputLanguage.improve', Icon: Wand2 },
@@ -14,11 +14,10 @@ const MODES: Array<{ mode: PopupMode; labelKey: TranslationKey; Icon: LucideIcon
   { mode: 'translate', labelKey: 'outputLanguage.translate', Icon: Languages },
 ];
 
-const LANGUAGE_OPTIONS = POPUP_LANGUAGES.map((lang) => ({ value: lang, label: lang }));
-
 export const OutputLanguageSection: React.FC = () => {
   const { language, targetLanguages, setTargetLanguage } = useOptions();
   const t = getTranslator(language);
+  const languageOptions = POPUP_LANGUAGES.map((lang) => ({ value: lang, label: getLanguageLabel(t, lang) }));
 
   return (
     <section className="border-t border-slate-800/80 pt-6 first:border-t-0 first:pt-0">
@@ -50,7 +49,7 @@ export const OutputLanguageSection: React.FC = () => {
                 aria-label={t(labelKey)}
                 value={targetLanguages[mode]}
                 onChange={(event) => setTargetLanguage(mode, event.target.value)}
-                options={LANGUAGE_OPTIONS}
+                options={languageOptions}
                 className="w-full !rounded-xl !py-2 text-xs"
               />
             </div>

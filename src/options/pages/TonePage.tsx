@@ -29,17 +29,16 @@ export const TonePage: React.FC = () => {
             aside={<Badge variant="primary" size="sm">{selectedToneLabel}</Badge>}
           />
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {TONES_LIST.map((item, index) => (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:[&>*:last-child:nth-child(odd)]:col-span-2">
+            {TONES_LIST.map((item) => (
               <ToneCard
                 key={item.id}
                 tone={item.id}
                 title={t(`tone.${item.id === 'translate_explain' ? 'translate' : item.id}Title` as Parameters<typeof t>[0])}
                 description={t(`tone.${item.id === 'translate_explain' ? 'translate' : item.id}Description` as Parameters<typeof t>[0])}
-                icon={item.icon}
+                icon={<item.Icon size={18} />}
                 selected={tone === item.id}
                 onClick={setTone}
-                index={index + 1}
               />
             ))}
           </div>

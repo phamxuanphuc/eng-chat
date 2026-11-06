@@ -7,7 +7,7 @@ import { Input } from '../components/ui/Input';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
 import { callOpenAiApi } from '../services/openai';
-import { Server, Sparkles, Save } from 'lucide-react';
+import { Lightbulb, Server, Sparkles } from 'lucide-react';
 
 interface CustomProviderManagerProps {
   language?: Language;
@@ -67,23 +67,24 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
       <Input
         label={t('custom.apiKey')}
         type="password"
-        placeholder="sk-... (leave blank for local Ollama/LM Studio)"
+        placeholder={t('custom.apiKeyPlaceholder')}
         value={apiKey}
         onChange={(e) => onUpdateApiKey(e.target.value)}
       />
 
       <Input
         label={t('custom.modelName')}
-        placeholder="e.g. gpt-4o-mini, deepseek-chat, llama3.2..."
+        placeholder={t('custom.modelPlaceholder')}
         value={model}
         onChange={(e) => onUpdateModel(e.target.value)}
       />
 
-      <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs text-slate-400 leading-relaxed">
-        💡 {t('custom.help')}
+      <div className="flex items-start gap-2 rounded-xl border border-slate-800/80 bg-slate-950/60 p-3 text-xs leading-relaxed text-slate-400">
+        <Lightbulb size={14} className="mt-0.5 shrink-0 text-indigo-400" />
+        <span>{t('custom.help')}</span>
       </div>
 
-      <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-800">
+      <div className="flex items-center gap-3 pt-2 border-t border-slate-800">
         <Button
           variant="secondary"
           size="sm"
@@ -94,17 +95,6 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
         >
           {t('api.testConnection')}
         </Button>
-        {onSave && (
-          <Button
-            variant="primary"
-            size="sm"
-            icon={<Save size={14} />}
-            disabled={!model.trim()}
-            onClick={onSave}
-          >
-            {t('custom.save')}
-          </Button>
-        )}
       </div>
 
       {testMutation.isSuccess && (

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useOptions } from '../OptionsContext';
 import { Switch } from '../../components/ui/Switch';
 import { Input } from '../../components/ui/Input';
-import { Button } from '../../components/ui/Button';
+import { Chip } from '../../components/ui/Chip';
 import { Badge } from '../../components/ui/Badge';
 import { MessageSquare } from 'lucide-react';
 import { getTranslator } from '../../i18n';
@@ -13,6 +13,16 @@ const QUICK_COUNTS = [2, 4, 6, 8];
 export const ContextPage: React.FC = () => {
   const { language, chatContext, setChatContext, maxContext, setMaxContext } = useOptions();
   const t = getTranslator(language);
+  const [maxDraft, setMaxDraft] = useState(String(maxContext));
+
+  useEffect(() => { setMaxDraft(String(maxContext)); }, [maxContext]);
+
+  const commitMax = (value: string) => {
+    const parsed = Number(value);
+    const next = value.trim() && Number.isFinite(parsed) ? Math.max(1, Math.min(10, Math.round(parsed))) : maxContext;
+    setMaxContext(next);
+    setMaxDraft(String(next));
+  };
 
   return (
     <div className="flex flex-col gap-6 animate-fadeIn">
@@ -35,28 +45,28 @@ export const ContextPage: React.FC = () => {
 
       {chatContext && (
         <div className="flex flex-col gap-4 border-t border-slate-800/80 pt-6">
-          <Input
-            label={t('context.max')}
-            type="number"
-            min={1}
-            max={10}
-            value={maxContext}
-            onChange={(e) => setMaxContext(Math.max(1, Math.min(10, Number(e.target.value))))}
-          />
+          <div className="max-w-[260px]">
+            <Input
+              label={t('context.max')}
+              type="number"
+              min={1}
+              max={10}
+              value={maxDraft}
+              onChange={(e) => {
+                setMaxDraft(e.target.value);
+                const parsed = Number(e.target.value);
+                if (e.target.value.trim() && parsed >= 1 && parsed <= 10) setMaxContext(Math.round(parsed));
+              }}
+              onBlur={(e) => commitMax(e.target.value)}
+            />
+          </div>
 
           <div role="group" aria-label={t('context.quick')} className="flex flex-wrap items-center gap-2">
             <span className="text-xs text-slate-400">{t('context.quick')}</span>
             {QUICK_COUNTS.map((num) => (
-              <Button
-                key={num}
-                type="button"
-                variant={maxContext === num ? 'primary' : 'secondary'}
-                size="sm"
-                aria-pressed={maxContext === num}
-                onClick={() => setMaxContext(num)}
-              >
+              <Chip key={num} selected={maxContext === num} onClick={() => setMaxContext(num)}>
                 {t('context.messages', { count: num })}
-              </Button>
+              </Chip>
             ))}
           </div>
         </div>

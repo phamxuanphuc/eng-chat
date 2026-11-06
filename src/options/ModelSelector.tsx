@@ -1,6 +1,7 @@
 import React from 'react';
 import { Badge } from '../components/ui/Badge';
-import { Check, Sparkles, Zap, Shield, Cpu } from 'lucide-react';
+import { SelectCard } from '../components/ui/SelectCard';
+import { Sparkles, Zap, Shield, Cpu } from 'lucide-react';
 import { Language } from '../types';
 import { getTranslator } from '../i18n';
 
@@ -82,47 +83,20 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
         {GEMINI_MODELS.map((m) => {
           const isSelected = selectedModel === m.id;
           return (
-            <div
-              key={m.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => onSelectModel(m.id)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onSelectModel(m.id);
-                }
-              }}
-              className={`p-3.5 rounded-xl border cursor-pointer transition-all duration-300 text-left flex flex-col justify-between gap-2.5 relative ${
-                isSelected
-                  ? 'bg-indigo-500/10 border-indigo-400/80 ring-1 ring-indigo-400/30'
-                  : 'bg-slate-950/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900/60'
-              }`}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 shrink-0">
-                    {m.icon}
-                  </div>
-                  <span className={`text-xs font-bold ${isSelected ? 'text-indigo-200' : 'text-slate-200'}`}>
-                    {m.name}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
+            <SelectCard key={m.id} selected={isSelected} className="!rounded-xl !p-3.5" onClick={() => onSelectModel(m.id)}>
+              <span className="flex flex-col gap-2.5">
+                <span className="flex flex-wrap items-center gap-2 pr-7">
+                  <span className="shrink-0 rounded-lg border border-slate-800 bg-slate-900 p-1.5">{m.icon}</span>
+                  <span className={`text-xs font-bold ${isSelected ? 'text-indigo-200' : 'text-slate-200'}`}>{m.name}</span>
                   <Badge variant={m.tagVariant} size="sm">
                     {t(modelText[m.id as keyof typeof modelText]?.[0] || 'model.standard')}
                   </Badge>
-                  {isSelected && (
-                    <div className="w-5 h-5 rounded-full bg-indigo-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-                      <Check size={12} strokeWidth={3} />
-                    </div>
-                  )}
-                </div>
-              </div>
-              <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
-                {t(modelText[m.id as keyof typeof modelText]?.[1] || 'model.standardDescription')}
-              </p>
-            </div>
+                </span>
+                <span className="line-clamp-2 text-xs leading-relaxed text-slate-400">
+                  {t(modelText[m.id as keyof typeof modelText]?.[1] || 'model.standardDescription')}
+                </span>
+              </span>
+            </SelectCard>
           );
         })}
       </div>

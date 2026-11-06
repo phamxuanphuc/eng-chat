@@ -58,7 +58,7 @@ describe('Options Multi-Page React Router', () => {
 
     const contextTab = screen.getByRole('link', { name: /context/i });
     fireEvent.click(contextTab);
-    expect(await screen.findByText('Conversation context (Chat Context)')).toBeDefined();
+    expect(await screen.findByText('Conversation context')).toBeDefined();
 
     const aiTab = screen.getByRole('link', { name: /ai provider/i });
     fireEvent.click(aiTab);
@@ -167,7 +167,7 @@ describe('Options Multi-Page React Router', () => {
     );
 
     fireEvent.click(screen.getByRole('link', { name: /context/i }));
-    expect(await screen.findByRole('heading', { level: 2, name: 'Conversation context (Chat Context)' })).toBeDefined();
+    expect(await screen.findByRole('heading', { level: 2, name: 'Conversation context' })).toBeDefined();
     expect(screen.getAllByRole('heading', { level: 2 })).toHaveLength(1);
 
     const group = screen.getByRole('group');

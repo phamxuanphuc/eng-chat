@@ -21,7 +21,7 @@ export const HiddenSitesPage: React.FC = () => {
         description={t('sites.description')}
         aside={
           <Badge variant={sites.length > 0 ? 'warning' : 'secondary'} size="sm">
-            {t('sites.count', { count: sites.length })}
+            {sites.length === 1 ? t('sites.countOne') : t('sites.count', { count: sites.length })}
           </Badge>
         }
       />
@@ -34,11 +34,11 @@ export const HiddenSitesPage: React.FC = () => {
             {sites.map((origin) => (
               <li
                 key={origin}
-                className="flex items-center justify-between gap-3 rounded-xl border border-slate-800/80 bg-slate-950/60 p-3"
+                className="flex items-center justify-between gap-3 rounded-xl border border-slate-800/80 bg-slate-950/60 p-3 pl-3.5"
               >
                 <span className="flex min-w-0 items-center gap-2.5 text-sm text-slate-200">
                   <Globe size={15} className="shrink-0 text-indigo-400" />
-                  <span className="truncate font-mono text-xs">{origin}</span>
+                  <span className="truncate text-xs">{origin}</span>
                 </span>
                 <Button
                   variant="ghost"
