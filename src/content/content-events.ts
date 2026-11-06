@@ -1,9 +1,10 @@
-import { getActiveEditableElement } from './dom-utils';
+import { getActiveEditableElement, isSensitiveField } from './dom-utils';
 
 export interface ContentEventCallbacks {
   onFocus: (rect: DOMRect, element: HTMLElement) => void;
   onSelect: (rect: DOMRect, isEditable?: boolean) => void;
   onClickOutside: () => void;
+  onSensitiveField?: () => void;
 }
 
 export const computeToolbarPos = (rect: DOMRect) => {
@@ -35,7 +36,11 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) =
     );
   };
 
+  const inSensitiveField = (target?: HTMLElement | null): boolean =>
+    isSensitiveField(target) || isSensitiveField(document.activeElement);
+
   const checkSelection = (target?: HTMLElement | null) => {
+    if (inSensitiveField(target)) return false;
     const sel = window.getSelection();
     if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
       try {
@@ -103,6 +108,10 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) =
 
   const handleFocusIn = (e: Event) => {
     const target = e.target as HTMLElement;
+    if (isSensitiveField(target)) {
+      callbacks.onSensitiveField?.();
+      return;
+    }
     if (target && isEditable(target)) {
       const rect = target.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) {

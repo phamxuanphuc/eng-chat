@@ -18,6 +18,18 @@ export const getActiveEditableElement = (): HTMLElement | null => {
   return null;
 };
 
+const PLAIN_INPUT_TYPES = new Set(['text', 'search']);
+const SENSITIVE_AUTOCOMPLETE = /(^|\s)(username|email|tel\S*|one-time-code|cc-\S+|(current|new)-password|name|given-name|family-name)(\s|$)/i;
+const SENSITIVE_NAME_HINT = /(^|[^a-z])(e-?mail|pass(word|wd)?|otp|username|user-?name|login|cvv|cvc|ssn)([^a-z]|$)/i;
+
+export const isSensitiveField = (el?: Element | null): boolean => {
+  if (!(el instanceof HTMLInputElement)) return false;
+  const type = (el.getAttribute('type') || 'text').toLowerCase();
+  if (!PLAIN_INPUT_TYPES.has(type)) return true;
+  if (SENSITIVE_AUTOCOMPLETE.test(el.getAttribute('autocomplete') || '')) return true;
+  return [el.name, el.id].some((hint) => !!hint && SENSITIVE_NAME_HINT.test(hint));
+};
+
 export const getSelectedText = (): string => {
   const selection = window.getSelection();
   if (selection && selection.toString().trim()) {

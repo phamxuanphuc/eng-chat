@@ -239,6 +239,11 @@ const cleanupDOMEvents = setupDOMEvents({
     toolbarState = { ...toolbarState, visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: !!isEditable };
     renderApp();
   },
+  onSensitiveField: () => {
+    if (!toolbarState.visible) return;
+    toolbarState = { ...toolbarState, visible: false };
+    renderApp();
+  },
   onClickOutside: () => {
     if (tooltipState.visible && !getPinnedForMode(tooltipState.mode)) {
       tooltipState = { ...tooltipState, visible: false };
