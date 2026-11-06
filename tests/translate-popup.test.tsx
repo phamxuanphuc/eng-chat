@@ -133,12 +133,17 @@ describe('TranslatePopup Component', () => {
     expect(handleRegenerate).toHaveBeenCalled();
   });
 
-  it('only shows replace in improve mode', () => {
-    const { rerender } = render(
+  it.each([
+    ['improve', true],
+    ['rewrite', true],
+    ['translate', false],
+    ['summary', false],
+  ] as const)('in %s mode shows replace: %s', (mode, expected) => {
+    render(
       <TranslatePopup
-        mode="rewrite"
+        mode={mode}
         originalText="Original content"
-        result="Rewritten content"
+        result="Result content"
         isLoading={false}
         hasEditableTarget
         onInsert={() => {}}
@@ -146,21 +151,7 @@ describe('TranslatePopup Component', () => {
       />
     );
 
-    expect(screen.queryByRole('button', { name: /replace/i })).toBeNull();
-
-    rerender(
-      <TranslatePopup
-        mode="improve"
-        originalText="Original content"
-        result="Improved content"
-        isLoading={false}
-        hasEditableTarget
-        onInsert={() => {}}
-        onClose={() => {}}
-      />
-    );
-
-    expect(screen.getByRole('button', { name: /replace/i })).toBeDefined();
+    expect(!!screen.queryByRole('button', { name: /replace/i })).toBe(expected);
   });
 
   it('uses the light-theme accent on the regenerate button hover state', () => {

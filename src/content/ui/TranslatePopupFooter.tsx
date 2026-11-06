@@ -85,7 +85,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
         />
       </form>
 
-      {hasEditableTarget && mode === 'improve' && (
+      {hasEditableTarget && (mode === 'improve' || mode === 'rewrite') && (
         <Button
           variant="primary"
           size="sm"
