@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppSettings, ToneType, OptimizeResponse, RewriteOptions } from '../types';
-import { getActiveEditableElement, getSelectedText, replaceTextInElement } from './dom-utils';
+import { getSelectedText } from './dom-utils';
+import { applyEdit, captureEditSnapshot, EditSnapshot, resolveEditTarget } from './edit-target';
 import { extractChatContext } from './chat-extractor';
 import { computeToolbarPos, setupDOMEvents } from './content-events';
 import { ContentOverlay } from './ui/ContentOverlay';
@@ -16,6 +17,7 @@ import { getTranslator } from '../i18n';
 import { initialToolbarState, initialTooltipState, loadToolbarCollapsed, saveToolbarCollapsed, ToolbarState, TooltipState } from './overlay-state';
 
 let currentEditableEl: HTMLElement | null = null;
+let editSnapshot: EditSnapshot | null = null;
 let currentTheme: 'light' | 'dark' = 'dark';
 let currentLanguage: 'en' | 'vi' = 'en';
 let currentDefaultTone: ToneType = 'professional';
@@ -87,8 +89,8 @@ const renderApp = () => {
       onFollowUp={handleFollowUp}
       onRegenerate={handleRegenerate}
       onInsertText={(text) => {
-        if (currentEditableEl) replaceTextInElement(currentEditableEl, text);
-        tooltipState = { ...tooltipState, visible: false };
+        const replaced = !!editSnapshot && applyEdit(editSnapshot, text);
+        tooltipState = replaced ? { ...tooltipState, visible: false } : { ...tooltipState, hasEditableTarget: false };
         renderApp();
       }}
       onCloseTooltip={() => { tooltipState = { ...tooltipState, visible: false }; renderApp(); }}
@@ -111,8 +113,11 @@ const handleTriggerOptimize = async (
   customText?: string,
   forcedMode?: 'translate' | 'rewrite' | 'improve' | 'summary'
 ) => {
-  const activeEl = getActiveEditableElement() || currentEditableEl;
-  currentEditableEl = activeEl;
+  if (!customText) {
+    currentEditableEl = resolveEditTarget(currentEditableEl);
+    editSnapshot = currentEditableEl ? captureEditSnapshot(currentEditableEl) : null;
+  }
+  const activeEl = editSnapshot?.element ?? null;
   const targetText = customText || getSelectedText();
 
   if (!targetText) {
@@ -154,9 +159,8 @@ const handleTriggerOptimize = async (
     toolbarState = { ...toolbarState, isLoading: false, visible: false };
 
     if (response.success && response.data) {
-      if (!isModalMode && activeEl) {
-        replaceTextInElement(activeEl, typeof response.data === 'string' ? response.data : response.data.translation);
-      } else {
+      const resultText = typeof response.data === 'string' ? response.data : response.data.translation;
+      if (isModalMode || !editSnapshot || !applyEdit(editSnapshot, resultText)) {
         tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, result: response.data, error: null, hasEditableTarget: !!activeEl };
       }
     } else {

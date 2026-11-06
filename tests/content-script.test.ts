@@ -116,4 +116,65 @@ describe('Content script request handling', () => {
     onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'translate_explain', mode: 'translate' }, {}, vi.fn());
     expect(sendMessage.mock.calls[0][0].payload.targetLanguage).toBe('Vietnamese');
   });
+
+  const replaceButton = () =>
+    document.getElementById('engchat-root-host')!.shadowRoot!.querySelector<HTMLButtonElement>('[aria-label="Replace text in input"]');
+
+  const runImprove = async () => {
+    pending.length = 0;
+    onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'improve' }, {}, vi.fn());
+    pending[0].resolve({ success: true, data: 'Better text' });
+    await flush();
+  };
+
+  it('offers no Replace for page text selected after leaving an input', async () => {
+    const input = document.createElement('input');
+    input.value = 'Draft I must keep';
+    const paragraph = document.createElement('p');
+    paragraph.textContent = 'Read-only article text';
+    document.body.append(input, paragraph);
+    input.focus();
+    input.blur();
+    const range = document.createRange();
+    range.selectNodeContents(paragraph);
+    window.getSelection()!.removeAllRanges();
+    window.getSelection()!.addRange(range);
+
+    await runImprove();
+
+    expect(replaceButton()).toBeNull();
+    expect(input.value).toBe('Draft I must keep');
+    window.getSelection()!.removeAllRanges();
+  });
+
+  it('replaces only the part of an input that was selected when the request started', async () => {
+    const input = document.createElement('input');
+    input.value = 'Keep this bad text here';
+    document.body.appendChild(input);
+    input.focus();
+    input.setSelectionRange(10, 18);
+
+    await runImprove();
+    input.setSelectionRange(0, 0);
+    replaceButton()!.click();
+    await flush();
+
+    expect(input.value).toBe('Keep this Better text here');
+  });
+
+  it('keeps the result open instead of overwriting a field edited after the request', async () => {
+    const textarea = document.createElement('textarea');
+    textarea.value = 'First version';
+    document.body.appendChild(textarea);
+    textarea.focus();
+
+    await runImprove();
+    textarea.value = 'Edited by the user';
+    replaceButton()!.click();
+    await flush();
+
+    expect(textarea.value).toBe('Edited by the user');
+    expect(replaceButton()).toBeNull();
+    expect(shadowText()).toContain('Better text');
+  });
 });
