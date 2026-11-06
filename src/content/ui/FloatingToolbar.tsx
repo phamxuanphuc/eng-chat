@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ToneType, Language } from '../../types';
 import { getTranslator } from '../../i18n';
-import { ChevronDown, ChevronUp, FileText, PenLine, Wand2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, EyeOff, FileText, PenLine, Wand2 } from 'lucide-react';
+import { Button } from '../../components/ui/Button';
+
+import type { HideScope } from '../toolbar-visibility';
+export type { HideScope };
 
 export interface FloatingToolbarProps {
   language?: Language;
@@ -15,6 +19,8 @@ export interface FloatingToolbarProps {
   onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onToggleCollapse?: () => void;
   onClose?: () => void;
+  onHide?: (scope: HideScope) => void;
+  siteLabel?: string;
 }
 
 export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
@@ -29,8 +35,21 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   onSelectTone,
   onToggleCollapse,
   onClose,
+  onHide,
+  siteLabel = '',
 }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!visible || collapsed) setMenuOpen(false);
+  }, [visible, collapsed]);
+
   if (!visible) return null;
+
+  const handleHide = (scope: HideScope) => {
+    setMenuOpen(false);
+    onHide?.(scope);
+  };
 
   const handleToneClick = (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => {
     if (mode) {
@@ -129,6 +148,20 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           </span>
         </button>
 
+        {onHide && (
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            className={`group relative p-1.5 rounded-full transition-colors cursor-pointer ${btnHover}`}
+            title={t('content.hide')}
+            aria-label={t('content.hide')}
+          >
+            <EyeOff size={15} />
+          </button>
+        )}
+
         <button
           type="button"
           onClick={onToggleCollapse}
@@ -141,6 +174,20 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           </>
         )}
       </div>
+      {menuOpen && onHide && (
+        <div
+          role="menu"
+          aria-label={t('content.hide')}
+          className="absolute left-1/2 top-full z-20 mt-2 flex -translate-x-1/2 flex-col gap-1 whitespace-nowrap rounded-xl border border-slate-700/80 bg-slate-900 p-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.45)]"
+        >
+          <Button role="menuitem" variant="ghost" size="sm" className="justify-start" onClick={() => handleHide('session')}>
+            {t('content.hideSession')}
+          </Button>
+          <Button role="menuitem" variant="ghost" size="sm" className="justify-start" onClick={() => handleHide('site')}>
+            {t('content.hideSite', { site: siteLabel })}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

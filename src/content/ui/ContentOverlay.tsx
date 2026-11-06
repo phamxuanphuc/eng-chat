@@ -1,5 +1,5 @@
 import React from 'react';
-import { FloatingToolbar } from './FloatingToolbar';
+import { FloatingToolbar, HideScope } from './FloatingToolbar';
 import { TranslatePopup } from './TranslatePopup';
 import { ToneType, RewriteOptions, Language } from '../../types';
 
@@ -28,6 +28,8 @@ export interface ContentOverlayProps {
   };
   onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onCloseToolbar: () => void;
+  onHideToolbar?: (scope: HideScope) => void;
+  siteLabel?: string;
   onToggleToolbarCollapse?: () => void;
   onLanguageChange?: (lang: string) => void;
   onModeChange?: (mode: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
@@ -47,6 +49,8 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
   tooltip,
   onSelectTone,
   onCloseToolbar,
+  onHideToolbar,
+  siteLabel,
   onToggleToolbarCollapse,
   onLanguageChange,
   onModeChange,
@@ -72,6 +76,8 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
         onSelectTone={onSelectTone}
         onToggleCollapse={onToggleToolbarCollapse}
         onClose={onCloseToolbar}
+        onHide={onHideToolbar}
+        siteLabel={siteLabel}
       />
 
       {tooltip.visible && (

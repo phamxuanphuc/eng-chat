@@ -7,6 +7,8 @@ import { ContentOverlay } from './ui/ContentOverlay';
 import { detectPageTheme, observePageTheme } from './theme-detector';
 import { getRuntimeErrorMessage, sendRuntimeMessage } from '../services/extension-messaging';
 import { loadSettings } from '../services/storage';
+import { HIDDEN_SITES_STORAGE_KEY } from '../services/hidden-sites';
+import { getSiteLabel, hideToolbar, isToolbarSuppressed, refreshSiteHidden } from './toolbar-visibility';
 import { usePresetSectionStore, PresetSection } from '../store/usePresetSectionStore';
 import { DEFAULT_TARGET_LANGUAGES, loadTargetLanguages, saveTargetLanguages, TargetLanguages } from './target-languages';
 import { ensureShadowHost } from './shadow-host';
@@ -21,6 +23,22 @@ let currentSettings: AppSettings | null = null;
 let targetLanguages: TargetLanguages = { ...DEFAULT_TARGET_LANGUAGES };
 let toolbarState: ToolbarState = { ...initialToolbarState, collapsed: loadToolbarCollapsed() };
 let tooltipState: TooltipState = { ...initialTooltipState };
+const siteLabel = getSiteLabel();
+
+const refreshHiddenSites = () => {
+  void refreshSiteHidden().then((hidden) => {
+    if (hidden && toolbarState.visible) {
+      toolbarState = { ...toolbarState, visible: false };
+      renderApp();
+    }
+  });
+};
+
+const handleHideToolbar = async (scope: 'session' | 'site') => {
+  await hideToolbar(scope);
+  toolbarState = { ...toolbarState, visible: false };
+  renderApp();
+};
 
 const getPresetSection = (mode: TooltipState['mode']): PresetSection => mode;
 const getPinnedForMode = (mode: TooltipState['mode']): boolean => usePresetSectionStore.getState().pinnedBySection[getPresetSection(mode)];
@@ -53,6 +71,8 @@ const renderApp = () => {
         handleTriggerOptimize(mode === 'translate' ? tone : mode === 'summary' ? 'summarize' : currentDefaultTone, undefined, undefined, mode);
       }}
       onCloseToolbar={() => { toolbarState = { ...toolbarState, visible: false }; renderApp(); }}
+      onHideToolbar={handleHideToolbar}
+      siteLabel={siteLabel}
       onToggleToolbarCollapse={() => {
         const collapsed = !toolbarState.collapsed;
         toolbarState = { ...toolbarState, collapsed };
@@ -200,11 +220,13 @@ const applySettings = (settings: AppSettings) => {
 
 void loadSettings().then(applySettings).catch(() => { renderApp(); });
 void loadTargetLanguages().then((languages) => { targetLanguages = languages; });
+refreshHiddenSites();
 
 if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
   chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName !== 'local') return;
     if (changes.engchat_settings?.newValue) void loadSettings().then(applySettings).catch(() => {});
+    if (changes[HIDDEN_SITES_STORAGE_KEY]) refreshHiddenSites();
     if (changes.engchat_target_languages) void loadTargetLanguages().then((l) => { targetLanguages = l; });
   });
 }
@@ -228,13 +250,13 @@ const handleRewriteOptionsChange = async (opts: RewriteOptions) => {
 const cleanupDOMEvents = setupDOMEvents({
   onFocus: (rect, element) => {
     currentEditableEl = element;
-    if (tooltipState.visible) return;
+    if (tooltipState.visible || isToolbarSuppressed()) return;
     const pos = computeToolbarPos(rect);
     toolbarState = { ...toolbarState, visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: true };
     renderApp();
   },
   onSelect: (rect, isEditable) => {
-    if (tooltipState.visible) return;
+    if (tooltipState.visible || isToolbarSuppressed()) return;
     const pos = computeToolbarPos(rect);
     toolbarState = { ...toolbarState, visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: !!isEditable };
     renderApp();

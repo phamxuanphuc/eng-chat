@@ -5,7 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
 import { Logo } from '../components/ui/Logo';
-import { Check, Save, MessageSquare, Palette, Cpu, Sparkles, ArrowUpRight } from 'lucide-react';
+import { Check, Save, MessageSquare, Palette, Cpu, EyeOff, ArrowUpRight } from 'lucide-react';
 import { getTranslator } from '../i18n';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageToggle } from './LanguageToggle';
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { path: '/', labelKey: 'options.aiProvider' as const, icon: Cpu },
   { path: '/tone', labelKey: 'options.writingStyle' as const, icon: Palette },
   { path: '/context', labelKey: 'options.context' as const, icon: MessageSquare },
+  { path: '/sites', labelKey: 'options.hiddenSites' as const, icon: EyeOff },
 ];
 
 export const OptionsLayout: React.FC = () => {
