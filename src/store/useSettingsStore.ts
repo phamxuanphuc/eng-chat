@@ -5,6 +5,7 @@ import { DEFAULT_SETTINGS, loadSettings, saveSettings } from '../services/storag
 interface SettingsState {
   settings: AppSettings;
   isLoading: boolean;
+  hasLoaded: boolean;
   error: string | null;
   fetchSettings: () => Promise<void>;
   updateSettings: (partial: Partial<AppSettings>) => Promise<boolean>;
@@ -32,13 +33,14 @@ export const useSettingsStore = create<SettingsState>((set) => {
   return {
     settings: DEFAULT_SETTINGS,
     isLoading: false,
+    hasLoaded: false,
     error: null,
 
     fetchSettings: async () => {
       set({ isLoading: true, error: null });
       try {
         const data = await loadSettings();
-        set({ settings: data, isLoading: false });
+        set({ settings: data, isLoading: false, hasLoaded: true });
       } catch {
         set({ error: 'Failed to load settings', isLoading: false });
       }

@@ -38,7 +38,7 @@ export interface OptionsContextValue {
 const OptionsContext = createContext<OptionsContextValue | null>(null);
 
 export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { settings, fetchSettings, updateSettings } = useSettingsStore();
+  const { settings, hasLoaded, fetchSettings, updateSettings } = useSettingsStore();
 
   const [language, setLanguage] = useState<Language>('en');
   const [provider, setProvider] = useState<LLMProvider>('gemini');
@@ -63,7 +63,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [fetchSettings]);
 
   useEffect(() => {
-    if (settings && !isInitialized) {
+    if (hasLoaded && !isInitialized) {
       setLanguage(settings.language || 'en');
       setProvider(settings.llmProvider || 'gemini');
       const keys = settings.apiKeys && settings.apiKeys.length > 0
@@ -83,7 +83,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setMaxContext(settings.maxContextMessages ?? 4);
       setIsInitialized(true);
     }
-  }, [settings, isInitialized]);
+  }, [settings, hasLoaded, isInitialized]);
 
   const handleSave = async () => {
     await saveTargetLanguages(targetLanguages);

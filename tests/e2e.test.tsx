@@ -41,7 +41,7 @@ describe('E2E User Flow Tests', () => {
     };
 
     (axios as any).isAxiosError = vi.fn((err) => !!err?.isAxios);
-    useSettingsStore.setState({ settings: { ...DEFAULT_SETTINGS } });
+    useSettingsStore.setState({ settings: { ...DEFAULT_SETTINGS }, hasLoaded: false });
   });
 
   it('E2E-01: User configures and saves API Key, Model, and Context limit in Options', async () => {
@@ -52,6 +52,7 @@ describe('E2E User Flow Tests', () => {
       </QueryClientProvider>
     );
 
+    await waitFor(() => expect(useSettingsStore.getState().hasLoaded).toBe(true));
     const apiKeyInput = screen.getByPlaceholderText('AIzaSy...') as HTMLInputElement;
     fireEvent.change(apiKeyInput, { target: { value: 'AIzaSy-e2e-live-key' } });
 
