@@ -269,5 +269,6 @@
   "rewrite.option.Optimistic": "Optimistic",
   "rewrite.option.Empathetic": "Empathetic",
   "rewrite.option.Candid": "Candid",
-  "rewrite.option.Sincere": "Sincere"
+  "rewrite.option.Sincere": "Sincere",
+  "content.sensitiveField": "LingoFlow does not read passwords, email addresses, or other sensitive fields."
 }

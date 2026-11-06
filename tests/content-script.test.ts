@@ -177,4 +177,53 @@ describe('Content script request handling', () => {
     expect(replaceButton()).toBeNull();
     expect(shadowText()).toContain('Better text');
   });
+
+  it.each([
+    [{ type: 'password' }],
+    [{ type: 'email' }],
+    [{ type: 'text', autocomplete: 'one-time-code' }],
+    [{ type: 'text', name: 'login' }],
+  ])('never sends the value of a sensitive field %o', async (attrs) => {
+    const field = document.createElement('input');
+    Object.entries(attrs).forEach(([key, value]) => field.setAttribute(key, value));
+    field.value = 'secret-value-3917';
+    document.body.appendChild(field);
+    field.focus();
+    field.select();
+
+    const sendMessage = (globalThis as any).chrome.runtime.sendMessage;
+    sendMessage.mockClear();
+    onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'improve' }, {}, vi.fn());
+    await flush();
+
+    expect(sendMessage).not.toHaveBeenCalled();
+    expect(shadowText()).toContain('does not read passwords');
+    expect(shadowText()).not.toContain('secret-value-3917');
+    field.blur();
+  });
+
+  it('shows a plain notice on a blocked request and works again in a normal field', async () => {
+    const secret = document.createElement('input');
+    secret.type = 'password';
+    secret.value = 'secret-value-3917';
+    document.body.appendChild(secret);
+    secret.focus();
+    onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'improve' }, {}, vi.fn());
+    await flush();
+    const root = document.getElementById('engchat-root-host')!.shadowRoot!;
+    const labels = Array.from(root.querySelectorAll('button')).map((b) => b.textContent?.trim());
+    expect(labels).not.toContain('Try again');
+    expect(root.querySelector('input[aria-label]')).toBeNull();
+    expect(root.textContent).not.toContain('Action failed');
+
+    const textarea = document.createElement('textarea');
+    textarea.value = 'A normal message';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    const sendMessage = (globalThis as any).chrome.runtime.sendMessage;
+    sendMessage.mockClear();
+    onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'improve' }, {}, vi.fn());
+
+    expect(sendMessage.mock.calls[0][0].payload.text).toBe('A normal message');
+  });
 });

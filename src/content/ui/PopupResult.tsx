@@ -30,17 +30,19 @@ export interface PopupResultProps {
   explanation?: TranslateExplainResult['explanation'] | null;
   isLoading: boolean;
   error?: string | null;
+  isNotice?: boolean;
   onRetry?: () => void;
 }
 
-export const PopupResult: React.FC<PopupResultProps> = ({ language, mode, text, explanation, isLoading, error, onRetry }) => {
+export const PopupResult: React.FC<PopupResultProps> = ({ language, mode, text, explanation, isLoading, error, isNotice = false, onRetry }) => {
   const [showExplanation, setShowExplanation] = useState(false);
   const t = getTranslator(language);
 
   return (
     <div aria-live="polite" aria-busy={isLoading} className="flex flex-col gap-2 px-0.5">
       {isLoading && <Loader size="sm" text={t(LOADING_KEYS[mode])} className="py-6" />}
-      {error && !isLoading && (
+      {error && !isLoading && isNotice && <Alert variant="info" message={error} />}
+      {error && !isLoading && !isNotice && (
         <Alert
           variant="error"
           message={t('common.actionFailed')}

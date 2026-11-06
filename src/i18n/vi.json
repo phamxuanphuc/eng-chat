@@ -269,5 +269,6 @@
   "rewrite.option.Optimistic": "Lạc quan",
   "rewrite.option.Empathetic": "Đồng cảm",
   "rewrite.option.Candid": "Thẳng thắn",
-  "rewrite.option.Sincere": "Chân thành"
+  "rewrite.option.Sincere": "Chân thành",
+  "content.sensitiveField": "LingoFlow không đọc mật khẩu, địa chỉ email và các ô nhạy cảm khác."
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppSettings, ToneType, OptimizeResponse, RewriteOptions } from '../types';
-import { getSelectedText } from './dom-utils';
+import { getSelectedText, isSensitiveField } from './dom-utils';
 import { applyEdit, captureEditSnapshot, EditSnapshot, resolveEditTarget } from './edit-target';
 import { extractChatContext } from './chat-extractor';
 import { computeToolbarPos, setupDOMEvents } from './content-events';
@@ -107,6 +107,14 @@ const handleTranslateVi = async (text: string): Promise<string> => {
   return response.success && response.data ? (typeof response.data === 'string' ? response.data : response.data.translation) : '';
 };
 
+const showNotice = (message: string) => {
+  latestRequestId += 1;
+  editSnapshot = null;
+  toolbarState = { ...toolbarState, visible: false, isLoading: false };
+  tooltipState = { ...tooltipState, visible: true, isLoading: false, error: message, result: null, originalText: '', hasEditableTarget: false };
+  renderApp();
+};
+
 const handleTriggerOptimize = async (
   tone: ToneType,
   settings?: AppSettings,
@@ -114,6 +122,10 @@ const handleTriggerOptimize = async (
   forcedMode?: 'translate' | 'rewrite' | 'improve' | 'summary'
 ) => {
   if (!customText) {
+    if (isSensitiveField(document.activeElement)) {
+      showNotice(translator()('content.sensitiveField'));
+      return;
+    }
     currentEditableEl = resolveEditTarget(currentEditableEl);
     editSnapshot = currentEditableEl ? captureEditSnapshot(currentEditableEl) : null;
   }
@@ -121,9 +133,7 @@ const handleTriggerOptimize = async (
   const targetText = customText || getSelectedText();
 
   if (!targetText) {
-    toolbarState = { ...toolbarState, visible: false };
-    tooltipState = { ...tooltipState, visible: true, isLoading: false, error: translator()('content.selectText'), result: null, hasEditableTarget: !!activeEl };
-    renderApp();
+    showNotice(translator()('content.selectText'));
     return;
   }
 

@@ -51,6 +51,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   const t = getTranslator(language);
   const currentLang = targetLanguage || DEFAULT_TARGET_LANGUAGES[mode];
   const isRewriteMode = mode === 'rewrite' || mode === 'improve';
+  const isNotice = !originalText && !!error;
 
   const isExplain = result && typeof result === 'object' && 'translation' in result;
   const translationText = isExplain ? (result as TranslateExplainResult).translation : (result as string) || '';
@@ -91,7 +92,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           </div>
         )}
 
-        {mode === 'translate' && (
+        {mode === 'translate' && !isNotice && (
           <div className="px-0.5 text-xs text-slate-400">{t('content.translationDisclaimer')}</div>
         )}
 
@@ -102,6 +103,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           explanation={explanation}
           isLoading={isLoading}
           error={error}
+          isNotice={isNotice}
           onRetry={onRegenerate}
         />
 
@@ -110,7 +112,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
         )}
       </div>
 
-      <div className={`relative z-30 flex flex-col gap-1.5 px-4 pb-3 ${mode === 'translate' ? '' : 'border-t border-slate-800/80 pt-2'}`}>
+      {!isNotice && <div className={`relative z-30 flex flex-col gap-1.5 px-4 pb-3 ${mode === 'translate' ? '' : 'border-t border-slate-800/80 pt-2'}`}>
         <div className="relative flex flex-wrap items-center gap-1 text-xs select-none">
           {isRewriteMode && (
             <Button
@@ -134,7 +136,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           onRegenerate={onRegenerate} onInsert={onInsert}
           onOpenModelPicker={() => setShowModelPicker(true)}
         />
-      </div>
+      </div>}
 
       {showModelPicker && (
         <ModelPicker language={language} onClose={() => setShowModelPicker(false)} />
