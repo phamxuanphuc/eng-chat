@@ -18,7 +18,7 @@ export const Loader: React.FC<LoaderProps> = ({
   }[size];
 
   return (
-    <div className={`flex flex-col items-center justify-center gap-3 ${className}`}>
+    <div role="status" aria-live="polite" className={`flex flex-col items-center justify-center gap-3 ${className}`}>
       <div className={`relative ${sizeClasses}`}>
         <div className="absolute inset-0 rounded-full border-2 border-indigo-500/20" />
         <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-indigo-500 border-r-purple-500 animate-spin" />

@@ -27,14 +27,16 @@ export const Textarea: React.FC<TextareaProps> = ({
       <textarea
         id={textareaId}
         rows={rows}
-        className={`w-full rounded-xl bg-slate-900/90 text-slate-100 placeholder-slate-400 text-sm px-3.5 py-2.5 transition-all duration-300 border resize-none ${
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error && textareaId ? `${textareaId}-error` : undefined}
+        className={`w-full rounded-xl bg-slate-900/90 text-slate-100 placeholder-slate-400 text-sm px-3.5 py-2.5 transition-colors border resize-y ${
           error
             ? 'border-red-500/80 focus:border-red-500 focus:ring-2 focus:ring-red-500/30'
             : 'border-slate-700/80 hover:border-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 focus:shadow-lg focus:shadow-indigo-500/10'
         } outline-none ${className}`}
         {...props}
       />
-      {error && <span className="text-xs text-red-400 font-medium">{error}</span>}
+      {error && <span id={textareaId ? `${textareaId}-error` : undefined} className="text-xs text-red-400 font-medium">{error}</span>}
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App } from './App';
+import '@fontsource-variable/plus-jakarta-sans';
 import '../styles/index.css';
 import { initTheme } from '../services/theme';
 

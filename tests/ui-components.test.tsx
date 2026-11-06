@@ -109,8 +109,7 @@ describe('Uiverse Galaxy UI Components', () => {
     );
 
     expect(screen.getByText('Lịch sự & Trang trọng')).toBeDefined();
-    const card = screen.getByText('Lịch sự & Trang trọng').closest('div');
-    if (card) fireEvent.click(card);
+    fireEvent.click(screen.getByRole('button', { name: /Lịch sự & Trang trọng/ }));
     expect(handleSelect).toHaveBeenCalledWith('polite');
   });
 

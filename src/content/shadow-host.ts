@@ -22,7 +22,7 @@ export const ensureShadowHost = (): { shadowRoot: ShadowRoot; reactRoot: ReactDO
 
   const styleLink = document.createElement('style');
   styleLink.textContent = `
-    :host { all: initial; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    :host { all: initial; }
     * { box-sizing: border-box; }
     ${styles}
   `;

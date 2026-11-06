@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { getTranslator } from '../../i18n';
+import { IconButton } from './IconButton';
 
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
   error?: string;
   icon?: React.ReactNode;
+  variant?: 'default' | 'bare';
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -16,14 +18,22 @@ export const Input: React.FC<InputProps> = ({
   type = 'text',
   className = '',
   id,
+  variant = 'default',
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const language = useSettingsStore((state) => state.settings.language);
   const t = getTranslator(language);
   const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+  const errorId = error && inputId ? `${inputId}-error` : undefined;
   const isPassword = type === 'password';
   const effectiveType = isPassword ? (showPassword ? 'text' : 'password') : type;
+  const stateStyles = error
+    ? 'border-red-500/80 focus:border-red-500 focus:ring-2 focus:ring-red-500/30'
+    : 'border-slate-700/80 hover:border-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30';
+  const fieldStyles = variant === 'bare'
+    ? 'w-full border-none bg-transparent text-xs text-slate-200 placeholder-slate-400'
+    : `w-full rounded-xl border bg-slate-900/90 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-400 transition-colors ${stateStyles}`;
 
   return (
     <div className="w-full flex flex-col gap-1.5 text-left">
@@ -41,25 +51,22 @@ export const Input: React.FC<InputProps> = ({
         <input
           id={inputId}
           type={effectiveType}
-          className={`w-full rounded-xl bg-slate-900/90 text-slate-100 placeholder-slate-400 text-sm px-3.5 py-2.5 transition-all duration-300 border ${
-            error
-              ? 'border-red-500/80 focus:border-red-500 focus:ring-2 focus:ring-red-500/30'
-              : 'border-slate-700/80 hover:border-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 focus:shadow-lg focus:shadow-indigo-500/10'
-          } ${icon ? 'pl-9' : ''} ${isPassword ? 'pr-10' : ''} outline-none ${className}`}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={errorId}
+          className={`${fieldStyles} ${icon ? 'pl-9' : ''} ${isPassword ? 'pr-10' : ''} outline-none ${className}`}
           {...props}
         />
         {isPassword && (
-          <button
-            type="button"
+          <IconButton
+            label={showPassword ? t('common.hidePassword') : t('common.showPassword')}
+            className="absolute right-1.5"
             onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-3 text-slate-400 hover:text-slate-200 transition-colors p-1"
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
+          </IconButton>
         )}
       </div>
-      {error && <span className="text-xs text-red-400 font-medium">{error}</span>}
+      {error && <span id={errorId} className="text-xs text-red-400 font-medium">{error}</span>}
     </div>
   );
 };

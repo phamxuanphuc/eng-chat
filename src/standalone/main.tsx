@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StandaloneApp } from './App';
+import '@fontsource-variable/plus-jakarta-sans';
 import '../styles/index.css';
 
 if (typeof window !== 'undefined' && !(window as any).chrome?.storage) {

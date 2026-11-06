@@ -15,10 +15,11 @@ export const Button: React.FC<ButtonProps> = ({
   icon,
   className = '',
   disabled,
+  type = 'button',
   ...props
 }) => {
   const baseStyles =
-    'relative inline-flex items-center justify-center font-medium transition-all duration-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 active:scale-95 disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100 cursor-pointer';
+    'relative inline-flex items-center justify-center font-medium transition-[transform,background-color,border-color,color,filter] duration-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100 cursor-pointer';
 
   const sizeStyles = {
     sm: 'px-3 py-1.5 text-xs gap-1.5',
@@ -28,17 +29,21 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary:
-      'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-black/30 hover:brightness-110 focus:ring-indigo-500 border border-white/10',
+      'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-md shadow-slate-900/20 hover:brightness-110 focus-visible:ring-indigo-500 border border-white/10',
     secondary:
-      'bg-slate-800/80 backdrop-blur-md text-slate-200 border border-slate-700/80 hover:bg-slate-700 hover:border-slate-600 focus:ring-slate-500 hover:text-slate-50',
+      'bg-slate-800/80 text-slate-200 border border-slate-700/80 hover:bg-slate-700 hover:border-slate-600 focus-visible:ring-slate-500 hover:text-slate-50',
     ghost:
-      'bg-transparent text-slate-300 hover:bg-slate-50/10 hover:text-slate-50 focus:ring-slate-500',
+      'bg-transparent text-slate-300 hover:bg-slate-500/15 hover:text-slate-50 focus-visible:ring-slate-500',
     danger:
-      'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40 focus:ring-red-500 border border-red-500/30',
+      'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-slate-900/20 hover:brightness-110 focus-visible:ring-red-500 border border-red-500/30',
   }[variant];
+
+  const keepsDarkPalette = variant === 'primary' || variant === 'danger';
 
   return (
     <button
+      type={type}
+      data-engchat-theme={keepsDarkPalette ? 'dark' : undefined}
       className={`${baseStyles} ${sizeStyles} ${variantStyles} ${className}`}
       disabled={disabled || isLoading}
       {...props}
@@ -48,7 +53,7 @@ export const Button: React.FC<ButtonProps> = ({
       ) : (
         icon && <span className="inline-flex shrink-0">{icon}</span>
       )}
-      <span>{children}</span>
+      {children !== undefined && <span>{children}</span>}
     </button>
   );
 };
