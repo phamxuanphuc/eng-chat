@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ChevronDown, ChevronUp, EyeOff, FileText, Languages, PenLine, Wand2 } from 'lucide-react';
 import { ToneType, Language } from '../../types';
 import { getTranslator } from '../../i18n';
-import { ChevronDown, ChevronUp, EyeOff, FileText, PenLine, Wand2 } from 'lucide-react';
-import { Button } from '../../components/ui/Button';
-
+import { IconButton } from '../../components/ui/IconButton';
+import { Menu, MenuItem } from '../../components/ui/Menu';
+import { useDismiss } from '../../components/ui/useDismiss';
 import type { HideScope } from '../toolbar-visibility';
+
 export type { HideScope };
+
+const BAR_HEIGHT = 46;
+const MENU_HEIGHT = 96;
+const MENU_MAX_WIDTH = 280;
 
 export interface FloatingToolbarProps {
   language?: Language;
@@ -30,164 +36,113 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   y,
   isLoading = false,
   theme = 'dark',
-  isEditable = false,
   collapsed = false,
   onSelectTone,
   onToggleCollapse,
-  onClose,
   onHide,
   siteLabel = '',
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuAnchorRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!visible || collapsed) setMenuOpen(false);
   }, [visible, collapsed]);
 
+  useDismiss(menuAnchorRef, menuOpen, () => setMenuOpen(false));
+
   if (!visible) return null;
 
+  const t = getTranslator(language);
   const handleHide = (scope: HideScope) => {
     setMenuOpen(false);
     onHide?.(scope);
   };
 
-  const handleToneClick = (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => {
-    if (mode) {
-      onSelectTone(tone, mode);
-    } else {
-      onSelectTone(tone);
-    }
+  const handleArrowKeys = (event: React.KeyboardEvent) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    const bar = barRef.current;
+    if (!bar) return;
+    const buttons = Array.from(bar.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'));
+    const active = (bar.getRootNode() as Document | ShadowRoot).activeElement as HTMLButtonElement;
+    const step = event.key === 'ArrowRight' ? 1 : -1;
+    event.preventDefault();
+    buttons[(buttons.indexOf(active) + step + buttons.length) % buttons.length]?.focus();
   };
 
-  const t = getTranslator(language);
-  const isLight = theme === 'light';
-  const barStyle = isLight
-    ? 'bg-white border-slate-200/90 shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-slate-700 hover:border-slate-300'
-    : 'bg-slate-900 border-slate-700/80 shadow-[0_8px_30px_rgb(0,0,0,0.45)] text-slate-200 hover:border-slate-600 ring-1 ring-white/10';
-  const btnHover = isLight
-    ? 'text-slate-600 hover:text-indigo-600 hover:bg-slate-100 active:bg-slate-200'
-    : 'text-slate-300 hover:text-indigo-300 hover:bg-slate-800/80 active:bg-slate-700/60';
-  const actionIcon = isLight ? 'text-indigo-600' : 'text-indigo-400';
+  const actions = [
+    { label: t('content.improve'), Icon: Wand2, tone: 'professional', mode: 'improve' },
+    { label: t('content.translate'), Icon: Languages, tone: 'translate_explain', mode: 'translate' },
+    { label: t('content.summary'), Icon: FileText, tone: 'summarize', mode: 'summary' },
+    { label: t('content.rewrite'), Icon: PenLine, tone: 'professional', mode: 'rewrite' },
+  ] as const;
+  const opensUpward = y + BAR_HEIGHT + MENU_HEIGHT > window.innerHeight;
+  const alignsRight = x + MENU_MAX_WIDTH > window.innerWidth;
+
   return (
     <div
       role="toolbar"
       aria-label={t('app.name')}
-      className="fixed z-[2147483646] flex flex-col items-center select-none animate-in fade-in zoom-in-95 duration-200"
+      data-engchat-theme={theme}
+      className="fixed z-[2147483646] flex animate-popIn flex-col items-center select-none"
       onMouseDown={(e) => e.preventDefault()}
       onPointerDown={(e) => e.preventDefault()}
+      onKeyDown={handleArrowKeys}
       style={{ left: `${x}px`, top: `${y}px`, pointerEvents: 'auto' }}
     >
-      <div className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full border backdrop-blur-xl transition-all ${barStyle}`}>
+      <div
+        ref={barRef}
+        className="flex items-center gap-1 rounded-full border border-slate-700/80 bg-slate-900 px-2 py-1.5 text-slate-200 shadow-[0_8px_30px_rgb(2_6_23/0.35)] ring-1 ring-white/10 transition-colors hover:border-slate-600"
+      >
         {collapsed ? (
-          <button
-            type="button"
-            onClick={onToggleCollapse}
-            className={`group relative p-1.5 rounded-full transition-colors cursor-pointer ${btnHover}`}
-            title={t('content.expand')}
-            aria-label={t('content.expand')}
-          >
+          <IconButton size="md" label={t('content.expand')} className="!rounded-full" onClick={onToggleCollapse}>
             <ChevronUp size={15} />
-          </button>
+          </IconButton>
         ) : (
           <>
-        <button
-          type="button"
-          disabled={isLoading}
-          onClick={() => handleToneClick('professional', 'improve')}
-          className={`group relative p-1.5 rounded-full transition-colors disabled:opacity-50 cursor-pointer ${btnHover}`}
-          title={t('content.improve')}
-          aria-label={t('content.improve')}
-        >
-          <Wand2 size={15} className={`${actionIcon} hover:scale-110 transition-transform`} />
-          <span role="tooltip" className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-950 px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-            {t('content.improve')}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          disabled={isLoading}
-          onClick={() => handleToneClick('translate_explain', 'translate')}
-          className={`group relative p-1.5 rounded-full transition-colors disabled:opacity-50 cursor-pointer ${btnHover}`}
-          title={t('content.translate')}
-          aria-label={t('content.translate')}
-        >
-          <span className={`flex items-center justify-center w-5 h-5 rounded bg-indigo-500/20 ${actionIcon} font-bold text-[11px]`}>
-            文A
-          </span>
-          <span role="tooltip" className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-950 px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-            {t('content.translate')}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          disabled={isLoading}
-          onClick={() => handleToneClick('summarize', 'summary')}
-          className={`group relative p-1.5 rounded-full transition-colors disabled:opacity-50 cursor-pointer ${btnHover}`}
-          title={t('content.summary')}
-          aria-label={t('content.summary')}
-        >
-          <FileText size={15} className={actionIcon} />
-          <span role="tooltip" className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-950 px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-            {t('content.summary')}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          disabled={isLoading}
-          onClick={() => handleToneClick('professional', 'rewrite')}
-          className={`group relative p-1.5 rounded-full transition-colors disabled:opacity-50 cursor-pointer ${btnHover}`}
-          title={t('content.rewrite')}
-          aria-label={t('content.rewrite')}
-        >
-          <PenLine size={15} className={actionIcon} />
-          <span role="tooltip" className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-950 px-2 py-1 text-[10px] font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-            {t('content.rewrite')}
-          </span>
-        </button>
-
-        {onHide && (
-          <button
-            type="button"
-            onClick={() => setMenuOpen((open) => !open)}
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
-            className={`group relative p-1.5 rounded-full transition-colors cursor-pointer ${btnHover}`}
-            title={t('content.hide')}
-            aria-label={t('content.hide')}
-          >
-            <EyeOff size={15} />
-          </button>
-        )}
-
-        <button
-          type="button"
-          onClick={onToggleCollapse}
-          className={`group relative p-1.5 rounded-full transition-colors cursor-pointer ${btnHover}`}
-          title={t('content.collapse')}
-          aria-label={t('content.collapse')}
-        >
-          <ChevronDown size={15} />
-        </button>
+            {actions.map(({ label, Icon, tone, mode }) => (
+              <IconButton
+                key={mode}
+                size="md"
+                tooltip
+                label={label}
+                disabled={isLoading}
+                className="!rounded-full"
+                onClick={() => onSelectTone(tone, mode)}
+              >
+                <Icon size={15} className="text-indigo-400" />
+              </IconButton>
+            ))}
+            {onHide && (
+              <div ref={menuAnchorRef} className="relative">
+                <IconButton
+                  size="md"
+                  label={t('content.hide')}
+                  aria-haspopup="menu"
+                  aria-expanded={menuOpen}
+                  className="!rounded-full"
+                  onClick={() => setMenuOpen((open) => !open)}
+                >
+                  <EyeOff size={15} />
+                </IconButton>
+                {menuOpen && (
+                  <Menu
+                    label={t('content.hide')}
+                    className={`w-max max-w-[min(280px,calc(100vw-16px))] ${opensUpward ? 'bottom-full mb-3' : 'top-full mt-3'} ${alignsRight ? 'right-0' : 'left-0'}`}
+                  >
+                    <MenuItem onClick={() => handleHide('session')}>{t('content.hideSession')}</MenuItem>
+                    <MenuItem onClick={() => handleHide('site')}>{t('content.hideSite', { site: siteLabel })}</MenuItem>
+                  </Menu>
+                )}
+              </div>
+            )}
+            <IconButton size="md" label={t('content.collapse')} className="!rounded-full" onClick={onToggleCollapse}>
+              <ChevronDown size={15} />
+            </IconButton>
           </>
         )}
       </div>
-      {menuOpen && onHide && (
-        <div
-          role="menu"
-          aria-label={t('content.hide')}
-          className="absolute left-1/2 top-full z-20 mt-2 flex -translate-x-1/2 flex-col gap-1 whitespace-nowrap rounded-xl border border-slate-700/80 bg-slate-900 p-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.45)]"
-        >
-          <Button role="menuitem" variant="ghost" size="sm" className="justify-start" onClick={() => handleHide('session')}>
-            {t('content.hideSession')}
-          </Button>
-          <Button role="menuitem" variant="ghost" size="sm" className="justify-start" onClick={() => handleHide('site')}>
-            {t('content.hideSite', { site: siteLabel })}
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

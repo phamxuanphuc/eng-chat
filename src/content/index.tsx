@@ -12,6 +12,7 @@ import { getSiteLabel, hideToolbar, isToolbarSuppressed, refreshSiteHidden } fro
 import { usePresetSectionStore, PresetSection } from '../store/usePresetSectionStore';
 import { DEFAULT_TARGET_LANGUAGES, loadTargetLanguages, saveTargetLanguages, TargetLanguages } from './target-languages';
 import { ensureShadowHost } from './shadow-host';
+import { getTranslator } from '../i18n';
 import { initialToolbarState, initialTooltipState, loadToolbarCollapsed, saveToolbarCollapsed, ToolbarState, TooltipState } from './overlay-state';
 
 let currentEditableEl: HTMLElement | null = null;
@@ -40,6 +41,7 @@ const handleHideToolbar = async (scope: 'session' | 'site') => {
   renderApp();
 };
 
+const translator = () => getTranslator(currentLanguage);
 const getPresetSection = (mode: TooltipState['mode']): PresetSection => mode;
 const getPinnedForMode = (mode: TooltipState['mode']): boolean => usePresetSectionStore.getState().pinnedBySection[getPresetSection(mode)];
 
@@ -115,7 +117,7 @@ const handleTriggerOptimize = async (
 
   if (!targetText) {
     toolbarState = { ...toolbarState, visible: false };
-    tooltipState = { ...tooltipState, visible: true, isLoading: false, error: 'Select or enter text.', result: null, hasEditableTarget: !!activeEl };
+    tooltipState = { ...tooltipState, visible: true, isLoading: false, error: translator()('content.selectText'), result: null, hasEditableTarget: !!activeEl };
     renderApp();
     return;
   }
@@ -158,13 +160,13 @@ const handleTriggerOptimize = async (
         tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, result: response.data, error: null, hasEditableTarget: !!activeEl };
       }
     } else {
-      tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, error: response.error || 'An error occurred while calling AI.', result: null, hasEditableTarget: !!activeEl };
+      tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, error: response.error || translator()('content.genericError'), result: null, hasEditableTarget: !!activeEl };
     }
     renderApp();
   } catch (err: any) {
     if (requestId !== latestRequestId) return;
     toolbarState = { ...toolbarState, isLoading: false, visible: false };
-    tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, error: getRuntimeErrorMessage(err, 'Connection error extension.'), result: null, hasEditableTarget: !!activeEl };
+    tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, error: getRuntimeErrorMessage(err, translator()('content.connectionError')), result: null, hasEditableTarget: !!activeEl };
     renderApp();
   }
 };
@@ -197,11 +199,11 @@ const handleFollowUp = async (query: string) => {
       },
     });
     if (requestId !== latestRequestId) return;
-    tooltipState = { ...tooltipState, isLoading: false, result: response.success ? response.data : null, error: response.success ? null : (response.error || 'Processing error') };
+    tooltipState = { ...tooltipState, isLoading: false, result: response.success ? response.data : null, error: response.success ? null : (response.error || translator()('content.genericError')) };
     renderApp();
   } catch (err: any) {
     if (requestId !== latestRequestId) return;
-    tooltipState = { ...tooltipState, isLoading: false, error: getRuntimeErrorMessage(err, 'Connection error') };
+    tooltipState = { ...tooltipState, isLoading: false, error: getRuntimeErrorMessage(err, translator()('content.connectionError')) };
     renderApp();
   }
 };

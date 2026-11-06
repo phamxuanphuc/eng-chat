@@ -190,15 +190,9 @@ describe('RewriteOptionsPanel Component', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: /Length & format/i }));
-    const optionButtons = screen.getAllByRole('button');
-    const selectedChip = optionButtons.find((button) => button.textContent === 'Short');
-    const autoChip = optionButtons.find((button) => button.textContent === 'Auto' && button.className.includes('bg-slate-100'));
-    expect(selectedChip?.className).toContain('bg-indigo-50');
-    expect(selectedChip?.className).toContain('text-indigo-700');
-    expect(selectedChip?.className).toContain('border-indigo-400');
-    expect(autoChip?.className).toContain('bg-slate-100');
-    expect(autoChip?.className).toContain('text-slate-700');
-    expect(autoChip?.className).toContain('border-slate-200');
+    expect(screen.getByRole('button', { name: 'Short' }).getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Medium' }).getAttribute('aria-pressed')).toBe('false');
+    expect(screen.getByRole('region', { name: /rewrite style options/i }).closest('[data-engchat-theme="light"]')).not.toBeNull();
   });
 
   it('TC-RO-08: Header remains sticky on top with scrollable chip body', () => {

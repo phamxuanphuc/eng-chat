@@ -109,7 +109,7 @@ describe('FloatingToolbar Component', () => {
       />
     );
 
-    const toolbarEl = container.querySelector('.bg-white');
+    const toolbarEl = container.querySelector('[data-engchat-theme="light"]');
     expect(toolbarEl).not.toBeNull();
   });
 

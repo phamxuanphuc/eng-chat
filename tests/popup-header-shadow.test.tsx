@@ -30,27 +30,27 @@ describe('TranslatePopupHeader inside shadow DOM', () => {
   it('selects a mode from the dropdown instead of closing it', () => {
     const onModeChange = vi.fn();
     const { host, container } = renderInShadow(
-      <TranslatePopupHeader mode="improve" targetLanguage="English" theme="dark" onModeChange={onModeChange} onClose={() => {}} />
+      <TranslatePopupHeader mode="improve" onModeChange={onModeChange} onClose={() => {}} />
     );
     const view = within(container);
 
     fireEvent.click(view.getByRole('button', { name: /Improve It/i }));
-    retargetedPointerDown(host, view.getByRole('button', { name: /Rewrite/i }));
-    fireEvent.click(view.getByRole('button', { name: /Rewrite/i }));
+    retargetedPointerDown(host, view.getByRole('menuitem', { name: /Rewrite/i }));
+    fireEvent.click(view.getByRole('menuitem', { name: /Rewrite/i }));
 
     expect(onModeChange).toHaveBeenCalledWith('rewrite');
   });
 
   it('closes the dropdown on an outside pointerdown', () => {
     const { container } = renderInShadow(
-      <TranslatePopupHeader mode="improve" targetLanguage="English" theme="dark" onClose={() => {}} />
+      <TranslatePopupHeader mode="improve" onClose={() => {}} />
     );
     const view = within(container);
 
     fireEvent.click(view.getByRole('button', { name: /Improve It/i }));
-    expect(view.getByRole('button', { name: /Rewrite/i })).toBeDefined();
+    expect(view.getByRole('menuitem', { name: /Rewrite/i })).toBeDefined();
 
     fireEvent.pointerDown(document.body);
-    expect(view.queryByRole('button', { name: /Rewrite/i })).toBeNull();
+    expect(view.queryByRole('menuitem', { name: /Rewrite/i })).toBeNull();
   });
 });

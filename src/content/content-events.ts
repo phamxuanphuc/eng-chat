@@ -8,8 +8,8 @@ export interface ContentEventCallbacks {
 }
 
 export const computeToolbarPos = (rect: DOMRect) => {
-  const width = 240;
-  const height = 40;
+  const width = 230;
+  const height = 46;
   let x = rect.left + rect.width / 2 - width / 2;
   let y = rect.bottom + 8;
 

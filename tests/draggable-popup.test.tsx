@@ -198,7 +198,7 @@ describe('Draggable TranslatePopup with LocalStorage', () => {
     const modeBtn = screen.getByText('Improve it');
     fireEvent.click(modeBtn);
 
-    const rewriteOption = screen.getByRole('button', { name: /^rewrite$/i });
+    const rewriteOption = screen.getByRole('menuitem', { name: /^rewrite$/i });
     fireEvent.click(rewriteOption);
     expect(handleModeChange).toHaveBeenCalledWith('rewrite');
   });

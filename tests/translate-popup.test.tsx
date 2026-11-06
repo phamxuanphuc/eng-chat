@@ -124,7 +124,7 @@ describe('TranslatePopup Component', () => {
     const langBtn = screen.getByRole('button', { name: /select language/i });
     fireEvent.click(langBtn);
 
-    const japaneseBtn = screen.getByRole('button', { name: /japanese/i });
+    const japaneseBtn = screen.getByRole('menuitem', { name: /japanese/i });
     fireEvent.click(japaneseBtn);
     expect(handleLangChange).toHaveBeenCalledWith('Japanese');
 
@@ -176,8 +176,9 @@ describe('TranslatePopup Component', () => {
       />
     );
 
-    expect(screen.getByRole('button', { name: /regenerate/i }).className).toContain('hover:text-indigo-600');
-    expect(screen.getByRole('button', { name: /regenerate/i }).className).toContain('hover:bg-indigo-50');
+    const regenerate = screen.getByRole('button', { name: /regenerate/i });
+    expect(regenerate.closest('[data-engchat-theme="light"]')).not.toBeNull();
+    expect(regenerate.className).toContain('hover:bg-slate-800');
   });
 
   it('TC-TP-06: Displays detailed explanation breakdown when available', () => {
@@ -217,7 +218,7 @@ describe('TranslatePopup Component', () => {
 
     const modeBtn = screen.getByText('Rewrite');
     fireEvent.click(modeBtn);
-    const translateOption = screen.getByRole('button', { name: /^translate$/i });
+    const translateOption = screen.getByRole('menuitem', { name: /^translate$/i });
     fireEvent.click(translateOption);
     expect(handleModeChange).toHaveBeenCalledWith('translate');
   });
@@ -234,7 +235,7 @@ describe('TranslatePopup Component', () => {
       />
     );
 
-    const card = container.querySelector('.bg-white');
+    const card = container.querySelector('[role="dialog"][data-engchat-theme="light"]');
     expect(card).not.toBeNull();
   });
 
@@ -321,7 +322,7 @@ describe('TranslatePopup Component', () => {
     expect(screen.getByRole('button', { name: /select language/i }).textContent).toContain('English');
 
     fireEvent.click(langBtn);
-    const vnOption = screen.getByRole('button', { name: /^vietnamese$/i });
+    const vnOption = screen.getByRole('menuitem', { name: /^vietnamese$/i });
     fireEvent.click(vnOption);
 
     expect(handleLanguageChange).toHaveBeenCalledWith('Vietnamese');

@@ -14,7 +14,7 @@ describe('content-events', () => {
     const rect = { left: 200, right: 300, top: 100, bottom: 120, width: 100, height: 20 } as DOMRect;
     const pos = computeToolbarPos(rect);
 
-    expect(pos.x).toBe(130);
+    expect(pos.x).toBe(135);
     expect(pos.y).toBe(128);
   });
 
@@ -25,7 +25,7 @@ describe('content-events', () => {
     const rect = { left: 200, right: 300, top: 350, bottom: 370, width: 100, height: 20 } as DOMRect;
     const pos = computeToolbarPos(rect);
 
-    expect(pos.y).toBe(302);
+    expect(pos.y).toBe(296);
   });
 
   it('TC-CE-03: setupDOMEvents triggers onFocus on focusin of editable input', () => {

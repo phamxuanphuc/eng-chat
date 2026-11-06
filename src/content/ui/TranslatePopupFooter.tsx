@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { AlertCircle, Copy, Check, Cpu, RotateCw, Settings, CornerDownLeft, Sparkles } from 'lucide-react';
 import { Language } from '../../types';
 import { getTranslator } from '../../i18n';
 import { sendRuntimeMessage } from '../../services/extension-messaging';
-import {
-  Copy,
-  Check,
-  RotateCw,
-  Settings,
-  CornerDownLeft,
-} from 'lucide-react';
+import { copyText } from '../../services/clipboard';
+import { Button } from '../../components/ui/Button';
+import { IconButton } from '../../components/ui/IconButton';
+import { Input } from '../../components/ui/Input';
 
 export interface TranslatePopupFooterProps {
   language?: Language;
   translationText: string;
   isLoading: boolean;
-  theme?: 'light' | 'dark';
   mode?: 'translate' | 'rewrite' | 'improve' | 'summary';
   hasEditableTarget?: boolean;
   onFollowUp?: (query: string) => void;
@@ -27,7 +24,6 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
   language = 'en',
   translationText,
   isLoading,
-  theme = 'dark',
   mode = 'translate',
   hasEditableTarget = false,
   onFollowUp,
@@ -35,14 +31,13 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
   onInsert,
   onOpenModelPicker,
 }) => {
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const [followUpText, setFollowUpText] = useState('');
-
-  const isLight = theme === 'light';
+  const copyTimer = useRef<ReturnType<typeof setTimeout>>();
   const t = getTranslator(language);
-  const iconBtnClass = isLight
-    ? 'p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors cursor-pointer'
-    : 'p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer';
+  const hasResult = !isLoading && !!translationText;
+
+  useEffect(() => () => clearTimeout(copyTimer.current), []);
 
   const placeholderText =
     mode === 'improve'
@@ -52,12 +47,19 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
       : mode === 'summary'
       ? t('content.askSummary')
       : t('content.askFollowUp');
+  const copyLabel = copyState === 'copied'
+    ? t('content.copied')
+    : copyState === 'failed'
+    ? t('content.copyFailed')
+    : mode === 'translate'
+    ? t('content.copy')
+    : t('content.copyResult');
 
   const handleCopy = async () => {
     if (!translationText) return;
-    await navigator.clipboard.writeText(translationText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopyState((await copyText(translationText)) ? 'copied' : 'failed');
+    clearTimeout(copyTimer.current);
+    copyTimer.current = setTimeout(() => setCopyState('idle'), 2000);
   };
 
   const handleFollowUpSubmit = (e: React.FormEvent) => {
@@ -68,83 +70,53 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
   };
 
   return (
-    <div className={`flex items-center justify-between gap-2 pt-2 border-t mt-1 ${isLight ? 'border-slate-200' : 'border-slate-800'}`}>
+    <div className="mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-slate-800 pt-2">
       <form
         onSubmit={handleFollowUpSubmit}
-        className={`flex-1 flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 transition-all border ${
-          isLight
-            ? 'bg-slate-100 border-slate-200'
-            : 'bg-slate-950/80 border-slate-800/80'
-        }`}
+        className="flex min-w-[180px] flex-1 items-center gap-1.5 rounded-xl border border-slate-800/80 bg-slate-950/80 px-2.5 py-1.5"
       >
-        <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[9px] font-bold">
-          ✦
-        </div>
-        <input
-          type="text"
+        <Sparkles size={14} className="shrink-0 text-indigo-400" aria-hidden="true" />
+        <Input
+          variant="bare"
+          aria-label={placeholderText}
           value={followUpText}
           onChange={(e) => setFollowUpText(e.target.value)}
           placeholder={placeholderText}
-          className={`w-full bg-transparent border-none outline-none text-xs ${
-            isLight ? 'text-slate-800 placeholder:text-slate-400' : 'text-slate-200 placeholder:text-slate-500'
-          }`}
         />
       </form>
 
       {hasEditableTarget && mode === 'improve' && (
-        <button
-          type="button"
-          onClick={() => onInsert?.(translationText)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/40 text-xs font-semibold transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 whitespace-nowrap"
-          title={t('content.replaceInput')}
+        <Button
+          variant="primary"
+          size="sm"
+          disabled={!hasResult}
           aria-label={t('content.replaceInput')}
+          title={t('content.replaceInput')}
+          icon={<CornerDownLeft size={13} />}
+          onClick={() => onInsert?.(translationText)}
         >
-          <CornerDownLeft size={13} className="text-indigo-300" />
-          <span>{t('content.replace')}</span>
-        </button>
+          {t('content.replace')}
+        </Button>
       )}
 
       <div className="flex items-center gap-1">
-        <button
-          type="button"
-          onClick={handleCopy}
-          className={iconBtnClass}
-          title={copied ? t('content.copied') : t('content.copy')}
-          aria-label={t('content.copy')}
-        >
-          {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-        </button>
-
-        <button
-          type="button"
-          onClick={onRegenerate}
-          disabled={isLoading}
-          className={`${iconBtnClass} disabled:opacity-50`}
-          title={t('content.regenerate')}
-          aria-label={t('content.regenerate')}
-        >
+        <IconButton label={copyLabel} disabled={!hasResult} onClick={handleCopy}>
+          {copyState === 'copied' && <Check size={14} className="text-emerald-400" />}
+          {copyState === 'failed' && <AlertCircle size={14} className="text-rose-400" />}
+          {copyState === 'idle' && <Copy size={14} />}
+        </IconButton>
+        <IconButton label={t('content.regenerate')} disabled={isLoading} onClick={onRegenerate}>
           <RotateCw size={14} className={isLoading ? 'animate-spin' : ''} />
-        </button>
-
-        <button
-          type="button"
+        </IconButton>
+        <IconButton
+          label={t('content.openSettings')}
           onClick={() => { void sendRuntimeMessage({ action: 'OPEN_OPTIONS_PAGE' }).catch(() => {}); }}
-          className={iconBtnClass}
-          title={t('content.openSettings')}
-          aria-label={t('content.openSettings')}
         >
           <Settings size={14} />
-        </button>
-
-        <button
-          type="button"
-          onClick={onOpenModelPicker}
-          className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[9px] font-bold ring-1 ring-white/20 hover:scale-110 transition-transform cursor-pointer"
-          title={t('content.chooseModel')}
-          aria-label={t('common.openModelPicker')}
-        >
-          ✦
-        </button>
+        </IconButton>
+        <IconButton label={t('common.openModelPicker')} title={t('content.chooseModel')} onClick={onOpenModelPicker}>
+          <Cpu size={14} className="text-indigo-400" />
+        </IconButton>
       </div>
     </div>
   );

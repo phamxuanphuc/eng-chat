@@ -1,18 +1,27 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Languages, PenLine, Wand2, FileText, ChevronDown, X, Pin } from 'lucide-react';
-import { getPopupTheme } from './popup-theme';
+import React, { useRef, useState } from 'react';
+import { Languages, PenLine, Wand2, FileText, ChevronDown, X, Pin, LucideIcon } from 'lucide-react';
 import { Language } from '../../types';
-import { getTranslator } from '../../i18n';
+import { getTranslator, TranslationKey } from '../../i18n';
+import { Button } from '../../components/ui/Button';
+import { IconButton } from '../../components/ui/IconButton';
+import { Menu, MenuItem } from '../../components/ui/Menu';
+import { useDismiss } from '../../components/ui/useDismiss';
+
+type PopupMode = 'translate' | 'rewrite' | 'improve' | 'summary';
+
+const MODES: Array<{ mode: PopupMode; labelKey: TranslationKey; Icon: LucideIcon }> = [
+  { mode: 'improve', labelKey: 'content.improveIt', Icon: Wand2 },
+  { mode: 'rewrite', labelKey: 'content.rewriteMode', Icon: PenLine },
+  { mode: 'summary', labelKey: 'content.summaryMode', Icon: FileText },
+  { mode: 'translate', labelKey: 'content.translateMode', Icon: Languages },
+];
 
 export interface TranslatePopupHeaderProps {
   language?: Language;
-  mode: 'translate' | 'rewrite' | 'improve' | 'summary';
-  targetLanguage: string;
+  mode: PopupMode;
   isPinned?: boolean;
   onTogglePin?: () => void;
-  theme: 'light' | 'dark';
-  onLanguageChange?: (lang: string) => void;
-  onModeChange?: (mode: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
+  onModeChange?: (mode: PopupMode) => void;
   onClose: () => void;
   onDragStart?: (e: React.MouseEvent) => void;
 }
@@ -20,9 +29,6 @@ export interface TranslatePopupHeaderProps {
 export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
   language = 'en',
   mode,
-  targetLanguage,
-  theme,
-  onLanguageChange,
   onModeChange,
   onClose,
   onTogglePin,
@@ -31,40 +37,15 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
 }) => {
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
   const modeMenuRef = useRef<HTMLDivElement>(null);
-  const isLight = theme === 'light';
   const t = getTranslator(language);
-  const th = getPopupTheme(theme);
+  const current = MODES.find((item) => item.mode === mode) || MODES[3];
+  const pinLabel = isPinned ? t('content.unpin') : t('content.pin');
 
-  useEffect(() => {
-    if (!modeMenuOpen) return;
-    const handleOutsidePointerDown = (event: PointerEvent) => {
-      const path = event.composedPath();
-      if (modeMenuRef.current && !path.includes(modeMenuRef.current)) setModeMenuOpen(false);
-    };
-    document.addEventListener('pointerdown', handleOutsidePointerDown, true);
-    return () => document.removeEventListener('pointerdown', handleOutsidePointerDown, true);
-  }, [modeMenuOpen]);
+  useDismiss(modeMenuRef, modeMenuOpen, () => setModeMenuOpen(false));
 
   const handleHeaderMouseDown = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.closest('button, input, select, textarea, [role="button"]')) {
-      return;
-    }
+    if ((e.target as HTMLElement).closest('button, input, select, textarea, [role="button"]')) return;
     onDragStart?.(e);
-  };
-
-  const getModeTitle = () => {
-    if (mode === 'improve') return t('content.improveIt');
-    if (mode === 'rewrite') return t('content.rewriteMode');
-    if (mode === 'summary') return t('content.summaryMode');
-    return t('content.translateMode');
-  };
-
-  const getModeIcon = () => {
-    if (mode === 'improve') return <Wand2 size={15} className="text-indigo-400" />;
-    if (mode === 'rewrite') return <PenLine size={15} className="text-indigo-400" />;
-    if (mode === 'summary') return <FileText size={15} className="text-indigo-400" />;
-    return <Languages size={15} className="text-indigo-400" />;
   };
 
   return (
@@ -72,75 +53,58 @@ export const TranslatePopupHeader: React.FC<TranslatePopupHeaderProps> = ({
       onMouseDown={handleHeaderMouseDown}
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
-      className={`sticky top-0 z-20 pointer-events-auto relative px-4 pt-2.5 pb-2 border-b backdrop-blur-md rounded-t-2xl flex flex-col gap-1.5 cursor-grab active:cursor-grabbing select-none ${
-        isLight ? 'bg-white/95 border-slate-200/80' : 'bg-slate-900/95 border-slate-800/80'
-      }`}
+      className="sticky top-0 z-20 pointer-events-auto flex flex-col gap-1 rounded-t-2xl border-b border-slate-800/80 bg-slate-900 px-4 pb-2 pt-2 cursor-grab active:cursor-grabbing select-none"
     >
       <div
         data-testid="drag-handle"
-        onMouseDown={onDragStart}
-        className="w-full pt-0.5 pb-1 -mt-1 cursor-grab active:cursor-grabbing flex items-center justify-center select-none group"
+        className="group flex w-full items-center justify-center pb-0.5 cursor-grab active:cursor-grabbing select-none"
         title={t('content.dragToMove')}
       >
-        <div className={`w-9 h-1 rounded-full transition-all group-hover:scale-x-125 group-hover:bg-indigo-400 ${th.bar}`} />
+        <div className="h-1 w-9 rounded-full bg-slate-600/70 transition-[transform,background-color] group-hover:scale-x-125 group-hover:bg-indigo-400" />
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 flex-1 items-center gap-1.5">
-          <div ref={modeMenuRef} className="relative shrink-0">
-            <button
-              type="button"
-              onClick={() => setModeMenuOpen((p) => !p)}
-              onPointerDown={(event) => event.stopPropagation()}
-              onMouseDown={(event) => event.stopPropagation()}
-              className={`flex items-center gap-1.5 py-1 px-1.5 -ml-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${th.title}`}
-            >
-              {getModeIcon()}
-              <span>{getModeTitle()}</span>
+        <div ref={modeMenuRef} className="relative -ml-1.5 shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-haspopup="menu"
+            aria-expanded={modeMenuOpen}
+            className="!rounded-lg !px-1.5 !py-1 font-semibold"
+            icon={<current.Icon size={15} className="text-indigo-400" />}
+            onClick={() => setModeMenuOpen((open) => !open)}
+            onPointerDown={(event) => event.stopPropagation()}
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <span className="inline-flex items-center gap-1">
+              {t(current.labelKey)}
               <ChevronDown size={13} className="text-slate-400" />
-            </button>
-            {modeMenuOpen && (
-              <div className={`absolute left-0 top-full mt-1.5 w-32 rounded-xl border shadow-xl p-1 z-50 flex flex-col gap-0.5 ${th.menu}`}>
-                {(['improve', 'rewrite', 'summary', 'translate'] as const).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => { setModeMenuOpen(false); onModeChange?.(m); }}
-                    onPointerDown={(event) => event.stopPropagation()}
-                    onMouseDown={(event) => event.stopPropagation()}
-                    className={`flex items-center gap-2 px-2.5 py-1.5 text-xs rounded-lg capitalize ${mode === m ? th.menuActive : th.menuItem}`}
-                  >
-                    {m === 'improve' && <Wand2 size={13} />}
-                    {m === 'rewrite' && <PenLine size={13} />}
-                    {m === 'summary' && <FileText size={13} />}
-                    {m === 'translate' && <Languages size={13} />}
-                    <span>{m === 'improve' ? t('content.improveIt') : m === 'rewrite' ? t('content.rewriteMode') : m === 'summary' ? t('content.summaryMode') : t('content.translateMode')}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
+            </span>
+          </Button>
+          {modeMenuOpen && (
+            <Menu label={t(current.labelKey)} className="left-0 top-full mt-1.5 w-36">
+              {MODES.map((item) => (
+                <MenuItem
+                  key={item.mode}
+                  active={item.mode === mode}
+                  icon={<item.Icon size={13} />}
+                  onClick={() => { setModeMenuOpen(false); onModeChange?.(item.mode); }}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onMouseDown={(event) => event.stopPropagation()}
+                >
+                  {t(item.labelKey)}
+                </MenuItem>
+              ))}
+            </Menu>
+          )}
         </div>
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
-          <button
-            type="button"
-            onClick={onTogglePin}
-            className={`p-1 rounded-lg cursor-pointer ${isPinned ? 'text-indigo-400 bg-indigo-500/15' : th.iconBtn}`}
-            aria-label={isPinned ? 'Unpin dialog' : 'Pin dialog'}
-            aria-pressed={isPinned}
-            title={isPinned ? 'Unpin dialog' : 'Pin dialog'}
-          >
+        <div className="flex items-center gap-1">
+          <IconButton label={pinLabel} active={isPinned} aria-pressed={isPinned} onClick={onTogglePin}>
             <Pin size={15} className={isPinned ? 'fill-current' : ''} />
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className={`p-1 rounded-lg cursor-pointer ${th.iconBtn}`}
-            aria-label={t('content.close')}
-          >
+          </IconButton>
+          <IconButton label={t('content.close')} onClick={onClose}>
             <X size={15} />
-          </button>
+          </IconButton>
         </div>
       </div>
     </div>
