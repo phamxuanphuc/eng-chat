@@ -1,4 +1,4 @@
-export const EXTENSION_CONTEXT_ERROR = 'Extension was updated. Please reload this page to reconnect LingoFlow.';
+export const EXTENSION_CONTEXT_ERROR = 'Extension was updated. Please reload this page to reconnect VinaWrite.';
 
 export const isExtensionContextError = (error: unknown): boolean => {
   const message = error instanceof Error ? error.message : String(error || '');
@@ -12,7 +12,7 @@ export const getRuntimeErrorMessage = (error: unknown, fallback: string): string
 
 export const sendRuntimeMessage = async <T = any>(message: unknown): Promise<T> => {
   if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) {
-    throw new Error('LingoFlow is unavailable on this page.');
+    throw new Error('VinaWrite is unavailable on this page.');
   }
 
   try {

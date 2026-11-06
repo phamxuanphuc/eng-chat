@@ -10,10 +10,11 @@ describe('release manifest', () => {
     expect(manifest.version).toBe(pkg.version);
   });
 
-  it('uses LingoFlow branding without legacy names', () => {
+  it('uses VinaWrite branding without legacy names', () => {
     const text = JSON.stringify(manifest) + pkg.description;
-    expect(manifest.name).toContain('LingoFlow');
-    expect(text).not.toMatch(/EngChat|Eng Chat/i);
+    expect(manifest.name).toBe('VinaWrite - Trợ lý AI Viết lại & Dịch thuật mọi nơi');
+    expect(manifest.action.default_title).toBe('VinaWrite');
+    expect(text).not.toMatch(/EngChat|Eng Chat|LingoFlow/i);
   });
 
   it('keeps store-facing strings in English', () => {

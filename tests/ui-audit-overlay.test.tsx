@@ -26,7 +26,7 @@ describe('Overlay UX', () => {
 
   it('labels each popup mode with its own dialog name', () => {
     render(<TranslatePopup mode="improve" originalText="Hi" result="Hello" isLoading={false} onClose={() => {}} />);
-    expect(screen.getByRole('dialog', { name: 'LingoFlow Improve Popup' })).toBeDefined();
+    expect(screen.getByRole('dialog', { name: 'VinaWrite Improve Popup' })).toBeDefined();
   });
 
   it('closes the innermost layer first when Escape is pressed', () => {

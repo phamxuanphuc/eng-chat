@@ -19,7 +19,7 @@ export const setupContextMenus = () => {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
       id: 'engchat_root',
-      title: 'LingoFlow',
+      title: 'VinaWrite',
       contexts: ['selection', 'editable'],
     });
 

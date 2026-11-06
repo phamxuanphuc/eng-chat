@@ -72,8 +72,8 @@ describe('Options Multi-Page React Router', () => {
         <OptionsApp />
       </QueryClientProvider>
     );
-    expect(await screen.findByText('Chọn cách LingoFlow viết cho bạn')).toBeDefined();
-    expect(screen.queryByText('Choose how LingoFlow writes for you')).toBeNull();
+    expect(await screen.findByText('Chọn cách VinaWrite viết cho bạn')).toBeDefined();
+    expect(screen.queryByText('Choose how VinaWrite writes for you')).toBeNull();
   });
 
   it('TC-OR-02: Preserves edits across page navigation and saves successfully', async () => {

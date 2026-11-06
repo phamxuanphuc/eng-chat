@@ -1,13 +1,13 @@
 {
   "name": "eng-chat",
   "version": "1.1.0",
-  "description": "LingoFlow — AI writing, rewriting and translation assistant for any text box",
+  "description": "VinaWrite — AI writing, rewriting and translation assistant for any text box",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "dev:standalone": "vite --open standalone.html",
     "build": "tsc && vite build",
-    "package": "tsc && vite build && cd dist && zip -r ../lingoflow.zip . -x '*.DS_Store'",
+    "package": "tsc && vite build && cd dist && zip -r ../vinawrite.zip . -x '*.DS_Store'",
     "test": "vitest run",
     "test:watch": "vitest"
   },
