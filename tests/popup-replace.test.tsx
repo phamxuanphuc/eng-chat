@@ -1,6 +1,7 @@
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { replaceTextInElement } from '../src/content/dom-utils';
 import { TranslatePopup } from '../src/content/ui/TranslatePopup';
 
 const explain = { translation: 'I agree.', explanation: { vocabulary: [], grammar: '', nuances: '' } };
@@ -27,5 +28,18 @@ describe('Replace availability per mode', () => {
   it('keeps Replace disabled while the translation is loading', () => {
     render(<TranslatePopup mode="translate" originalText="Toi dong y" result={null} isLoading hasEditableTarget onClose={() => {}} />);
     expect((replace() as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('replaces rich text through insertText from the popup', () => {
+    const editor = document.createElement('div');
+    editor.contentEditable = 'true';
+    editor.textContent = 'Toi dong y';
+    document.body.appendChild(editor);
+    (document as any).execCommand = vi.fn(() => true);
+    replaceTextInElement(editor, 'I agree.');
+    expect(document.execCommand).toHaveBeenCalledWith('insertText', false, 'I agree.');
+    expect(editor.textContent).toBe('Toi dong y');
+    delete (document as any).execCommand;
+    editor.remove();
   });
 });

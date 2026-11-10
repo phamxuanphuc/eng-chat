@@ -61,6 +61,76 @@ describe('DOM Utilities', () => {
     expect(inputListener).toHaveBeenCalled();
   });
 
+  describe('contenteditable replace', () => {
+    const original = document.execCommand;
+    afterEach(() => {
+      (document as any).execCommand = original;
+      window.getSelection()?.removeAllRanges();
+      document.body.innerHTML = '';
+    });
+
+    const makeEditor = (text: string) => {
+      const div = document.createElement('div');
+      div.contentEditable = 'true';
+      div.textContent = text;
+      document.body.appendChild(div);
+      return div;
+    };
+
+    it('selects all content and inserts through execCommand without touching textContent', () => {
+      const div = makeEditor('old text');
+      let selected = '';
+      (document as any).execCommand = vi.fn(() => {
+        selected = window.getSelection()!.toString();
+        return true;
+      });
+      expect(replaceTextInElement(div, 'new text')).toBe(true);
+      expect(document.execCommand).toHaveBeenCalledWith('insertText', false, 'new text');
+      expect(selected).toBe('old text');
+      expect(div.textContent).toBe('old text');
+    });
+
+    it('keeps an existing selection inside the element', () => {
+      const div = makeEditor('keep bad text');
+      const range = document.createRange();
+      range.setStart(div.firstChild!, 5);
+      range.setEnd(div.firstChild!, 8);
+      const selection = window.getSelection()!;
+      selection.removeAllRanges();
+      selection.addRange(range);
+      let selected = '';
+      (document as any).execCommand = vi.fn(() => {
+        selected = window.getSelection()!.toString();
+        return true;
+      });
+      replaceTextInElement(div, 'good');
+      expect(selected).toBe('bad');
+    });
+
+    it('falls back to a paste event when the command is refused', () => {
+      const div = makeEditor('old');
+      (document as any).execCommand = vi.fn(() => false);
+      let pasted = '';
+      div.addEventListener('paste', (event) => {
+        pasted = (event as ClipboardEvent).clipboardData?.getData('text/plain') ?? '';
+        event.preventDefault();
+      });
+      expect(replaceTextInElement(div, 'via paste')).toBe(true);
+      expect(pasted).toBe('via paste');
+      expect(div.textContent).toBe('old');
+    });
+
+    it('assigns textContent only when command and paste both fail', () => {
+      const div = makeEditor('old');
+      (document as any).execCommand = vi.fn(() => false);
+      const inputListener = vi.fn();
+      div.addEventListener('input', inputListener);
+      expect(replaceTextInElement(div, 'last resort')).toBe(true);
+      expect(div.textContent).toBe('last resort');
+      expect(inputListener).toHaveBeenCalled();
+    });
+  });
+
   describe('undoable replace', () => {
     const original = document.execCommand;
     afterEach(() => {

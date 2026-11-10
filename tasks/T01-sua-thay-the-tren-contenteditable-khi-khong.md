@@ -1,6 +1,6 @@
 # T1. Sửa "Thay thế" trên contenteditable khi không có vùng chọn
 
-- [ ] Hoàn thành
+- [x] Hoàn thành
 
 > Đọc [README.md](README.md) trước: quy tắc chung và cách đánh dấu hoàn thành.
 

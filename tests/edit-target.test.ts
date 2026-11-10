@@ -70,6 +70,20 @@ describe('edit target', () => {
     expect(editor.textContent).toBe('New message');
   });
 
+  it('writes through insertText after selecting the whole field when nothing was selected', () => {
+    const editor = addEditor('Whole message');
+    const snapshot = captureEditSnapshot(editor);
+    let selectedAtWrite = '';
+    (document as any).execCommand = vi.fn(() => {
+      selectedAtWrite = window.getSelection()!.toString();
+      return true;
+    });
+
+    expect(applyEdit(snapshot, 'New message')).toBe(true);
+    expect(selectedAtWrite).toBe('Whole message');
+    expect(editor.textContent).toBe('Whole message');
+  });
+
   it('refuses to write when the content changed or the field is gone', () => {
     const editor = addEditor('Original');
     const changed = captureEditSnapshot(editor);

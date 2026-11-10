@@ -70,6 +70,44 @@ const insertWithUndo = (
   }
 };
 
+const selectAllContents = (element: HTMLElement): void => {
+  const selection = window.getSelection();
+  if (!selection) return;
+  const hasUsableSelection =
+    selection.rangeCount > 0 && !selection.isCollapsed && element.contains(selection.anchorNode);
+  if (hasUsableSelection) return;
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  selection.removeAllRanges();
+  selection.addRange(range);
+};
+
+const insertViaCommand = (text: string): boolean => {
+  if (typeof document.execCommand !== 'function') return false;
+  try {
+    return document.execCommand('insertText', false, text) === true;
+  } catch {
+    return false;
+  }
+};
+
+const insertViaPaste = (element: HTMLElement, text: string): boolean => {
+  try {
+    const clipboardData = new DataTransfer();
+    clipboardData.setData('text/plain', text);
+    const event = new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData });
+    element.dispatchEvent(event);
+    return event.defaultPrevented;
+  } catch {
+    return false;
+  }
+};
+
+const writeRichText = (element: HTMLElement, text: string): boolean => {
+  selectAllContents(element);
+  return insertViaCommand(text) || insertViaPaste(element, text);
+};
+
 export const replaceTextInElement = (
   element: HTMLElement,
   newText: string
@@ -121,19 +159,8 @@ export const replaceTextInElement = (
       if (typeof element.focus === 'function') {
         element.focus();
       }
-      const selection = window.getSelection();
-
-      if (
-        typeof document.execCommand === 'function' &&
-        selection &&
-        selection.rangeCount > 0 &&
-        !selection.isCollapsed
-      ) {
-        document.execCommand('insertText', false, newText);
-      } else {
-        element.textContent = newText;
-      }
-
+      if (writeRichText(element, newText)) return true;
+      element.textContent = newText;
       element.dispatchEvent(new Event('input', { bubbles: true }));
       return true;
     }
