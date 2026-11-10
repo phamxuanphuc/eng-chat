@@ -93,10 +93,16 @@ const renderApp = () => {
         tooltipState = replaced ? { ...tooltipState, visible: false } : { ...tooltipState, hasEditableTarget: false };
         renderApp();
       }}
-      onCloseTooltip={() => { tooltipState = { ...tooltipState, visible: false }; renderApp(); }}
+      onCloseTooltip={closeTooltip}
       onTranslateVi={handleTranslateVi}
     />
   );
+};
+
+const closeTooltip = () => {
+  latestRequestId += 1;
+  tooltipState = { ...tooltipState, visible: false, isLoading: false };
+  renderApp();
 };
 
 const handleTranslateVi = async (text: string): Promise<string> => {
@@ -141,12 +147,8 @@ const handleTriggerOptimize = async (
   const mode: 'translate' | 'rewrite' | 'improve' | 'summary' = forcedMode || (tone === 'translate_explain' ? 'translate' : tone === 'summarize' ? 'summary' : 'rewrite');
 
   const targetLanguage = targetLanguages[mode];
-  if (isModalMode) {
-    tooltipState = { ...tooltipState, visible: true, mode, targetLanguage, originalText: targetText, isLoading: true, error: null, hasEditableTarget: !!activeEl };
-    toolbarState = { ...toolbarState, visible: false };
-  } else {
-    toolbarState = { ...toolbarState, isLoading: true };
-  }
+  tooltipState = { ...tooltipState, visible: true, mode, targetLanguage, originalText: targetText, isLoading: true, error: null, hasEditableTarget: !!activeEl };
+  toolbarState = { ...toolbarState, visible: false };
   renderApp();
   const requestId = ++latestRequestId;
 
@@ -172,6 +174,8 @@ const handleTriggerOptimize = async (
       const resultText = typeof response.data === 'string' ? response.data : response.data.translation;
       if (isModalMode || !editSnapshot || !applyEdit(editSnapshot, resultText)) {
         tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, result: response.data, error: null, hasEditableTarget: !!activeEl };
+      } else {
+        tooltipState = { ...tooltipState, visible: false, isLoading: false };
       }
     } else {
       tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, error: response.error || translator()('content.genericError'), result: null, hasEditableTarget: !!activeEl };
@@ -287,8 +291,7 @@ const cleanupDOMEvents = setupDOMEvents({
   },
   onClickOutside: () => {
     if (tooltipState.visible && !getPinnedForMode(tooltipState.mode)) {
-      tooltipState = { ...tooltipState, visible: false };
-      renderApp();
+      closeTooltip();
       return;
     }
     if (toolbarState.visible) {
