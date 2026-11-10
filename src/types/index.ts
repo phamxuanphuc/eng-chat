@@ -42,6 +42,7 @@ export interface AppSettings {
 
 export interface ChatMessage {
   sender?: string;
+  own?: boolean;
   text: string;
 }
 

@@ -20,7 +20,7 @@
   "context.enabled": "Đã bật",
   "context.disabled": "Đã tắt",
   "context.extract": "Đọc tin nhắn gần đây",
-  "context.description": "Đọc các tin nhắn gần đây trên Slack, Discord và MS Teams để kết quả phù hợp với người bạn đang trò chuyện.",
+  "context.description": "Đọc các tin nhắn gần đây trên Slack, Discord, MS Teams, WhatsApp, Telegram, Messenger, Zalo và LinkedIn để kết quả phù hợp với người bạn đang trò chuyện.",
   "context.max": "Số tin nhắn ngữ cảnh tối đa (1 - 10)",
   "context.quick": "Chọn nhanh:",
   "context.messages": "{{count}} tin nhắn",

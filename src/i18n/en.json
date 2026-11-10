@@ -20,7 +20,7 @@
   "context.enabled": "Enabled",
   "context.disabled": "Disabled",
   "context.extract": "Read recent chat messages",
-  "context.description": "Reads recent messages on Slack, Discord, and MS Teams so results match who you are talking to.",
+  "context.description": "Reads recent messages on Slack, Discord, MS Teams, WhatsApp, Telegram, Messenger, Zalo and LinkedIn so results match who you are talking to.",
   "context.max": "Maximum context messages (1 - 10)",
   "context.quick": "Quick select:",
   "context.messages": "{{count}} messages",

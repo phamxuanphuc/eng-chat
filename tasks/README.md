@@ -72,5 +72,5 @@ Chưa đủ chi tiết để thực thi. Cần chủ dự án quyết định ph
 - Dịch nhanh và công tắc bật/tắt theo trang ngay trong popup của icon tiện ích.
 - Lịch sử kết quả gần đây và nút hoàn tác sau khi thay thế.
 - Xuất/nhập cài đặt.
-- Mở rộng nhận diện ngữ cảnh hội thoại (Messenger, Zalo, Telegram, Teams) và lấy tên người gửi.
+- Kiểm chứng bộ chọn ngữ cảnh hội thoại trên DOM thật của từng nền tảng (cấu hình ở `src/content/chat-platforms.ts`), bổ sung Google Chat (cần chạy trong iframe).
 - Nạp trễ giao diện overlay để giảm JavaScript chạy trên mỗi trang.
