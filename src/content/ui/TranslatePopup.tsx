@@ -31,7 +31,7 @@ export interface TranslatePopupProps {
   language?: Language; mode?: PopupMode; originalText: string;
   result?: string | TranslateExplainResult | null;
   isLoading: boolean; error?: string | null; targetLanguage?: string;
-  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark'; hasEditableTarget?: boolean; anchor?: PopupAnchor | null; modelName?: string; contextCount?: number; nativeLanguage?: string;
+  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark'; hasEditableTarget?: boolean; anchor?: PopupAnchor | null; modelName?: string; contextCount?: number; nativeLanguage?: string; isStreaming?: boolean;
   onLanguageChange?: (lang: string) => void; onModeChange?: (mode: PopupMode) => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void; onFollowUp?: (query: string) => void;
   onRegenerate?: () => void; onInsert?: (text: string) => void; onClose: () => void; isPinned?: boolean; onTogglePin?: () => void; onTranslateNative?: (text: string) => Promise<string>;
@@ -40,7 +40,7 @@ export interface TranslatePopupProps {
 export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   language = 'en', mode = 'translate', originalText, result, isLoading, error,
   targetLanguage, rewriteOptions, theme = 'dark',
-  hasEditableTarget = false, anchor = null, modelName, contextCount = 0, nativeLanguage = 'Vietnamese',
+  hasEditableTarget = false, anchor = null, modelName, contextCount = 0, nativeLanguage = 'Vietnamese', isStreaming = false,
   onLanguageChange, onModeChange, onRewriteOptionsChange,
   onFollowUp, onRegenerate, onInsert, onClose, isPinned = false, onTogglePin, onTranslateNative,
 }) => {
@@ -119,12 +119,13 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           originalText={originalText}
           explanation={explanation}
           isLoading={isLoading}
+          isStreaming={isStreaming}
           error={error}
           isNotice={isNotice}
           onRetry={onRegenerate}
         />
 
-        {isRewriteMode && !isLoading && !error && translationText && currentLang !== nativeLanguage && (
+        {isRewriteMode && !isLoading && !isStreaming && !error && translationText && currentLang !== nativeLanguage && (
           <NativeTranslationSection language={language} mode={mode} text={translationText} nativeLanguage={nativeLanguage} onTranslate={onTranslateNative} />
         )}
       </div>
@@ -155,7 +156,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
 
         <TranslatePopupFooter
           language={language}
-          translationText={translationText} isLoading={isLoading}
+          translationText={translationText} isLoading={isLoading || isStreaming}
           mode={mode} hasEditableTarget={hasEditableTarget} onFollowUp={onFollowUp}
           onRegenerate={onRegenerate} onInsert={onInsert}
           modelName={modelName}

@@ -32,24 +32,25 @@ export interface PopupResultProps {
   originalText?: string;
   explanation?: TranslateExplainResult['explanation'] | null;
   isLoading: boolean;
+  isStreaming?: boolean;
   error?: string | null;
   isNotice?: boolean;
   onRetry?: () => void;
 }
 
-export const PopupResult: React.FC<PopupResultProps> = ({ language, mode, text, originalText = '', explanation, isLoading, error, isNotice = false, onRetry }) => {
+export const PopupResult: React.FC<PopupResultProps> = ({ language, mode, text, originalText = '', explanation, isLoading, isStreaming = false, error, isNotice = false, onRetry }) => {
   const [showExplanation, setShowExplanation] = useState(false);
   const [showDiff, setShowDiff] = useState(false);
   const t = getTranslator(language);
   const vocabulary = Array.isArray(explanation?.vocabulary) ? explanation.vocabulary : [];
   const grammar = typeof explanation?.grammar === 'string' ? explanation.grammar : '';
   const nuances = typeof explanation?.nuances === 'string' ? explanation.nuances : '';
-  const canDiff = (mode === 'improve' || mode === 'rewrite') && !isLoading && !error && !!text && !!originalText;
+  const canDiff = (mode === 'improve' || mode === 'rewrite') && !isLoading && !isStreaming && !error && !!text && !!originalText;
   const diff = useMemo(() => (canDiff ? diffWords(originalText, text) : null), [canDiff, originalText, text]);
   const hasExplanation = vocabulary.length > 0 || !!grammar || !!nuances;
 
   return (
-    <div aria-live="polite" aria-busy={isLoading} className="flex flex-col gap-2 px-0.5">
+    <div aria-live="polite" aria-busy={isLoading || isStreaming} className="flex flex-col gap-2 px-0.5">
       {isLoading && <Loader size="sm" text={t(LOADING_KEYS[mode])} className="py-6" />}
       {error && !isLoading && isNotice && <Alert variant="info" message={error} />}
       {error && !isLoading && !isNotice && (

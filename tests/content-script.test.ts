@@ -1,10 +1,13 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { makeStreamConnect } from './mocks/stream-port.mock';
 
 type Deferred = { resolve: (value: unknown) => void };
 
 describe('Content script request handling', () => {
   const pending: Deferred[] = [];
   let onMessage: (message: any, sender: any, sendResponse: (r?: any) => void) => boolean;
+
+  const sendMessage = vi.fn((_message?: any) => new Promise((resolve) => pending.push({ resolve })));
 
   beforeAll(async () => {
     (globalThis as any).chrome = {
@@ -14,7 +17,8 @@ describe('Content script request handling', () => {
         onChanged: { addListener: vi.fn() },
       },
       runtime: {
-        sendMessage: vi.fn(() => new Promise((resolve) => pending.push({ resolve }))),
+        sendMessage,
+        connect: makeStreamConnect((message: any) => sendMessage(message)),
         onMessage: { addListener: vi.fn((fn) => { onMessage = fn; }) },
       },
     };

@@ -4,6 +4,29 @@ import React from 'react';
 import { TranslatePopup } from '../src/content/ui/TranslatePopup';
 import { mockTranslateExplainResult } from './mocks/gemini.mock';
 
+describe('TranslatePopup while streaming', () => {
+  const stream = (isStreaming: boolean) => (
+    <TranslatePopup mode="improve" originalText="a" result="Partial te" isLoading={false} isStreaming={isStreaming} hasEditableTarget onInsert={() => {}} onClose={() => {}} />
+  );
+
+  it('shows the arriving text and disables Replace and Copy', () => {
+    render(stream(true));
+    expect(screen.getByText('Partial te')).toBeDefined();
+    expect((screen.getByRole('button', { name: 'Replace text in input' }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: 'Copy result' }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.queryByRole('button', { name: /translate improved sentence/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /show changes/i })).toBeNull();
+  });
+
+  it('enables everything again once streaming ends', () => {
+    const { rerender } = render(stream(true));
+    rerender(stream(false));
+    expect((screen.getByRole('button', { name: 'Replace text in input' }) as HTMLButtonElement).disabled).toBe(false);
+    expect((screen.getByRole('button', { name: 'Copy result' }) as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.getByRole('button', { name: /show changes/i })).toBeDefined();
+  });
+});
+
 describe('TranslatePopup native language section', () => {
   const toggle = (name: RegExp) => screen.queryByRole('button', { name });
 

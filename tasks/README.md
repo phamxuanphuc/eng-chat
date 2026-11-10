@@ -57,7 +57,7 @@ Trạng thái gốc khi viết tài liệu: 394 test đạt, build sạch, lint 
 - [x] [T12. Cho người dùng thấy ngữ cảnh hội thoại đã gửi](T12-cho-nguoi-dung-thay-ngu-canh-hoi.md)
 - [x] [T13. Hiển thị khác biệt giữa bản gốc và bản Cải thiện/Viết lại](T13-hien-thi-khac-biet-giua-ban-goc.md)
 - [x] [T14. Cài đặt "ngôn ngữ mẹ đẻ" thay cho tiếng Việt gán cứng](T14-cai-dat-ngon-ngu-me-de-thay.md)
-- [ ] [T15. Streaming kết quả cho Cải thiện, Viết lại, Tóm tắt](T15-streaming-ket-qua-cho-cai-thien-viet.md)
+- [x] [T15. Streaming kết quả cho Cải thiện, Viết lại, Tóm tắt](T15-streaming-ket-qua-cho-cai-thien-viet.md)
 
 ### Bảo trì
 

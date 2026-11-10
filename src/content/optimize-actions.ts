@@ -5,6 +5,7 @@ import { getSelectedText, getSelectionRect, isSensitiveField } from './dom-utils
 import { applyEdit, captureEditSnapshot, resolveEditTarget } from './edit-target';
 import type { PopupAnchor } from './ui/popup-position';
 import { PopupMode, saveTargetLanguages } from './target-languages';
+import { cancelStream, streamOptimize } from './stream-client';
 import { patchToolbar, patchTooltip, render, resultText, state, toneForMode, translator } from './content-state';
 
 const execute = (payload: OptimizeRequest): Promise<OptimizeResponse> =>
@@ -16,9 +17,27 @@ const connectionError = (error: unknown): string =>
 const rewriteOptionsFor = (mode: PopupMode): RewriteOptions | undefined =>
   mode === 'translate' || mode === 'summary' ? undefined : state.tooltip.rewriteOptions;
 
+const runRequest = async (payload: OptimizeRequest, requestId: number, stream: boolean): Promise<OptimizeResponse> => {
+  if (!stream) return execute(payload);
+  let received = '';
+  const result = await streamOptimize(payload, (text) => {
+    if (requestId !== state.requestId) return;
+    received += text;
+    patchTooltip({ result: received, isLoading: false, isStreaming: true, error: null });
+    render();
+  });
+  if (result.fallback && requestId === state.requestId) {
+    patchTooltip({ result: null, isLoading: true, isStreaming: false });
+    render();
+    return execute(payload);
+  }
+  return result;
+};
+
 export const closeTooltip = (): void => {
+  cancelStream();
   state.requestId += 1;
-  patchTooltip({ visible: false, isLoading: false });
+  patchTooltip({ visible: false, isLoading: false, isStreaming: false });
   render();
 };
 
@@ -36,10 +55,11 @@ const computeAnchor = (): PopupAnchor | null => {
 };
 
 const showNotice = (message: string): void => {
+  cancelStream();
   state.requestId += 1;
   state.editSnapshot = null;
   patchToolbar({ visible: false, isLoading: false });
-  patchTooltip({ visible: true, isLoading: false, error: message, result: null, originalText: '', hasEditableTarget: false, anchor: null, contextCount: 0 });
+  patchTooltip({ visible: true, isLoading: false, error: message, result: null, originalText: '', hasEditableTarget: false, anchor: null, contextCount: 0, isStreaming: false });
   render();
 };
 
@@ -68,7 +88,7 @@ export const triggerOptimize = async (
   const showsResult = !!forcedMode || tone === 'translate_explain' || tone === 'summarize';
   const mode: PopupMode = forcedMode || (tone === 'translate_explain' ? 'translate' : tone === 'summarize' ? 'summary' : 'rewrite');
   const targetLanguage = state.targetLanguages[mode];
-  const shown = { visible: true, mode, originalText: targetText, isLoading: false, hasEditableTarget: !!activeEl };
+  const shown = { visible: true, mode, originalText: targetText, isLoading: false, isStreaming: false, hasEditableTarget: !!activeEl };
   const anchor = customText ? state.tooltip.anchor ?? null : computeAnchor();
 
   const effectiveSettings = settings || state.settings;
@@ -79,11 +99,16 @@ export const triggerOptimize = async (
   patchTooltip({ ...shown, targetLanguage, anchor, contextCount: contextMessages.length, isLoading: true, error: null });
   patchToolbar({ visible: false });
   render();
+  cancelStream();
   const requestId = ++state.requestId;
 
 
   try {
-    const response = await execute({ text: targetText, tone, mode, contextMessages, rewriteOptions: rewriteOptionsFor(mode), targetLanguage });
+    const response = await runRequest(
+      { text: targetText, tone, mode, contextMessages, rewriteOptions: rewriteOptionsFor(mode), targetLanguage },
+      requestId,
+      showsResult && mode !== 'translate'
+    );
     if (requestId !== state.requestId) return;
     patchToolbar({ isLoading: false, visible: false });
 
@@ -120,12 +145,13 @@ export const changeMode = (mode: PopupMode): void => {
 export const followUp = async (query: string, refine = false): Promise<void> => {
   const { originalText, mode, result } = state.tooltip;
   if (!originalText) return;
-  patchTooltip({ isLoading: true, error: null });
+  patchTooltip({ isLoading: true, isStreaming: false, error: null });
   render();
+  cancelStream();
   const requestId = ++state.requestId;
 
   try {
-    const response = await execute({
+    const response = await runRequest({
       text: originalText,
       tone: toneForMode(mode),
       mode,
@@ -133,15 +159,15 @@ export const followUp = async (query: string, refine = false): Promise<void> => 
       taskInstruction: query,
       previousResult: refine ? resultText(result) || undefined : undefined,
       targetLanguage: state.targetLanguages[mode],
-    });
+    }, requestId, mode !== 'translate');
     if (requestId !== state.requestId) return;
     patchTooltip(response.success
-      ? { isLoading: false, result: response.data, error: null }
-      : { isLoading: false, result: null, error: response.error || translator()('content.genericError') });
+      ? { isLoading: false, isStreaming: false, result: response.data, error: null }
+      : { isLoading: false, isStreaming: false, result: null, error: response.error || translator()('content.genericError') });
     render();
   } catch (error) {
     if (requestId !== state.requestId) return;
-    patchTooltip({ isLoading: false, error: connectionError(error) });
+    patchTooltip({ isLoading: false, isStreaming: false, error: connectionError(error) });
     render();
   }
 };

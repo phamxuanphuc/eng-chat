@@ -28,6 +28,7 @@ export interface ContentOverlayProps {
     isPinned?: boolean;
     anchor?: PopupAnchor | null;
     contextCount?: number;
+    isStreaming?: boolean;
   };
   onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onCloseToolbar: () => void;
@@ -102,6 +103,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
           isPinned={tooltip.isPinned}
           anchor={tooltip.anchor}
           contextCount={tooltip.contextCount}
+          isStreaming={tooltip.isStreaming}
           modelName={modelName}
           onTogglePin={onTogglePin}
           onLanguageChange={onLanguageChange}

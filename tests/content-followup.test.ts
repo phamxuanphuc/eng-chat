@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { fireEvent } from '@testing-library/react';
+import { makeStreamConnect } from './mocks/stream-port.mock';
 
 type Deferred = { resolve: (value: unknown) => void };
 
@@ -15,7 +16,7 @@ describe('Content script follow-ups', () => {
         local: { get: vi.fn(async () => ({})), set: vi.fn(async () => {}) },
         onChanged: { addListener: vi.fn() },
       },
-      runtime: { sendMessage, onMessage: { addListener: vi.fn((fn) => { onMessage = fn; }) } },
+      runtime: { sendMessage, connect: makeStreamConnect(sendMessage), onMessage: { addListener: vi.fn((fn) => { onMessage = fn; }) } },
     };
     await import('../src/content/index');
     await new Promise((resolve) => setTimeout(resolve, 0));
