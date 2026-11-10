@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { ApiError } from './api-error';
+import { openAiStatusError } from './http-errors';
 
 export interface OpenAiApiParams {
   baseUrl?: string;
@@ -111,26 +112,13 @@ export const callOpenAiApi = async (params: OpenAiApiParams): Promise<string> =>
       const status = axiosErr.response?.status;
       const serverMessage = axiosErr.response?.data?.error?.message;
 
-      if (status === 400) {
-        throw serverMessage ? new ApiError('error.invalidRequest', { detail: serverMessage }) : new ApiError('error.openaiBadRequest');
-      }
-      if (status === 401 || status === 403) {
-        throw new ApiError('error.openaiInvalidKey', { status, detail: serverMessage || '' });
-      }
-      if (status === 404) {
-        throw new ApiError('error.openaiNotFound', { model });
-      }
-      if (status === 429) {
-        throw new ApiError('error.openaiQuota', { detail: serverMessage || '' });
-      }
+      const mapped = openAiStatusError(status, serverMessage, model);
+      if (mapped) throw mapped;
       if (axiosErr.code === 'ECONNABORTED') {
         throw new ApiError('error.openaiTimeout');
       }
       if (!axiosErr.response) {
         throw new ApiError('error.openaiNetwork', { server: baseUrl || 'OpenAI' });
-      }
-      if (status && status >= 500) {
-        throw new ApiError('error.serverUnavailable', { status });
       }
     }
     throw error;

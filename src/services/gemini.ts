@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { AppSettings, OptimizeRequest, OptimizeResponse } from '../types';
 import { parseTranslateResult } from './translate-result';
 import { ApiError, localizeError } from './api-error';
+import { geminiStatusError } from './http-errors';
 import { getServerHost, hasHostPermission } from './host-permission';
 import { buildSystemInstruction, buildUserPrompt } from './prompt';
 import { callOpenAiApi } from './openai';
@@ -74,26 +75,13 @@ export const callGeminiApi = async (params: {
       const status = axiosErr.response?.status;
       const serverMessage = axiosErr.response?.data?.error?.message;
 
-      if (status === 400) {
-        throw serverMessage ? new ApiError('error.invalidRequest', { detail: serverMessage }) : new ApiError('error.geminiBadRequest');
-      }
-      if (status === 401 || status === 403) {
-        throw new ApiError('error.geminiInvalidKey');
-      }
-      if (status === 404) {
-        throw new ApiError('error.geminiModelNotFound', { model });
-      }
-      if (status === 429) {
-        throw new ApiError('error.geminiQuota');
-      }
+      const mapped = geminiStatusError(status, serverMessage, model);
+      if (mapped) throw mapped;
       if (axiosErr.code === 'ECONNABORTED') {
         throw new ApiError('error.geminiTimeout');
       }
       if (!axiosErr.response) {
         throw new ApiError('error.geminiNetwork');
-      }
-      if (status && status >= 500) {
-        throw new ApiError('error.serverUnavailable', { status });
       }
     }
     throw error;
