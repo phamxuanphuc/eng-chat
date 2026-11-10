@@ -37,6 +37,11 @@ describe('Key cooldown store', () => {
     expect(classifyKeyFailure('API quota or rate limit exceeded')).toBe('quota');
     expect(classifyKeyFailure('Gemini API key is invalid or access is unauthorized.')).toBe('invalid');
     expect(classifyKeyFailure('Unable to connect to Google Gemini.')).toBeNull();
+    expect(classifyKeyFailure('Invalid request: API key not valid. Please pass a valid API key.')).toBe('invalid');
+    expect(classifyKeyFailure('The API key is invalid or access is unauthorized (403).')).toBe('invalid');
+    expect(classifyKeyFailure('Invalid request: Please check the data.')).toBeNull();
+    expect(classifyKeyFailure('Invalid request: contents exceed 40300 tokens.')).toBeNull();
+    expect(classifyKeyFailure('')).toBeNull();
   });
 
   it('moves cooling keys to the end and restores them after the cooldown expires', async () => {

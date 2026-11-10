@@ -56,7 +56,7 @@ const writeMap = async (map: CooldownMap): Promise<void> => {
 };
 
 export const classifyKeyFailure = (message: string): KeyFailure | null => {
-  if (/invalid|401|403/i.test(message)) return 'invalid';
+  if (/api key[^.]*(invalid|not valid)|unauthorized|\b40[13]\b/i.test(message)) return 'invalid';
   if (/quota|429/i.test(message)) return 'quota';
   return null;
 };

@@ -125,6 +125,19 @@ describe('Gemini Service & Axios Client', () => {
     expect((axios.post as any).mock.calls[0][1].contents).toBeDefined();
   });
 
+  it('does not burn backup keys on a bad request that is not about the key', async () => {
+    vi.mocked(axios.post).mockRejectedValueOnce({
+      isAxios: true,
+      response: { status: 400, data: { error: { message: 'Request payload is too large.' } } },
+    });
+
+    const response = await executeOptimize({ text: 'Hello', tone: 'professional' }, mockMultiKeySettings);
+
+    expect(response.success).toBe(false);
+    expect(response.error).toContain('Invalid request');
+    expect(axios.post).toHaveBeenCalledTimes(1);
+  });
+
   it('TC-GM-07: executeOptimize does not rotate keys when autoRotateKeys is false', async () => {
     const error429 = {
       isAxios: true,
