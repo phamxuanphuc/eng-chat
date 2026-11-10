@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "VinaWrite - Trợ lý AI Viết lại & Dịch thuật mọi nơi",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Improve, rewrite, summarize and translate text in any text box with AI. Works with Gemini or any OpenAI-compatible provider.",
   "permissions": [
     "storage",
