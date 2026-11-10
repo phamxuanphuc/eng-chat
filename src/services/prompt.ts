@@ -94,6 +94,9 @@ const buildTranslateInstruction = (lang: string | undefined, customPrompt?: stri
   ...customLines(customPrompt, 'Additional user instructions for this style'),
 ].join('\n');
 
+export const editOutputLanguage = (tone: ToneType, targetLanguage?: string, options: PromptOptions = {}): string | undefined =>
+  options.translateOnly || tone === 'translate_explain' || tone === 'summarize' ? undefined : targetLanguage?.trim() || 'English';
+
 export const buildSystemInstruction = (
   tone: ToneType,
   customPrompt?: string,
@@ -106,15 +109,13 @@ export const buildSystemInstruction = (
   if (tone === 'summarize') return buildSummaryInstruction(lang || 'Vietnamese', customPrompt);
   if (tone === 'translate_explain') return buildTranslateInstruction(lang, customPrompt, rewriteOptions);
 
-  const outputLang = lang || 'English';
+  const outputLang = editOutputLanguage(tone, lang) || 'English';
   const keepsLength = tone !== 'concise' && (!rewriteOptions || rewriteOptions.length === 'Auto');
   return [
     `You are an expert native ${outputLang} communication editor.`,
     EDIT_TASKS[options.mode === 'rewrite' ? 'rewrite' : 'improve'],
     TONE_GUIDELINES[tone](outputLang),
-    ...(lang && lang !== 'English'
-      ? [`Write the final text in ${lang}. If the input is in another language, translate it naturally into ${lang} while applying the style above.`]
-      : []),
+    `Write the final text in ${outputLang}, whatever language the target text or the conversation context is written in. If the target text is in another language, translate it naturally into ${outputLang} while applying the style above. Keeping the author's wording means keeping their meaning and voice, not their language.`,
     SAFETY_RULE,
     ...FIDELITY_RULES,
     ...HUMAN_STYLE_RULES,
@@ -139,7 +140,8 @@ export const buildUserPrompt = (
   text: string,
   contextMessages?: ChatMessage[],
   taskInstruction?: string,
-  previousResult?: string
+  previousResult?: string,
+  outputLanguage?: string
 ): string => {
   const task = taskInstruction?.trim();
   const currentResult = task ? previousResult?.trim() : '';
@@ -158,5 +160,8 @@ export const buildUserPrompt = (
 
   parts.push('<target_text>', neutralizeTags(text.trim()), '</target_text>');
   if (currentResult) parts.push('<current_result>', neutralizeTags(currentResult), '</current_result>');
+  if (outputLanguage) {
+    parts.push(`Write the result in ${outputLanguage}${task ? ' unless the task asks for another language' : ''}, even though the text above may be in a different language.`);
+  }
   return parts.join('\n');
 };

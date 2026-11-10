@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildSystemInstruction, buildUserPrompt } from '../src/services/prompt';
+import { buildSystemInstruction, buildUserPrompt, editOutputLanguage } from '../src/services/prompt';
 import { mockChatContext } from './mocks/gemini.mock';
 
 describe('Prompt Builder Service', () => {
@@ -85,6 +85,33 @@ describe('Prompt Builder Service', () => {
     expect(prompt.indexOf('Task:')).toBeLessThan(prompt.indexOf('<target_text>'));
   });
 
+  it('always states the output language for editing, including the English default', () => {
+    ['polite', 'professional', 'friendly', 'concise'].forEach((tone) => {
+      const english = buildSystemInstruction(tone as 'polite', undefined, undefined, 'English');
+      expect(english).toContain('Write the final text in English, whatever language the target text');
+      expect(english).toContain('translate it naturally into English');
+      expect(buildSystemInstruction(tone as 'polite')).toContain('Write the final text in English,');
+    });
+    expect(buildSystemInstruction('friendly', undefined, undefined, 'Japanese', { mode: 'rewrite' }))
+      .toContain('Write the final text in Japanese,');
+  });
+
+  it('repeats the output language after the target text only for editing', () => {
+    expect(editOutputLanguage('professional', ' English ')).toBe('English');
+    expect(editOutputLanguage('professional')).toBe('English');
+    expect(editOutputLanguage('summarize', 'English')).toBeUndefined();
+    expect(editOutputLanguage('translate_explain', 'English')).toBeUndefined();
+    expect(editOutputLanguage('professional', 'English', { translateOnly: true })).toBeUndefined();
+
+    const prompt = buildUserPrompt('Chào anh, em gửi báo cáo', [{ text: 'Anh ơi báo cáo đâu?' }], undefined, undefined, 'English');
+    expect(prompt.endsWith('Write the result in English, even though the text above may be in a different language.')).toBe(true);
+    expect(prompt.indexOf('</target_text>')).toBeLessThan(prompt.indexOf('Write the result in English'));
+    expect(buildUserPrompt('Xin chào')).not.toContain('Write the result in');
+
+    const followUp = buildUserPrompt('Xin chào', undefined, 'Translate to French', 'Hello', 'English');
+    expect(followUp).toContain('Write the result in English unless the task asks for another language,');
+  });
+
   it('gives a follow-up the current result to refine', () => {
     const prompt = buildUserPrompt('Xin chao', undefined, 'Make it shorter.', '  Hello there, my friend.  ');
 
@@ -128,7 +155,7 @@ describe('Prompt Builder Service', () => {
     expect(translate).not.toContain('Vietnamese to English or English to Vietnamese');
 
     const rewriteVi = buildSystemInstruction('professional', undefined, undefined, 'Vietnamese');
-    expect(rewriteVi).toContain('Write the final text in Vietnamese.');
+    expect(rewriteVi).toContain('Write the final text in Vietnamese,');
     expect(rewriteVi).toContain('Return only the final revised Vietnamese text.');
 
     expect(buildSystemInstruction('professional', undefined, undefined, 'English')).toBe(buildSystemInstruction('professional'));

@@ -4,7 +4,7 @@ import { parseTranslateResult } from './translate-result';
 import { ApiError, localizeError } from './api-error';
 import { geminiStatusError } from './http-errors';
 import { getServerHost, hasHostPermission } from './host-permission';
-import { buildSystemInstruction, buildUserPrompt } from './prompt';
+import { buildSystemInstruction, buildUserPrompt, editOutputLanguage } from './prompt';
 import { callOpenAiApi } from './openai';
 import { classifyKeyError, clearKeyCooldown, markKeyCooldown, orderKeysByAvailability } from './key-cooldown';
 
@@ -119,7 +119,8 @@ export const buildPrompts = (request: OptimizeRequest, settings: AppSettings) =>
     request.text,
     settings.enableChatContext ? request.contextMessages : undefined,
     request.taskInstruction,
-    request.previousResult
+    request.previousResult,
+    editOutputLanguage(request.tone, request.targetLanguage, { translateOnly: request.translateOnly })
   ),
 });
 
