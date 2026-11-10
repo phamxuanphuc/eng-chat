@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { COOLDOWN_STORAGE_KEY, KeyCooldown, getKeyCooldowns } from '../services/key-cooldown';
 
 export interface KeyCooldownStatus extends KeyCooldown {
@@ -9,11 +9,13 @@ export const useKeyCooldowns = (keys: string[]): Record<string, KeyCooldownStatu
   const [cooldowns, setCooldowns] = useState<Record<string, KeyCooldown>>({});
   const [now, setNow] = useState(() => Date.now());
   const signature = keys.join('\u0000');
+  const keysRef = useRef(keys);
+  keysRef.current = keys;
 
   useEffect(() => {
     let active = true;
     const refresh = () => {
-      void getKeyCooldowns(keys).then((next) => {
+      void getKeyCooldowns(keysRef.current).then((next) => {
         if (active) setCooldowns(next);
       });
     };

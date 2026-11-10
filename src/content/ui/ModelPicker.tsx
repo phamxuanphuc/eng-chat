@@ -46,6 +46,8 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', onClo
   const [error, setError] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const t = getTranslator(language);
+  const translateRef = useRef(t);
+  translateRef.current = t;
 
   useDismiss(panelRef, true, onClose);
 
@@ -56,7 +58,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', onClo
         setProvider(loaded.llmProvider || 'gemini');
         setSelectedModel((loaded.llmProvider || 'gemini') === 'gemini' ? loaded.selectedModel : (loaded.customModel || ''));
       })
-      .catch((err: any) => setError(err?.message || t('content.unableLoadConfig')))
+      .catch((err: any) => setError(err?.message || translateRef.current('content.unableLoadConfig')))
       .finally(() => setIsLoading(false));
   }, []);
 

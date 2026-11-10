@@ -1,6 +1,6 @@
 # T16. Sửa 3 cảnh báo lint
 
-- [ ] Hoàn thành
+- [x] Hoàn thành
 
 > Đọc [README.md](README.md) trước: quy tắc chung và cách đánh dấu hoàn thành.
 

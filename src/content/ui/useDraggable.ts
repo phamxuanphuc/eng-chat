@@ -16,6 +16,8 @@ export const useDraggable = (
   const [position, setPosition] = useState<Position | null>(initialPosition);
   const persistRef = useRef(onPersist);
   persistRef.current = onPersist;
+  const positionRef = useRef(position);
+  positionRef.current = position;
 
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef<{
@@ -29,10 +31,11 @@ export const useDraggable = (
   } | null>(null);
 
   useEffect(() => {
-    if (!position || !elementRef.current) return;
+    const current = positionRef.current;
+    if (!current || !elementRef.current) return;
     const rect = elementRef.current.getBoundingClientRect();
-    const clamped = clampPosition(position.x, position.y, rect.width || 560, rect.height || 300);
-    if (clamped.x !== position.x || clamped.y !== position.y) {
+    const clamped = clampPosition(current.x, current.y, rect.width || 560, rect.height || 300);
+    if (clamped.x !== current.x || clamped.y !== current.y) {
       setPosition(clamped);
     }
   }, [elementRef]);
