@@ -29,20 +29,24 @@ describe('Background Service Worker', () => {
     };
   });
 
-  it('TC-BG-01: sets up context menus on install', () => {
-    setupContextMenus();
+  it('TC-BG-01: sets up context menus on install', async () => {
+    await setupContextMenus();
     expect(chrome.contextMenus.removeAll).toHaveBeenCalled();
     expect(chrome.contextMenus.create).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'engchat_root' })
+      expect.objectContaining({ id: 'engchat_root' }),
+      expect.any(Function)
     );
     expect(chrome.contextMenus.create).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'engchat_action_improve', title: 'Improve' })
+      expect.objectContaining({ id: 'engchat_action_improve', title: 'Improve' }),
+      expect.any(Function)
     );
     expect(chrome.contextMenus.create).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'engchat_action_rewrite', title: 'Rewrite' })
+      expect.objectContaining({ id: 'engchat_action_rewrite', title: 'Rewrite' }),
+      expect.any(Function)
     );
     expect(chrome.contextMenus.create).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'engchat_action_translate', title: 'Translate' })
+      expect.objectContaining({ id: 'engchat_action_translate', title: 'Translate' }),
+      expect.any(Function)
     );
     const createdTitles = (chrome.contextMenus.create as any).mock.calls
       .filter(([item]: any[]) => item.parentId === 'engchat_root')
@@ -50,17 +54,56 @@ describe('Background Service Worker', () => {
     expect(createdTitles).toEqual(['Improve', 'Rewrite', 'Summary', 'Translate']);
   });
 
-  it('builds the context menu in the chosen interface language', () => {
-    setupContextMenus('vi');
+  it('builds the context menu in the chosen interface language', async () => {
+    await setupContextMenus('vi');
     const titles = (chrome.contextMenus.create as any).mock.calls.map(([item]: any[]) => item.title);
     expect(titles).toEqual(['VinaWrite', 'Cải thiện', 'Viết lại', 'Tóm tắt', 'Dịch']);
+  });
+
+  it('rebuilds overlapping context menu refreshes one after another without duplicate ids', async () => {
+    const created = new Set<string>();
+    const duplicates: string[] = [];
+    let pendingRemove: (() => void) | null = null;
+    (chrome.contextMenus.removeAll as any).mockImplementation((cb: () => void) => {
+      pendingRemove = () => { created.clear(); cb(); };
+      setTimeout(() => pendingRemove?.(), 0);
+    });
+    (chrome.contextMenus.create as any).mockImplementation((item: { id: string }) => {
+      if (created.has(item.id)) duplicates.push(item.id);
+      created.add(item.id);
+    });
+
+    await Promise.all([setupContextMenus('en'), setupContextMenus('vi'), setupContextMenus('en')]);
+
+    expect(duplicates).toEqual([]);
+    expect(chrome.contextMenus.removeAll).toHaveBeenCalledTimes(3);
+    expect(created.size).toBe(5);
+  });
+
+  it('passes a lastError-consuming callback to every menu create', async () => {
+    await setupContextMenus();
+    const calls = (chrome.contextMenus.create as any).mock.calls;
+    expect(calls).toHaveLength(5);
+    calls.forEach(([, cb]: any[]) => expect(typeof cb).toBe('function'));
+    expect(() => calls[0][1]()).not.toThrow();
+  });
+
+  it('keeps working after a failed menu rebuild', async () => {
+    (chrome.contextMenus.removeAll as any).mockImplementationOnce(() => { throw new Error('boom'); });
+    await setupContextMenus();
+    await setupContextMenus();
+    expect(chrome.contextMenus.create).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'engchat_root' }),
+      expect.any(Function)
+    );
   });
 
   it('reads the saved language when refreshing the context menu', async () => {
     (chrome.storage.sync.get as any).mockResolvedValue({ engchat_settings: { language: 'vi' } });
     await refreshContextMenus();
     expect(chrome.contextMenus.create).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'engchat_action_summary', title: 'Tóm tắt' })
+      expect.objectContaining({ id: 'engchat_action_summary', title: 'Tóm tắt' }),
+      expect.any(Function)
     );
   });
 
@@ -68,7 +111,8 @@ describe('Background Service Worker', () => {
     (chrome.storage.sync.get as any).mockRejectedValue(new Error('storage unavailable'));
     await refreshContextMenus();
     expect(chrome.contextMenus.create).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'engchat_action_improve', title: 'Improve' })
+      expect.objectContaining({ id: 'engchat_action_improve', title: 'Improve' }),
+      expect.any(Function)
     );
   });
 

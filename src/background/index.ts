@@ -20,31 +20,45 @@ const CONTEXT_ACTIONS: Array<{ id: ContextAction; titleKey: TranslationKey }> = 
 const toneForAction = (action: ContextAction, defaultTone?: ToneType): ToneType =>
   action === 'translate' ? 'translate_explain' : action === 'summary' ? 'summarize' : defaultTone || 'professional';
 
-export const setupContextMenus = (language?: Language) => {
-  if (typeof chrome === 'undefined' || !chrome.contextMenus) return;
-  const t = getTranslator(language);
+const consumeLastError = () => {
+  void chrome.runtime?.lastError;
+};
 
-  chrome.contextMenus.removeAll(() => {
-    chrome.contextMenus.create({
-      id: 'engchat_root',
-      title: t('app.name'),
-      contexts: ['selection', 'editable'],
-    });
-
-    CONTEXT_ACTIONS.forEach((action) => {
-      chrome.contextMenus.create({
-        id: `${CONTEXT_MENU_PREFIX}${action.id}`,
-        parentId: 'engchat_root',
-        title: t(action.titleKey),
-        contexts: ['selection', 'editable'],
+const rebuildContextMenus = (language?: Language) =>
+  new Promise<void>((resolve) => {
+    const t = getTranslator(language);
+    chrome.contextMenus.removeAll(() => {
+      consumeLastError();
+      chrome.contextMenus.create(
+        { id: 'engchat_root', title: t('app.name'), contexts: ['selection', 'editable'] },
+        consumeLastError
+      );
+      CONTEXT_ACTIONS.forEach((action) => {
+        chrome.contextMenus.create(
+          {
+            id: `${CONTEXT_MENU_PREFIX}${action.id}`,
+            parentId: 'engchat_root',
+            title: t(action.titleKey),
+            contexts: ['selection', 'editable'],
+          },
+          consumeLastError
+        );
       });
+      resolve();
     });
   });
+
+let contextMenuQueue: Promise<void> = Promise.resolve();
+
+export const setupContextMenus = (language?: Language): Promise<void> => {
+  if (typeof chrome === 'undefined' || !chrome.contextMenus) return Promise.resolve();
+  contextMenuQueue = contextMenuQueue.then(() => rebuildContextMenus(language)).catch(() => {});
+  return contextMenuQueue;
 };
 
 export const refreshContextMenus = async () => {
   const language = await loadSettings().then((settings) => settings.language).catch(() => undefined);
-  setupContextMenus(language);
+  await setupContextMenus(language);
 };
 
 export const safeSendTabMessage = async (
