@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   setupContextMenus,
+  refreshContextMenus,
   handleContextMenuClick,
   handleRuntimeMessage,
   handleCommand,
@@ -46,7 +47,42 @@ describe('Background Service Worker', () => {
     const createdTitles = (chrome.contextMenus.create as any).mock.calls
       .filter(([item]: any[]) => item.parentId === 'engchat_root')
       .map(([item]: any[]) => item.title);
-    expect(createdTitles).toEqual(['Improve', 'Rewrite', 'Translate']);
+    expect(createdTitles).toEqual(['Improve', 'Rewrite', 'Summary', 'Translate']);
+  });
+
+  it('builds the context menu in the chosen interface language', () => {
+    setupContextMenus('vi');
+    const titles = (chrome.contextMenus.create as any).mock.calls.map(([item]: any[]) => item.title);
+    expect(titles).toEqual(['VinaWrite', 'Cải thiện', 'Viết lại', 'Tóm tắt', 'Dịch']);
+  });
+
+  it('reads the saved language when refreshing the context menu', async () => {
+    (chrome.storage.sync.get as any).mockResolvedValue({ engchat_settings: { language: 'vi' } });
+    await refreshContextMenus();
+    expect(chrome.contextMenus.create).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'engchat_action_summary', title: 'Tóm tắt' })
+    );
+  });
+
+  it('falls back to English when settings cannot be read', async () => {
+    (chrome.storage.sync.get as any).mockRejectedValue(new Error('storage unavailable'));
+    await refreshContextMenus();
+    expect(chrome.contextMenus.create).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'engchat_action_improve', title: 'Improve' })
+    );
+  });
+
+  it('summarizes from the context menu', async () => {
+    await handleContextMenuClick({ menuItemId: 'engchat_action_summary' } as any, { id: 7 } as any);
+    expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
+      7,
+      expect.objectContaining({ action: 'TRIGGER_OPTIMIZE', tone: 'summarize', mode: 'summary' })
+    );
+  });
+
+  it('ignores an unknown context menu item', async () => {
+    await handleContextMenuClick({ menuItemId: 'engchat_action_unknown' } as any, { id: 7 } as any);
+    expect(chrome.tabs.sendMessage).not.toHaveBeenCalled();
   });
 
   it('TC-BG-02: dispatches each context action with its mode and tone', async () => {

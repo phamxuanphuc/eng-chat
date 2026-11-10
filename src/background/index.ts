@@ -1,25 +1,31 @@
-import { ToneType, OptimizeRequest } from '../types';
+import { Language, ToneType, OptimizeRequest } from '../types';
 import { loadSettings, saveSettings } from '../services/storage';
 import { executeOptimize } from '../services/gemini';
 import { fetchOpenAiModels } from '../services/openai';
+import { getTranslator, TranslationKey } from '../i18n';
 
 const CONTEXT_MENU_PREFIX = 'engchat_action_';
 
-type ContextAction = 'improve' | 'rewrite' | 'translate';
+type ContextAction = 'improve' | 'rewrite' | 'summary' | 'translate';
 
-const CONTEXT_ACTIONS: Array<{ id: ContextAction; title: string }> = [
-  { id: 'improve', title: 'Improve' },
-  { id: 'rewrite', title: 'Rewrite' },
-  { id: 'translate', title: 'Translate' },
+const CONTEXT_ACTIONS: Array<{ id: ContextAction; titleKey: TranslationKey }> = [
+  { id: 'improve', titleKey: 'outputLanguage.improve' },
+  { id: 'rewrite', titleKey: 'outputLanguage.rewrite' },
+  { id: 'summary', titleKey: 'outputLanguage.summary' },
+  { id: 'translate', titleKey: 'outputLanguage.translate' },
 ];
 
-export const setupContextMenus = () => {
+const toneForAction = (action: ContextAction, defaultTone?: ToneType): ToneType =>
+  action === 'translate' ? 'translate_explain' : action === 'summary' ? 'summarize' : defaultTone || 'professional';
+
+export const setupContextMenus = (language?: Language) => {
   if (typeof chrome === 'undefined' || !chrome.contextMenus) return;
+  const t = getTranslator(language);
 
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
       id: 'engchat_root',
-      title: 'VinaWrite',
+      title: t('app.name'),
       contexts: ['selection', 'editable'],
     });
 
@@ -27,11 +33,16 @@ export const setupContextMenus = () => {
       chrome.contextMenus.create({
         id: `${CONTEXT_MENU_PREFIX}${action.id}`,
         parentId: 'engchat_root',
-        title: action.title,
+        title: t(action.titleKey),
         contexts: ['selection', 'editable'],
       });
     });
   });
+};
+
+export const refreshContextMenus = async () => {
+  const language = await loadSettings().then((settings) => settings.language).catch(() => undefined);
+  setupContextMenus(language);
 };
 
 export const safeSendTabMessage = async (
@@ -86,7 +97,7 @@ export const handleContextMenuClick = async (
     const settings = await loadSettings();
     await safeSendTabMessage(tab.id, {
       action: 'TRIGGER_OPTIMIZE',
-      tone: action.id === 'translate' ? 'translate_explain' : settings.defaultTone || 'professional',
+      tone: toneForAction(action.id, settings.defaultTone),
       mode: action.id,
       settings,
     });
@@ -161,7 +172,18 @@ export const handleCommand = async (command: string) => {
 
 if (typeof chrome !== 'undefined') {
   chrome.runtime?.onInstalled?.addListener(() => {
-    setupContextMenus();
+    void refreshContextMenus();
+  });
+
+  chrome.runtime?.onStartup?.addListener(() => {
+    void refreshContextMenus();
+  });
+
+  chrome.storage?.onChanged?.addListener((changes, areaName) => {
+    const change = changes.engchat_settings;
+    if (areaName === 'local' && change && change.oldValue?.language !== change.newValue?.language) {
+      void refreshContextMenus();
+    }
   });
 
   chrome.contextMenus?.onClicked?.addListener((info, tab) => {
