@@ -1,3 +1,5 @@
+import { ApiError } from './api-error';
+
 export type KeyFailure = 'quota' | 'invalid';
 
 export const COOLDOWN_MS: Record<KeyFailure, number> = {
@@ -59,6 +61,19 @@ export const classifyKeyFailure = (message: string): KeyFailure | null => {
   if (/api key[^.]*(invalid|not valid)|unauthorized|\b40[13]\b/i.test(message)) return 'invalid';
   if (/quota|429/i.test(message)) return 'quota';
   return null;
+};
+
+export const classifyKeyError = (error: unknown): KeyFailure | null => {
+  if (error instanceof ApiError) {
+    if (error.key === 'error.geminiInvalidKey') return 'invalid';
+    if (error.key === 'error.geminiQuota') return 'quota';
+    if (error.key === 'error.invalidRequest') {
+      const detail = error.params.detail;
+      return typeof detail === 'string' && classifyKeyFailure(detail) === 'invalid' ? 'invalid' : null;
+    }
+    return null;
+  }
+  return classifyKeyFailure(error instanceof Error ? error.message : typeof error === 'string' ? error : '');
 };
 
 export const markKeyCooldown = async (key: string, reason: KeyFailure, now = Date.now()): Promise<void> => {

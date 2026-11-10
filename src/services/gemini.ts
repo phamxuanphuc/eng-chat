@@ -5,7 +5,7 @@ import { ApiError, localizeError } from './api-error';
 import { getServerHost, hasHostPermission } from './host-permission';
 import { buildSystemInstruction, buildUserPrompt } from './prompt';
 import { callOpenAiApi } from './openai';
-import { classifyKeyFailure, clearKeyCooldown, markKeyCooldown, orderKeysByAvailability } from './key-cooldown';
+import { classifyKeyError, clearKeyCooldown, markKeyCooldown, orderKeysByAvailability } from './key-cooldown';
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
@@ -208,15 +208,14 @@ export const executeOptimize = async (
           break;
         } catch (err: any) {
           lastError = err;
-          const msg = String(err?.message || '');
 
-          if (msg.includes('404') && targetModel !== 'gemini-3.5-flash-lite') {
+          if (err instanceof ApiError && err.key === 'error.geminiModelNotFound' && targetModel !== 'gemini-3.5-flash-lite') {
             targetModel = 'gemini-3.5-flash-lite';
             i--;
             continue;
           }
 
-          const failure = classifyKeyFailure(msg);
+          const failure = classifyKeyError(err);
           if (jsonOutput && !failure && isBadRequest(err)) {
             jsonOutput = false;
             i--;

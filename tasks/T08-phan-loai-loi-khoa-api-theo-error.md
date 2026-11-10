@@ -1,6 +1,6 @@
 # T8. Phân loại lỗi khóa API theo `error.key`, không theo chuỗi tiếng Anh
 
-- [ ] Hoàn thành
+- [x] Hoàn thành
 
 > Đọc [README.md](README.md) trước: quy tắc chung và cách đánh dấu hoàn thành.
 
