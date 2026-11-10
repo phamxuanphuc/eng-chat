@@ -145,7 +145,8 @@ export const executeOptimize = async (
     const userPrompt = buildUserPrompt(
       request.text,
       settings.enableChatContext ? request.contextMessages : undefined,
-      request.taskInstruction
+      request.taskInstruction,
+      request.previousResult
     );
 
     let rawResult = '';

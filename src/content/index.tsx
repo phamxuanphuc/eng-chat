@@ -86,7 +86,7 @@ const renderApp = () => {
       onLanguageChange={handleLanguageChange}
       onModeChange={handleModeChange}
       onRewriteOptionsChange={handleRewriteOptionsChange}
-      onFollowUp={handleFollowUp}
+      onFollowUp={(query) => { void handleFollowUp(query, true); }}
       onRegenerate={handleRegenerate}
       onInsertText={(text) => {
         const replaced = !!editSnapshot && applyEdit(editSnapshot, text);
@@ -194,8 +194,10 @@ const handleModeChange = (newMode: 'translate' | 'rewrite' | 'improve' | 'summar
   handleTriggerOptimize(newMode === 'translate' ? 'translate_explain' : newMode === 'summary' ? 'summarize' : currentDefaultTone, undefined, tooltipState.originalText, newMode);
 };
 
-const handleFollowUp = async (query: string) => {
+const handleFollowUp = async (query: string, refine = false) => {
   if (!tooltipState.originalText) return;
+  const current = tooltipState.result;
+  const previousResult = refine ? (typeof current === 'string' ? current : current?.translation) || undefined : undefined;
   tooltipState = { ...tooltipState, isLoading: true, error: null };
   renderApp();
   const requestId = ++latestRequestId;
@@ -209,6 +211,7 @@ const handleFollowUp = async (query: string) => {
         tone,
         rewriteOptions: tooltipState.mode === 'translate' || tooltipState.mode === 'summary' ? undefined : tooltipState.rewriteOptions,
         taskInstruction: query,
+        previousResult,
         targetLanguage: targetLanguages[tooltipState.mode],
       },
     });
