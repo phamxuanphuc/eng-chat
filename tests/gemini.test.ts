@@ -245,4 +245,21 @@ describe('Gemini hardening', () => {
     });
     await expect(call()).rejects.toThrow('Gemini returned empty data (MAX_TOKENS).');
   });
+
+  it('returns plain text for a translate-only request', async () => {
+    vi.mocked(axios.post).mockResolvedValueOnce({ data: mockGeminiSuccessRawResponse });
+    const response = await executeOptimize(
+      { text: 'Hello', tone: 'translate_explain', targetLanguage: 'Vietnamese', translateOnly: true },
+      mockDefaultSettings
+    );
+
+    expect(typeof response.data).toBe('string');
+    expect((axios.post as any).mock.calls[0][1].system_instruction.parts[0].text).toContain('Return only the Vietnamese translation.');
+  });
+
+  it('sends the rewrite task for rewrite mode', async () => {
+    vi.mocked(axios.post).mockResolvedValueOnce({ data: mockGeminiSuccessRawResponse });
+    await executeOptimize({ text: 'Hello', tone: 'professional', mode: 'rewrite' }, mockDefaultSettings);
+    expect((axios.post as any).mock.calls[0][1].system_instruction.parts[0].text).toContain('fresh wording and sentence structure');
+  });
 });

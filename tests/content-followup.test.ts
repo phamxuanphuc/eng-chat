@@ -87,4 +87,20 @@ describe('Content script follow-ups', () => {
     expect(lastPayload().rewriteOptions).toMatchObject({ length: 'Short' });
     expect(lastPayload().previousResult).toBeUndefined();
   });
+
+  it('tells the background which mode the request is for', async () => {
+    await open('improve', 'Result');
+    expect(sendMessage.mock.calls[0][0].payload.mode).toBe('improve');
+    await ask('Shorter');
+    expect(lastPayload().mode).toBe('improve');
+  });
+
+  it('asks for a plain translation when showing the Vietnamese meaning', async () => {
+    await open('improve', 'I agree with this approach.');
+    const toggle = Array.from(root().querySelectorAll('button')).find((b) => b.textContent?.includes('Translate improved sentence to Vietnamese'))!;
+    fireEvent.click(toggle);
+    await flush();
+
+    expect(lastPayload()).toMatchObject({ text: 'I agree with this approach.', targetLanguage: 'Vietnamese', translateOnly: true });
+  });
 });

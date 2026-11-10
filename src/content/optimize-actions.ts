@@ -22,7 +22,7 @@ export const closeTooltip = (): void => {
 };
 
 export const translateToVietnamese = async (text: string): Promise<string> => {
-  const response = await execute({ text, tone: 'translate_explain', targetLanguage: 'Vietnamese' });
+  const response = await execute({ text, tone: 'translate_explain', targetLanguage: 'Vietnamese', translateOnly: true });
   return response.success ? resultText(response.data) : '';
 };
 
@@ -72,7 +72,7 @@ export const triggerOptimize = async (
     : extractChatContext(activeEl, effectiveSettings?.maxContextMessages || 4);
 
   try {
-    const response = await execute({ text: targetText, tone, contextMessages, rewriteOptions: rewriteOptionsFor(mode), targetLanguage });
+    const response = await execute({ text: targetText, tone, mode, contextMessages, rewriteOptions: rewriteOptionsFor(mode), targetLanguage });
     if (requestId !== state.requestId) return;
     patchToolbar({ isLoading: false, visible: false });
 
@@ -117,6 +117,7 @@ export const followUp = async (query: string, refine = false): Promise<void> => 
     const response = await execute({
       text: originalText,
       tone: toneForMode(mode),
+      mode,
       rewriteOptions: rewriteOptionsFor(mode),
       taskInstruction: query,
       previousResult: refine ? resultText(result) || undefined : undefined,

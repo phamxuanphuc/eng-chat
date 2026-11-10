@@ -59,6 +59,8 @@ export interface OptimizeRequest {
   rewriteOptions?: RewriteOptions;
   taskInstruction?: string;
   previousResult?: string;
+  mode?: 'translate' | 'rewrite' | 'improve' | 'summary';
+  translateOnly?: boolean;
   targetLanguage?: string;
 }
 

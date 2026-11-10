@@ -145,7 +145,8 @@ export const executeOptimize = async (
       request.tone,
       settings.tonePrompts?.[request.tone],
       request.rewriteOptions,
-      request.targetLanguage
+      request.targetLanguage,
+      { mode: request.mode, translateOnly: request.translateOnly }
     );
     const userPrompt = buildUserPrompt(
       request.text,
@@ -222,7 +223,7 @@ export const executeOptimize = async (
       }
     }
 
-    if (request.tone === 'translate_explain') {
+    if (request.tone === 'translate_explain' && !request.translateOnly) {
       return { success: true, data: parseTranslateResult(rawResult) };
     }
 

@@ -33,7 +33,7 @@ export const ViTranslationSection: React.FC<ViTranslationSectionProps> = ({ lang
       } else {
         const response = await sendRuntimeMessage({
           action: 'EXECUTE_GEMINI',
-          payload: { text: `Translate the following sentence into natural Vietnamese:\n"${text}"`, tone: 'concise' },
+          payload: { text, tone: 'translate_explain', targetLanguage: 'Vietnamese', translateOnly: true },
         });
         setTranslation(response?.success && response.data
           ? (typeof response.data === 'string' ? response.data : response.data.translation)
