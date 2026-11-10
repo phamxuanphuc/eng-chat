@@ -5,6 +5,7 @@ export interface ContentEventCallbacks {
   onSelect: (rect: DOMRect, isEditable?: boolean) => void;
   onClickOutside: () => void;
   onSensitiveField?: () => void;
+  onViewportChange?: () => void;
 }
 
 export const computeToolbarPos = (rect: DOMRect) => {
@@ -175,7 +176,18 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) =
     if (hasUsableSelection()) scheduleSelectionChecks();
   };
 
+  let viewportFrame: number | null = null;
+  const handleViewportChange = () => {
+    if (viewportFrame !== null || !callbacks.onViewportChange) return;
+    viewportFrame = requestAnimationFrame(() => {
+      viewportFrame = null;
+      callbacks.onViewportChange?.();
+    });
+  };
+
   document.addEventListener('focusin', handleFocusIn);
+  document.addEventListener('scroll', handleViewportChange, { capture: true, passive: true });
+  window.addEventListener('resize', handleViewportChange);
   document.addEventListener('select', handleSelect, true);
   document.addEventListener('mousedown', handleMouseDown);
   document.addEventListener('mouseup', checkAfterPointerSelection, true);
@@ -186,6 +198,10 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) =
 
   return () => {
     document.removeEventListener('focusin', handleFocusIn);
+    document.removeEventListener('scroll', handleViewportChange, true);
+    window.removeEventListener('resize', handleViewportChange);
+    if (viewportFrame !== null) cancelAnimationFrame(viewportFrame);
+    viewportFrame = null;
     document.removeEventListener('select', handleSelect, true);
     document.removeEventListener('mousedown', handleMouseDown);
     document.removeEventListener('mouseup', checkAfterPointerSelection, true);

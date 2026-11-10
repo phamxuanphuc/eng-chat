@@ -44,6 +44,44 @@ describe('content-events', () => {
     expect(onFocus).toHaveBeenCalled();
   });
 
+  describe('viewport changes', () => {
+    const frames = () => new Promise((resolve) => setTimeout(resolve, 40));
+
+    it('batches scroll and resize into one callback per frame', async () => {
+      const onViewportChange = vi.fn();
+      setupDOMEvents({ onFocus: vi.fn(), onSelect: vi.fn(), onClickOutside: vi.fn(), onViewportChange });
+      document.dispatchEvent(new Event('scroll'));
+      document.dispatchEvent(new Event('scroll'));
+      window.dispatchEvent(new Event('resize'));
+      await frames();
+      expect(onViewportChange).toHaveBeenCalledTimes(1);
+      window.dispatchEvent(new Event('resize'));
+      await frames();
+      expect(onViewportChange).toHaveBeenCalledTimes(2);
+    });
+
+    it('catches scrolls from nested containers', async () => {
+      const onViewportChange = vi.fn();
+      setupDOMEvents({ onFocus: vi.fn(), onSelect: vi.fn(), onClickOutside: vi.fn(), onViewportChange });
+      const inner = document.createElement('div');
+      document.body.appendChild(inner);
+      inner.dispatchEvent(new Event('scroll'));
+      await frames();
+      expect(onViewportChange).toHaveBeenCalledTimes(1);
+    });
+
+    it('removes listeners and the pending frame on cleanup', async () => {
+      const onViewportChange = vi.fn();
+      const cleanup = setupDOMEvents({ onFocus: vi.fn(), onSelect: vi.fn(), onClickOutside: vi.fn(), onViewportChange });
+      document.dispatchEvent(new Event('scroll'));
+      cleanup();
+      document.dispatchEvent(new Event('scroll'));
+      window.dispatchEvent(new Event('resize'));
+      await frames();
+      expect(onViewportChange).not.toHaveBeenCalled();
+    });
+  });
+
   describe('focus toolbar only for fields with text', () => {
     const box = () => ({ left: 50, top: 50, width: 100, height: 30, right: 150, bottom: 80 } as DOMRect);
     const makeField = (tag: 'input' | 'textarea', value = '') => {

@@ -8,6 +8,7 @@ import { initialToolbarState, initialTooltipState, loadToolbarCollapsed, Toolbar
 export const state = {
   editableEl: null as HTMLElement | null,
   editSnapshot: null as EditSnapshot | null,
+  toolbarAnchor: null as (() => DOMRect | null) | null,
   theme: 'dark' as 'light' | 'dark',
   language: 'en' as Language,
   defaultTone: 'professional' as ToneType,

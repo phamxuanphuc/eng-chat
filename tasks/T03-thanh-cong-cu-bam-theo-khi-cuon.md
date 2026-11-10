@@ -1,6 +1,6 @@
 # T3. Thanh công cụ bám theo khi cuộn và đổi kích thước cửa sổ
 
-- [ ] Hoàn thành
+- [x] Hoàn thành
 
 > Đọc [README.md](README.md) trước: quy tắc chung và cách đánh dấu hoàn thành.
 

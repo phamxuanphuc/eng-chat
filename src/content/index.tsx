@@ -2,6 +2,7 @@ import React from 'react';
 import { AppSettings } from '../types';
 import { applyEdit } from './edit-target';
 import { computeToolbarPos, setupDOMEvents } from './content-events';
+import { getActiveEditableElement } from './dom-utils';
 import { ContentOverlay } from './ui/ContentOverlay';
 import { detectPageTheme, observePageTheme } from './theme-detector';
 import { loadSettings } from '../services/storage';
@@ -21,8 +22,42 @@ const hideToolbarNow = () => {
   render();
 };
 
-const showToolbarAt = (rect: DOMRect, isEditable: boolean) => {
+const selectionAnchor = (): DOMRect | null => {
+  const selection = window.getSelection();
+  if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+    const range = selection.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    const first = range.getClientRects()[0];
+    if (rect.width > 0 && rect.height > 0) return rect;
+    if (first && first.width > 0 && first.height > 0) return first;
+  }
+  const active = getActiveEditableElement();
+  return active ? active.getBoundingClientRect() : null;
+};
+
+const isAnchorVisible = (rect: DOMRect | null): rect is DOMRect =>
+  !!rect &&
+  rect.width > 0 &&
+  rect.height > 0 &&
+  rect.bottom > 0 &&
+  rect.right > 0 &&
+  rect.top < window.innerHeight &&
+  rect.left < window.innerWidth;
+
+const syncToolbarToAnchor = () => {
+  if (!state.toolbar.visible || !state.toolbarAnchor) return;
+  const rect = state.toolbarAnchor();
+  if (!isAnchorVisible(rect)) {
+    hideToolbarNow();
+    return;
+  }
+  patchToolbar(computeToolbarPos(rect));
+  render();
+};
+
+const showToolbarAt = (rect: DOMRect, isEditable: boolean, anchor: () => DOMRect | null) => {
   if (state.tooltip.visible || isToolbarSuppressed()) return;
+  state.toolbarAnchor = anchor;
   patchToolbar({ ...computeToolbarPos(rect), visible: true, isLoading: false, isEditable });
   render();
 };
@@ -117,9 +152,10 @@ const cleanupDOMEvents = setupDOMEvents({
   onFocus: (rect, element) => {
     state.editableEl = element;
     if (state.settings?.showToolbarOnFocus === false) return;
-    showToolbarAt(rect, true);
+    showToolbarAt(rect, true, () => element.isConnected ? element.getBoundingClientRect() : null);
   },
-  onSelect: (rect, isEditable) => showToolbarAt(rect, !!isEditable),
+  onSelect: (rect, isEditable) => showToolbarAt(rect, !!isEditable, selectionAnchor),
+  onViewportChange: syncToolbarToAnchor,
   onSensitiveField: () => {
     if (state.toolbar.visible) hideToolbarNow();
   },

@@ -39,7 +39,7 @@ Trạng thái gốc khi viết tài liệu: 394 test đạt, build sạch, lint 
 
 - [x] [T1. Sửa "Thay thế" trên contenteditable khi không có vùng chọn](T01-sua-thay-the-tren-contenteditable-khi-khong.md)
 - [x] [T2. Thanh công cụ chỉ hiện khi ô nhập đã có chữ, thêm công tắc tắt hiện khi focus](T02-thanh-cong-cu-chi-hien-khi-o.md)
-- [ ] [T3. Thanh công cụ bám theo khi cuộn và đổi kích thước cửa sổ](T03-thanh-cong-cu-bam-theo-khi-cuon.md)
+- [x] [T3. Thanh công cụ bám theo khi cuộn và đổi kích thước cửa sổ](T03-thanh-cong-cu-bam-theo-khi-cuon.md)
 
 ### Ưu tiên P1: trải nghiệm và nợ kỹ thuật
 
