@@ -71,6 +71,8 @@
   "content.contextUsed": "Ngữ cảnh: {{count}} tin nhắn",
   "content.contextUsedOne": "Ngữ cảnh: 1 tin nhắn",
   "content.contextUsedHint": "Các tin nhắn gần nhất của cuộc trò chuyện đã được gửi cho AI để khớp giọng điệu. Bạn có thể tắt trong Cài đặt, mục Ngữ cảnh.",
+  "content.showChanges": "Xem thay đổi",
+  "content.hideChanges": "Ẩn thay đổi",
   "content.closeOptions": "Đóng tùy chọn",
   "content.length": "Độ dài",
   "content.formality": "Mức độ trang trọng",

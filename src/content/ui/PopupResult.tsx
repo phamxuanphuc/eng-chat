@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { BookOpen, ChevronDown, RotateCw, Settings } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { BookOpen, ChevronDown, GitCompare, RotateCw, Settings } from 'lucide-react';
 import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
 import { Loader } from '../../components/ui/Loader';
 import { getTranslator, TranslationKey } from '../../i18n';
 import { sendRuntimeMessage } from '../../services/extension-messaging';
+import { diffWords } from '../../services/text-diff';
 import { Language, TranslateExplainResult } from '../../types';
+import { DiffView } from './DiffView';
 
 type PopupMode = 'translate' | 'rewrite' | 'improve' | 'summary';
 
@@ -27,6 +29,7 @@ export interface PopupResultProps {
   language: Language;
   mode: PopupMode;
   text: string;
+  originalText?: string;
   explanation?: TranslateExplainResult['explanation'] | null;
   isLoading: boolean;
   error?: string | null;
@@ -34,12 +37,15 @@ export interface PopupResultProps {
   onRetry?: () => void;
 }
 
-export const PopupResult: React.FC<PopupResultProps> = ({ language, mode, text, explanation, isLoading, error, isNotice = false, onRetry }) => {
+export const PopupResult: React.FC<PopupResultProps> = ({ language, mode, text, originalText = '', explanation, isLoading, error, isNotice = false, onRetry }) => {
   const [showExplanation, setShowExplanation] = useState(false);
+  const [showDiff, setShowDiff] = useState(false);
   const t = getTranslator(language);
   const vocabulary = Array.isArray(explanation?.vocabulary) ? explanation.vocabulary : [];
   const grammar = typeof explanation?.grammar === 'string' ? explanation.grammar : '';
   const nuances = typeof explanation?.nuances === 'string' ? explanation.nuances : '';
+  const canDiff = (mode === 'improve' || mode === 'rewrite') && !isLoading && !error && !!text && !!originalText;
+  const diff = useMemo(() => (canDiff ? diffWords(originalText, text) : null), [canDiff, originalText, text]);
   const hasExplanation = vocabulary.length > 0 || !!grammar || !!nuances;
 
   return (
@@ -72,7 +78,21 @@ export const PopupResult: React.FC<PopupResultProps> = ({ language, mode, text, 
       )}
       {!isLoading && !error && (
         <div className="whitespace-pre-wrap text-sm leading-relaxed text-slate-100 selection:bg-indigo-500/30">
-          {text || t(EMPTY_KEYS[mode])}
+          {diff && showDiff ? <DiffView parts={diff} /> : text || t(EMPTY_KEYS[mode])}
+        </div>
+      )}
+      {diff && (
+        <div>
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-pressed={showDiff}
+            className="!rounded-lg !px-1.5 !py-1 !text-indigo-400"
+            icon={<GitCompare size={13} />}
+            onClick={() => setShowDiff((current) => !current)}
+          >
+            {showDiff ? t('content.hideChanges') : t('content.showChanges')}
+          </Button>
         </div>
       )}
       {hasExplanation && mode === 'translate' && !isLoading && !error && (

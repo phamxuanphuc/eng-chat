@@ -1,6 +1,6 @@
 # T13. Hiển thị khác biệt giữa bản gốc và bản Cải thiện/Viết lại
 
-- [ ] Hoàn thành
+- [x] Hoàn thành
 
 > Đọc [README.md](README.md) trước: quy tắc chung và cách đánh dấu hoàn thành.
 

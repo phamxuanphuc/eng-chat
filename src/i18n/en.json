@@ -71,6 +71,8 @@
   "content.contextUsed": "Context: {{count}} messages",
   "content.contextUsedOne": "Context: 1 message",
   "content.contextUsedHint": "The last messages of this conversation were sent to the AI to match the tone. You can turn this off in Settings, under Context.",
+  "content.showChanges": "Show changes",
+  "content.hideChanges": "Hide changes",
   "content.closeOptions": "Close options",
   "content.length": "Length",
   "content.formality": "Formality",

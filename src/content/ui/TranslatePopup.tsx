@@ -116,6 +116,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           language={language}
           mode={mode}
           text={translationText}
+          originalText={originalText}
           explanation={explanation}
           isLoading={isLoading}
           error={error}
