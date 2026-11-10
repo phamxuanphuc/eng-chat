@@ -136,7 +136,7 @@ describe('TranslatePopup Component', () => {
   it.each([
     ['improve', true],
     ['rewrite', true],
-    ['translate', false],
+    ['translate', true],
     ['summary', false],
   ] as const)('in %s mode shows replace: %s', (mode, expected) => {
     render(
