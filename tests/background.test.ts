@@ -5,6 +5,7 @@ import {
   handleContextMenuClick,
   handleRuntimeMessage,
   handleCommand,
+  handleInstalled,
   safeSendTabMessage,
 } from '../src/background/index';
 
@@ -213,5 +214,45 @@ describe('Background OPEN_OPTIONS_PAGE', () => {
     await handleRuntimeMessage({ action: 'OPEN_OPTIONS_PAGE' }, {} as any, sendResponse);
     expect(openOptionsPage).toHaveBeenCalled();
     expect(sendResponse).toHaveBeenCalledWith({ success: true });
+  });
+});
+
+describe('Background first install', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (globalThis as any).chrome = {
+      contextMenus: { removeAll: vi.fn((cb) => cb && cb()), create: vi.fn() },
+      storage: { local: { get: vi.fn(async () => ({})) }, sync: { get: vi.fn(async () => ({})) } },
+    };
+  });
+
+  const withOptionsPage = (impl: () => Promise<void> = async () => {}) => {
+    const openOptionsPage = vi.fn(impl);
+    (chrome as any).runtime = { openOptionsPage };
+    return openOptionsPage;
+  };
+
+  it('opens the options page after building the menus on a fresh install', async () => {
+    const openOptionsPage = withOptionsPage();
+    await handleInstalled({ reason: 'install' });
+    expect(chrome.contextMenus.create).toHaveBeenCalled();
+    expect(openOptionsPage).toHaveBeenCalledTimes(1);
+    const menuOrder = (chrome.contextMenus.removeAll as any).mock.invocationCallOrder[0];
+    expect(openOptionsPage.mock.invocationCallOrder[0]).toBeGreaterThan(menuOrder);
+  });
+
+  it('does not open it on an update or browser update', async () => {
+    const openOptionsPage = withOptionsPage();
+    await handleInstalled({ reason: 'update' });
+    await handleInstalled({ reason: 'chrome_update' });
+    await handleInstalled();
+    expect(openOptionsPage).not.toHaveBeenCalled();
+    expect(chrome.contextMenus.create).toHaveBeenCalled();
+  });
+
+  it('survives the options page failing to open', async () => {
+    const openOptionsPage = withOptionsPage(async () => { throw new Error('blocked'); });
+    await expect(handleInstalled({ reason: 'install' })).resolves.toBeUndefined();
+    expect(openOptionsPage).toHaveBeenCalledTimes(1);
   });
 });

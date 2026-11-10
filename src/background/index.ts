@@ -61,6 +61,14 @@ export const refreshContextMenus = async () => {
   await setupContextMenus(language);
 };
 
+export const handleInstalled = async (details?: { reason?: string }): Promise<void> => {
+  await refreshContextMenus();
+  if (details?.reason !== 'install') return;
+  try {
+    await chrome.runtime.openOptionsPage();
+  } catch {}
+};
+
 export const safeSendTabMessage = async (
   tabId: number,
   message: any
@@ -191,8 +199,8 @@ export const handleCommand = async (command: string) => {
 };
 
 if (typeof chrome !== 'undefined') {
-  chrome.runtime?.onInstalled?.addListener(() => {
-    void refreshContextMenus();
+  chrome.runtime?.onInstalled?.addListener((details) => {
+    void handleInstalled(details);
   });
 
   chrome.runtime?.onStartup?.addListener(() => {

@@ -1,6 +1,6 @@
 # T11. Mở trang cài đặt khi vừa cài tiện ích
 
-- [ ] Hoàn thành
+- [x] Hoàn thành
 
 > Đọc [README.md](README.md) trước: quy tắc chung và cách đánh dấu hoàn thành.
 
