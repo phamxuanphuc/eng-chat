@@ -1,4 +1,5 @@
 import { DEFAULT_REWRITE_OPTIONS, RewriteOptions } from '../types';
+import type { PopupAnchor } from './ui/popup-position';
 
 export interface ToolbarState {
   visible: boolean;
@@ -20,6 +21,7 @@ export interface TooltipState {
   rewriteOptions: RewriteOptions;
   isPinned: boolean;
   hasEditableTarget: boolean;
+  anchor?: PopupAnchor | null;
 }
 
 export const initialToolbarState: ToolbarState = {
@@ -60,4 +62,5 @@ export const initialTooltipState: TooltipState = {
   rewriteOptions: DEFAULT_REWRITE_OPTIONS,
   isPinned: false,
   hasEditableTarget: false,
+  anchor: null,
 };

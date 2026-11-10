@@ -1,8 +1,9 @@
 import { AppSettings, OptimizeRequest, OptimizeResponse, RewriteOptions, ToneType } from '../types';
 import { getRuntimeErrorMessage, sendRuntimeMessage } from '../services/extension-messaging';
 import { extractChatContext } from './chat-extractor';
-import { getSelectedText, isSensitiveField } from './dom-utils';
+import { getSelectedText, getSelectionRect, isSensitiveField } from './dom-utils';
 import { applyEdit, captureEditSnapshot, resolveEditTarget } from './edit-target';
+import type { PopupAnchor } from './ui/popup-position';
 import { PopupMode, saveTargetLanguages } from './target-languages';
 import { patchToolbar, patchTooltip, render, resultText, state, toneForMode, translator } from './content-state';
 
@@ -26,11 +27,18 @@ export const translateToVietnamese = async (text: string): Promise<string> => {
   return response.success ? resultText(response.data) : '';
 };
 
+const computeAnchor = (): PopupAnchor | null => {
+  let rect = getSelectionRect();
+  const editable = state.editableEl?.getBoundingClientRect();
+  if (!rect && editable && editable.width > 0 && editable.height > 0) rect = editable;
+  return rect ? { x: rect.left, y: rect.bottom + 8, top: rect.top } : null;
+};
+
 const showNotice = (message: string): void => {
   state.requestId += 1;
   state.editSnapshot = null;
   patchToolbar({ visible: false, isLoading: false });
-  patchTooltip({ visible: true, isLoading: false, error: message, result: null, originalText: '', hasEditableTarget: false });
+  patchTooltip({ visible: true, isLoading: false, error: message, result: null, originalText: '', hasEditableTarget: false, anchor: null });
   render();
 };
 
@@ -60,8 +68,9 @@ export const triggerOptimize = async (
   const mode: PopupMode = forcedMode || (tone === 'translate_explain' ? 'translate' : tone === 'summarize' ? 'summary' : 'rewrite');
   const targetLanguage = state.targetLanguages[mode];
   const shown = { visible: true, mode, originalText: targetText, isLoading: false, hasEditableTarget: !!activeEl };
+  const anchor = customText ? state.tooltip.anchor ?? null : computeAnchor();
 
-  patchTooltip({ ...shown, targetLanguage, isLoading: true, error: null });
+  patchTooltip({ ...shown, targetLanguage, anchor, isLoading: true, error: null });
   patchToolbar({ visible: false });
   render();
   const requestId = ++state.requestId;

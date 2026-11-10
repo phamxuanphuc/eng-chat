@@ -170,3 +170,23 @@ export const replaceTextInElement = (
     return false;
   }
 };
+
+const isUsableRect = (rect?: DOMRect | null): rect is DOMRect => !!rect && rect.width > 0 && rect.height > 0;
+
+export const getSelectionRect = (): DOMRect | null => {
+  const selection = window.getSelection();
+  if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+    try {
+      const range = selection.getRangeAt(0);
+      const whole = range.getBoundingClientRect();
+      if (isUsableRect(whole)) return whole;
+      const first = range.getClientRects()[0];
+      if (isUsableRect(first)) return first;
+    } catch {
+      return null;
+    }
+  }
+  const active = getActiveEditableElement();
+  const rect = active?.getBoundingClientRect();
+  return isUsableRect(rect) ? rect : null;
+};

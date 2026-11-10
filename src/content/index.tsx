@@ -2,7 +2,7 @@ import React from 'react';
 import { AppSettings } from '../types';
 import { applyEdit } from './edit-target';
 import { computeToolbarPos, setupDOMEvents } from './content-events';
-import { getActiveEditableElement } from './dom-utils';
+import { getSelectionRect } from './dom-utils';
 import { ContentOverlay } from './ui/ContentOverlay';
 import { detectPageTheme, observePageTheme } from './theme-detector';
 import { loadSettings } from '../services/storage';
@@ -20,19 +20,6 @@ const siteLabel = getSiteLabel();
 const hideToolbarNow = () => {
   patchToolbar({ visible: false });
   render();
-};
-
-const selectionAnchor = (): DOMRect | null => {
-  const selection = window.getSelection();
-  if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-    const first = range.getClientRects()[0];
-    if (rect.width > 0 && rect.height > 0) return rect;
-    if (first && first.width > 0 && first.height > 0) return first;
-  }
-  const active = getActiveEditableElement();
-  return active ? active.getBoundingClientRect() : null;
 };
 
 const isAnchorVisible = (rect: DOMRect | null): rect is DOMRect =>
@@ -154,7 +141,7 @@ const cleanupDOMEvents = setupDOMEvents({
     if (state.settings?.showToolbarOnFocus === false) return;
     showToolbarAt(rect, true, () => element.isConnected ? element.getBoundingClientRect() : null);
   },
-  onSelect: (rect, isEditable) => showToolbarAt(rect, !!isEditable, selectionAnchor),
+  onSelect: (rect, isEditable) => showToolbarAt(rect, !!isEditable, getSelectionRect),
   onViewportChange: syncToolbarToAnchor,
   onSensitiveField: () => {
     if (state.toolbar.visible) hideToolbarNow();

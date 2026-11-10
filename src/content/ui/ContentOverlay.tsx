@@ -1,6 +1,7 @@
 import React from 'react';
 import { FloatingToolbar, HideScope } from './FloatingToolbar';
 import { TranslatePopup } from './TranslatePopup';
+import type { PopupAnchor } from './popup-position';
 import { ToneType, RewriteOptions, Language } from '../../types';
 
 export interface ContentOverlayProps {
@@ -25,6 +26,7 @@ export interface ContentOverlayProps {
     rewriteOptions?: RewriteOptions;
     hasEditableTarget: boolean;
     isPinned?: boolean;
+    anchor?: PopupAnchor | null;
   };
   onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onCloseToolbar: () => void;
@@ -93,6 +95,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
           rewriteOptions={tooltip.rewriteOptions}
           hasEditableTarget={tooltip.hasEditableTarget}
           isPinned={tooltip.isPinned}
+          anchor={tooltip.anchor}
           onTogglePin={onTogglePin}
           onLanguageChange={onLanguageChange}
           onModeChange={onModeChange}

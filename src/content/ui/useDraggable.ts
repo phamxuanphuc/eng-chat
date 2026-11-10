@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-export interface Position {
-  x: number;
-  y: number;
-}
+import { clampPosition, Position } from './popup-position';
+
+export type { Position };
 
 export const useDraggable = (
   elementRef: React.RefObject<HTMLElement>,
@@ -33,15 +32,6 @@ export const useDraggable = (
     currentPos: Position;
   } | null>(null);
 
-  const clampPosition = useCallback((x: number, y: number, width: number, height: number): Position => {
-    const maxX = Math.max(8, window.innerWidth - width - 8);
-    const maxY = Math.max(8, window.innerHeight - height - 8);
-    return {
-      x: Math.min(Math.max(8, x), maxX),
-      y: Math.min(Math.max(8, y), maxY),
-    };
-  }, []);
-
   useEffect(() => {
     if (!position || !elementRef.current) return;
     const rect = elementRef.current.getBoundingClientRect();
@@ -49,7 +39,7 @@ export const useDraggable = (
     if (clamped.x !== position.x || clamped.y !== position.y) {
       setPosition(clamped);
     }
-  }, [clampPosition, elementRef]);
+  }, [elementRef]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -61,7 +51,7 @@ export const useDraggable = (
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [position, clampPosition, elementRef]);
+  }, [position, elementRef]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.button !== 0 || !elementRef.current) return;
@@ -115,7 +105,7 @@ export const useDraggable = (
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
-  }, [clampPosition, elementRef, storageKey]);
+  }, [elementRef, storageKey]);
 
   return {
     position,

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { AudioWaveform, ChevronDown } from 'lucide-react';
 import { TranslateExplainResult, RewriteOptions, DEFAULT_REWRITE_OPTIONS, Language } from '../../types';
 import { TranslatePopupHeader } from './TranslatePopupHeader';
@@ -10,6 +10,7 @@ import { ViTranslationSection } from './ViTranslationSection';
 import { DEFAULT_TARGET_LANGUAGES } from '../target-languages';
 import { getTranslator, TranslationKey } from '../../i18n';
 import { useDraggable } from './useDraggable';
+import { placeNearAnchor, PopupAnchor, Position } from './popup-position';
 import { ModelPicker } from './ModelPicker';
 import { Button } from '../../components/ui/Button';
 import { IconButton } from '../../components/ui/IconButton';
@@ -28,7 +29,7 @@ export interface TranslatePopupProps {
   language?: Language; mode?: PopupMode; originalText: string;
   result?: string | TranslateExplainResult | null;
   isLoading: boolean; error?: string | null; targetLanguage?: string;
-  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark'; hasEditableTarget?: boolean;
+  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark'; hasEditableTarget?: boolean; anchor?: PopupAnchor | null;
   onLanguageChange?: (lang: string) => void; onModeChange?: (mode: PopupMode) => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void; onFollowUp?: (query: string) => void;
   onRegenerate?: () => void; onInsert?: (text: string) => void; onClose: () => void; isPinned?: boolean; onTogglePin?: () => void; onTranslateVi?: (text: string) => Promise<string>;
@@ -37,7 +38,7 @@ export interface TranslatePopupProps {
 export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   language = 'en', mode = 'translate', originalText, result, isLoading, error,
   targetLanguage, rewriteOptions, theme = 'dark',
-  hasEditableTarget = false,
+  hasEditableTarget = false, anchor = null,
   onLanguageChange, onModeChange, onRewriteOptionsChange,
   onFollowUp, onRegenerate, onInsert, onClose, isPinned = false, onTogglePin, onTranslateVi,
 }) => {
@@ -48,6 +49,19 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   const popupRef = useRef<HTMLDivElement>(null);
   const { position, isDragging, handleMouseDown } = useDraggable(popupRef, 'engchat_popup_position');
 
+  const [anchoredPosition, setAnchoredPosition] = useState<Position | null>(null);
+
+  useLayoutEffect(() => {
+    if (!anchor || position || !popupRef.current) {
+      setAnchoredPosition(null);
+      return;
+    }
+    const rect = popupRef.current.getBoundingClientRect();
+    const next = placeNearAnchor(anchor, rect.width || 560, rect.height || 300);
+    setAnchoredPosition((current) => (current && current.x === next.x && current.y === next.y ? current : next));
+  }, [anchor, position, result, isLoading, error, showRewriteOptions, isExpanded]);
+
+  const placed = position || anchoredPosition;
   const t = getTranslator(language);
   const currentLang = targetLanguage || DEFAULT_TARGET_LANGUAGES[mode];
   const isRewriteMode = mode === 'rewrite' || mode === 'improve';
@@ -66,8 +80,8 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
       role="dialog"
       aria-label={t(DIALOG_LABELS[mode])}
       data-engchat-theme={theme}
-      style={position ? { left: `${position.x}px`, top: `${position.y}px`, bottom: 'auto', right: 'auto' } : undefined}
-      className={`fixed pointer-events-auto ${!position ? 'bottom-6 right-6' : ''} z-[2147483647] flex w-[560px] max-w-[calc(100vw-16px)] min-h-0 max-h-[88vh] animate-popIn flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-900 font-sans text-slate-100 shadow-[0_20px_60px_rgb(2_6_23/0.4)] ring-1 ring-white/10 ${isDragging ? 'select-none' : ''}`}
+      style={placed ? { left: `${placed.x}px`, top: `${placed.y}px`, bottom: 'auto', right: 'auto' } : undefined}
+      className={`fixed pointer-events-auto ${!placed && !anchor ? 'bottom-6 right-6' : ''} z-[2147483647] flex w-[560px] max-w-[calc(100vw-16px)] min-h-0 max-h-[88vh] animate-popIn flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-900 font-sans text-slate-100 shadow-[0_20px_60px_rgb(2_6_23/0.4)] ring-1 ring-white/10 ${isDragging ? 'select-none' : ''}`}
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
     >

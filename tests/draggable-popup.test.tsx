@@ -202,4 +202,45 @@ describe('Draggable TranslatePopup with LocalStorage', () => {
     fireEvent.click(rewriteOption);
     expect(handleModeChange).toHaveBeenCalledWith('rewrite');
   });
+
+  describe('anchored placement', () => {
+    const dialogFor = (anchor: { x: number; y: number; top?: number } | null) => {
+      Object.defineProperty(window, 'innerWidth', { value: 1024, configurable: true });
+      Object.defineProperty(window, 'innerHeight', { value: 768, configurable: true });
+      const { container } = render(
+        <TranslatePopup originalText="Text" result="Result" isLoading={false} anchor={anchor} onClose={() => {}} />
+      );
+      return container.querySelector('[role="dialog"]') as HTMLElement;
+    };
+
+    it('opens right below the anchor', () => {
+      const dialog = dialogFor({ x: 100, y: 200, top: 180 });
+      expect(dialog.style.left).toBe('100px');
+      expect(dialog.style.top).toBe('200px');
+      expect(dialog.classList.contains('bottom-6')).toBe(false);
+    });
+
+    it('clamps horizontally into the viewport', () => {
+      const dialog = dialogFor({ x: 900, y: 200, top: 180 });
+      expect(dialog.style.left).toBe(`${1024 - 560 - 8}px`);
+    });
+
+    it('opens above the anchor when there is no room below', () => {
+      const dialog = dialogFor({ x: 100, y: 700, top: 680 });
+      expect(dialog.style.top).toBe(`${680 - 8 - 300}px`);
+    });
+
+    it('keeps the position the user dragged to over the anchor', () => {
+      localStorage.setItem('engchat_popup_position', JSON.stringify({ x: 120, y: 240 }));
+      const dialog = dialogFor({ x: 100, y: 200, top: 180 });
+      expect(dialog.style.left).toBe('120px');
+      expect(dialog.style.top).toBe('240px');
+    });
+
+    it('falls back to the bottom-right corner without an anchor', () => {
+      const dialog = dialogFor(null);
+      expect(dialog.classList.contains('bottom-6')).toBe(true);
+      expect(dialog.classList.contains('right-6')).toBe(true);
+    });
+  });
 });

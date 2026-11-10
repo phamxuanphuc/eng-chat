@@ -43,7 +43,7 @@ Trạng thái gốc khi viết tài liệu: 394 test đạt, build sạch, lint 
 
 ### Ưu tiên P1: trải nghiệm và nợ kỹ thuật
 
-- [ ] [T4. Popup kết quả mở gần vùng chọn thay vì góc dưới phải](T04-popup-ket-qua-mo-gan-vung-chon.md)
+- [x] [T4. Popup kết quả mở gần vùng chọn thay vì góc dưới phải](T04-popup-ket-qua-mo-gan-vung-chon.md)
 - [ ] [T5. Bảng tùy chọn viết lại: nút Áp dụng, đủ chiều cao, lưu mục tự thêm](T05-bang-tuy-chon-viet-lai-nut-ap.md)
 - [ ] [T6. Chỉ hiện thanh Lưu khi cần](T06-chi-hien-thanh-luu-khi-can.md)
 - [ ] [T7. Chuyển tùy chọn của overlay khỏi `localStorage` của trang web](T07-chuyen-tuy-chon-cua-overlay-khoi-localstorage.md)

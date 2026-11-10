@@ -64,6 +64,31 @@ describe('Content script request handling', () => {
     expect(sendMessage.mock.calls[0][0].payload.contextMessages).toEqual([]);
   });
 
+  it('opens the result popup below the field and keeps that place after a mode change', async () => {
+    const textarea = document.createElement('textarea');
+    textarea.value = 'Anchor me';
+    let bottom = 140;
+    textarea.getBoundingClientRect = () =>
+      ({ left: 60, right: 260, top: 100, bottom, width: 200, height: bottom - 100 } as DOMRect);
+    document.body.appendChild(textarea);
+    textarea.focus();
+
+    pending.length = 0;
+    onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'improve' }, {}, vi.fn());
+    pending[0].resolve({ success: true, data: 'Anchored' });
+    await flush();
+
+    const root = document.getElementById('engchat-root-host')!.shadowRoot!;
+    const dialog = () => root.querySelector<HTMLElement>('[role="dialog"]')!;
+    expect(dialog().style.left).toBe('60px');
+    expect(dialog().style.top).toBe('148px');
+
+    bottom = 400;
+    Array.from(root.querySelectorAll('button')).find((b) => b.textContent?.trim() === 'Rewrite')?.click();
+    await flush();
+    expect(dialog().style.top).toBe('148px');
+  });
+
   it('switches mode after a failed request', async () => {
     const textarea = document.createElement('textarea');
     textarea.value = 'Text that failed';
