@@ -74,4 +74,19 @@ describe('Saving a custom provider asks for access to its server', () => {
     await waitFor(() => expect((globalThis as any).chrome.storage.local.set).toHaveBeenCalled());
     expect(request).not.toHaveBeenCalled();
   });
+
+  it('picks a preset on the options page and flags unsaved changes', async () => {
+    setup('openai_compatible');
+    fireEvent.click(await screen.findByRole('button', { name: 'Groq' }));
+    expect((await screen.findByDisplayValue('https://api.groq.com/openai/v1')) as HTMLInputElement).toBeDefined();
+    expect(screen.getByDisplayValue('llama-3.3-70b-versatile')).toBeDefined();
+    expect(await screen.findByText('You have unsaved changes')).toBeDefined();
+  });
+
+  it('says why when host access is refused while loading models', async () => {
+    request.mockResolvedValue(false);
+    setup('openai_compatible');
+    fireEvent.click(await screen.findByRole('button', { name: 'Load model list' }));
+    expect(await screen.findByText(/needs your permission to reach api\.deepseek\.com/)).toBeDefined();
+  });
 });

@@ -9,28 +9,6 @@ import { classifyKeyError, clearKeyCooldown, markKeyCooldown, orderKeysByAvailab
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-export const fetchGeminiModels = async (apiKey: string): Promise<string[]> => {
-  if (!apiKey?.trim()) throw new ApiError('error.noKey');
-  try {
-    const response = await axios.get(GEMINI_API_BASE, {
-      timeout: 15000,
-      headers: { 'x-goog-api-key': apiKey.trim() },
-    });
-    return (Array.isArray(response.data?.models) ? response.data.models : [])
-      .filter((model: any) => Array.isArray(model.supportedGenerationMethods) && model.supportedGenerationMethods.includes('generateContent'))
-      .map((model: any) => String(model.name || '').replace(/^models\//, ''))
-      .filter(Boolean)
-      .sort();
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const status = (error as AxiosError).response?.status;
-      if (status === 401 || status === 403) throw new ApiError('error.geminiModelsInvalidKey', { status });
-      if (!(error as AxiosError).response) throw new ApiError('error.geminiModelsNetwork');
-    }
-    throw error;
-  }
-};
-
 export const callGeminiApi = async (params: {
   apiKey: string;
   model: string;

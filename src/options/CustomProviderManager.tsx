@@ -6,10 +6,12 @@ import { getServerHost, requestHostPermission } from '../services/host-permissio
 import { useMutation } from '@tanstack/react-query';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { Select } from '../components/ui/Select';
+import { ProviderPresets } from './ProviderPresets';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
-import { callOpenAiApi } from '../services/openai';
-import { Lightbulb, Server, Sparkles } from 'lucide-react';
+import { callOpenAiApi, fetchOpenAiModels } from '../services/openai';
+import { Download, Lightbulb, Server, Sparkles } from 'lucide-react';
 
 interface CustomProviderManagerProps {
   language?: Language;
@@ -51,6 +53,21 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
     },
   });
 
+  const modelsMutation = useMutation({
+    mutationFn: async () => {
+      if (!(await requestHostPermission(baseUrl))) {
+        throw new ApiError('error.hostPermission', { server: getServerHost(baseUrl) });
+      }
+      return fetchOpenAiModels({ baseUrl: baseUrl.trim() || 'https://api.openai.com/v1', apiKey: apiKey.trim() });
+    },
+  });
+  const models = modelsMutation.data ?? [];
+
+  const changeBaseUrl = (url: string) => {
+    modelsMutation.reset();
+    onUpdateBaseUrl(url);
+  };
+
   return (
     <section className="flex flex-col gap-5 border-t border-slate-800/80 pt-6 first:border-t-0 first:pt-0">
       <div className="flex items-center justify-between gap-3">
@@ -62,11 +79,20 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
         </Badge>
       </div>
 
+      <ProviderPresets
+        label={t('custom.presets')}
+        baseUrl={baseUrl}
+        onPick={(preset) => {
+          changeBaseUrl(preset.baseUrl);
+          onUpdateModel(preset.defaultModel);
+        }}
+      />
+
       <Input
         label={t('custom.baseUrl')}
         placeholder="https://api.openai.com/v1"
         value={baseUrl}
-        onChange={(e) => onUpdateBaseUrl(e.target.value)}
+        onChange={(e) => changeBaseUrl(e.target.value)}
       />
 
       <Input
@@ -77,12 +103,39 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
         onChange={(e) => onUpdateApiKey(e.target.value)}
       />
 
-      <Input
-        label={t('custom.modelName')}
-        placeholder={t('custom.modelPlaceholder')}
-        value={model}
-        onChange={(e) => onUpdateModel(e.target.value)}
-      />
+      <div className="flex items-end gap-2">
+        <div className="min-w-0 flex-1">
+          <Input
+            label={t('custom.modelName')}
+            placeholder={t('custom.modelPlaceholder')}
+            value={model}
+            onChange={(e) => onUpdateModel(e.target.value)}
+          />
+        </div>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="shrink-0 !py-2.5"
+          icon={<Download size={14} className="text-indigo-400" />}
+          isLoading={modelsMutation.isPending}
+          onClick={() => modelsMutation.mutate()}
+        >
+          {t('custom.loadModels')}
+        </Button>
+      </div>
+
+      {models.length > 0 && (
+        <Select
+          label={t('custom.chooseModel')}
+          value={models.includes(model) ? model : ''}
+          options={[{ value: '', label: t('custom.chooseModel') }, ...models.map((id) => ({ value: id, label: id }))]}
+          onChange={(e) => e.target.value && onUpdateModel(e.target.value)}
+        />
+      )}
+
+      {modelsMutation.isError && (
+        <Alert variant="error" message={localizeError(modelsMutation.error, language || 'en')} />
+      )}
 
       <div className="flex items-start gap-2 rounded-xl border border-slate-800/80 bg-slate-950/60 p-3 text-xs leading-relaxed text-slate-400">
         <Lightbulb size={14} className="mt-0.5 shrink-0 text-indigo-400" />
