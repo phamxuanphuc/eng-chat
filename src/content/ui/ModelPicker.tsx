@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Check, RefreshCw, Star, X } from 'lucide-react';
 import { AppSettings, Language, LLMProvider } from '../../types';
-import { GEMINI_MODELS } from '../../options/ModelSelector';
+import { GEMINI_MODELS } from '../../constants/models';
 import { loadSettings, saveSettings } from '../../services/storage';
 import { getTranslator } from '../../i18n';
 import { sendRuntimeMessage } from '../../services/extension-messaging';

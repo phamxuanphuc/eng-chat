@@ -4,50 +4,14 @@ import { SelectCard } from '../components/ui/SelectCard';
 import { Sparkles, Zap, Shield, Cpu } from 'lucide-react';
 import { Language } from '../types';
 import { getTranslator } from '../i18n';
+import { GEMINI_MODELS } from '../constants/models';
 
-export interface ModelOption {
-  id: string;
-  name: string;
-  tag: string;
-  tagVariant: 'success' | 'primary' | 'secondary' | 'warning';
-  description: string;
-  icon: React.ReactNode;
-}
-
-export const GEMINI_MODELS: ModelOption[] = [
-  {
-    id: 'gemini-3.5-flash-lite',
-    name: 'Gemini 3.5 Flash-Lite',
-    tag: 'Recommended - Ultra fast',
-    tagVariant: 'success',
-    description: 'Ultra-low latency, quota efficient, and instant responses for chat and translation.',
-    icon: <Zap size={16} className="text-emerald-400" />,
-  },
-  {
-    id: 'gemini-3.5-flash',
-    name: 'Gemini 3.5 Flash',
-    tag: 'High quality',
-    tagVariant: 'primary',
-    description: 'Deep contextual reasoning, vocabulary lookup, and precise wording.',
-    icon: <Sparkles size={16} className="text-indigo-400" />,
-  },
-  {
-    id: 'gemini-3.1-flash-lite',
-    name: 'Gemini 3.1 Flash-Lite',
-    tag: 'Stable',
-    tagVariant: 'secondary',
-    description: 'A lightweight, stable model for everyday emails and messages.',
-    icon: <Shield size={16} className="text-blue-400" />,
-  },
-  {
-    id: 'gemini-2.5-flash',
-    name: 'Gemini 2.5 Flash',
-    tag: 'Standard',
-    tagVariant: 'secondary',
-    description: 'A standard model generation with high reliability and consistency.',
-    icon: <Cpu size={16} className="text-slate-400" />,
-  },
-];
+const MODEL_ICONS: Record<string, React.ReactNode> = {
+  'gemini-3.5-flash-lite': <Zap size={16} className="text-emerald-400" />,
+  'gemini-3.5-flash': <Sparkles size={16} className="text-indigo-400" />,
+  'gemini-3.1-flash-lite': <Shield size={16} className="text-blue-400" />,
+  'gemini-2.5-flash': <Cpu size={16} className="text-slate-400" />,
+};
 
 interface ModelSelectorProps {
   language?: Language;
@@ -61,13 +25,6 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   onSelectModel,
 }) => {
   const t = getTranslator(language || 'en');
-  const modelText = {
-    'gemini-3.5-flash-lite': ['model.recommended', 'model.flashLiteDescription'],
-    'gemini-3.5-flash': ['model.highQuality', 'model.flashDescription'],
-    'gemini-3.1-flash-lite': ['model.stable', 'model.stableDescription'],
-    'gemini-2.5-flash': ['model.standard', 'model.standardDescription'],
-  } as const;
-
   return (
     <section className="flex flex-col gap-5 border-t border-slate-800/80 pt-6 first:border-t-0 first:pt-0">
       <div className="flex items-center justify-between gap-3">
@@ -86,14 +43,14 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
             <SelectCard key={m.id} selected={isSelected} className="!rounded-xl !p-3.5" onClick={() => onSelectModel(m.id)}>
               <span className="flex flex-col gap-2.5">
                 <span className="flex flex-wrap items-center gap-2 pr-7">
-                  <span className="shrink-0 rounded-lg border border-slate-800 bg-slate-900 p-1.5">{m.icon}</span>
+                  <span className="shrink-0 rounded-lg border border-slate-800 bg-slate-900 p-1.5">{MODEL_ICONS[m.id]}</span>
                   <span className={`text-xs font-bold ${isSelected ? 'text-indigo-200' : 'text-slate-200'}`}>{m.name}</span>
                   <Badge variant={m.tagVariant} size="sm">
-                    {t(modelText[m.id as keyof typeof modelText]?.[0] || 'model.standard')}
+                    {t(m.tagKey)}
                   </Badge>
                 </span>
                 <span className="line-clamp-2 text-xs leading-relaxed text-slate-400">
-                  {t(modelText[m.id as keyof typeof modelText]?.[1] || 'model.standardDescription')}
+                  {t(m.descriptionKey)}
                 </span>
               </span>
             </SelectCard>

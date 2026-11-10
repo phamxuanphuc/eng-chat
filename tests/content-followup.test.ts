@@ -6,10 +6,9 @@ type Deferred = { resolve: (value: unknown) => void };
 describe('Content script follow-ups', () => {
   const pending: Deferred[] = [];
   let onMessage: (message: any, sender: any, sendResponse: (r?: any) => void) => boolean;
-  let sendMessage: ReturnType<typeof vi.fn>;
+  const sendMessage = vi.fn((_message: any) => new Promise((resolve) => pending.push({ resolve })));
 
   beforeAll(async () => {
-    sendMessage = vi.fn(() => new Promise((resolve) => pending.push({ resolve })));
     (globalThis as any).chrome = {
       storage: {
         sync: { get: vi.fn(async () => ({})), set: vi.fn() },
