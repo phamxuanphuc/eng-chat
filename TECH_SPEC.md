@@ -1,6 +1,6 @@
-# Thiết Kế Kỹ Thuật (Technical Specification) - LingoFlow
+# Thiết Kế Kỹ Thuật (Technical Specification) - VinaWrite
 
-Tài liệu này đề xuất giải pháp kiến trúc và kỹ thuật để triển khai Chrome Extension LingoFlow theo chuẩn Manifest V3.
+Tài liệu này đề xuất giải pháp kiến trúc và kỹ thuật để triển khai Chrome Extension VinaWrite theo chuẩn Manifest V3.
 
 ---
 
@@ -70,9 +70,9 @@ Tài liệu này đề xuất giải pháp kiến trúc và kỹ thuật để t
 
 ### 3.3. Background Service Worker (`src/background/index.ts`)
 - Khởi tạo `chrome.contextMenus` đa cấp khi cài đặt extension:
-  - Menu cha: "Tối ưu tiếng Anh (LingoFlow)"
-  - Các menu con ứng với từng văn phong.
-- Điều phối luồng xử lý giữa Content Script và Gemini API.
+  - Menu cha: "VinaWrite"
+  - Các menu con: Improve, Rewrite, Summary, Translate.
+- Điều phối luồng xử lý giữa Content Script và nhà cung cấp AI (Gemini hoặc OpenAI-compatible); kết quả dạng văn bản đi qua cổng `engchat_stream` (SSE) để hiển thị dần. Khi vừa cài đặt (`reason === 'install'`) tự mở trang cài đặt.
 
 ### 3.4. Content Script & DOM Manipulation (`src/content/index.ts`)
 - **Phát hiện ô nhập liệu**:
@@ -97,40 +97,30 @@ Tài liệu này đề xuất giải pháp kiến trúc và kỹ thuật để t
 ```
 eng-chat/
 ├── src/
-│   ├── background/        # Service Worker & Context Menu
-│   │   └── index.ts
+│   ├── background/        # Service Worker, Context Menu, cổng streaming
+│   │   └── index.ts, stream-port.ts
 │   ├── components/ui/     # UI Elements phong cách Uiverse Galaxy
-│   │   ├── Button.tsx     # Gradient/Glow button
-│   │   ├── Input.tsx      # Cyber/Floating focus input
-│   │   ├── Switch.tsx     # Smooth animated toggle switch
-│   │   ├── Loader.tsx     # Galaxy orbital/pulsing loader
-│   │   └── ToneCard.tsx   # Interactive tone selection card
+│   │   └── Alert, Badge, Button, Chip, IconButton, Input, Loader, Logo,
+│   │       Menu, Select, SelectCard, Switch, Textarea, ToneCard
 │   ├── content/           # Content Script tương tác DOM
-│   │   ├── index.ts
-│   │   ├── chat-extractor.ts
-│   │   └── ui/            # React + Shadow DOM tooltip & loading
-│   │       ├── TooltipApp.tsx
-│   │       └── style.css
-│   ├── options/           # Giao diện cài đặt (Options Page)
-│   │   ├── index.html
-│   │   ├── App.tsx
-│   │   └── main.tsx
+│   │   ├── index.tsx, content-events.ts, content-state.ts, optimize-actions.ts
+│   │   ├── stream-client.ts, overlay-prefs.ts, dom-utils.ts, edit-target.ts
+│   │   └── ui/            # React + Shadow DOM
+│   │       ├── ContentOverlay.tsx, FloatingToolbar.tsx, TranslatePopup.tsx
+│   │       ├── PopupResult.tsx, DiffView.tsx, NativeTranslationSection.tsx
+│   │       └── RewriteOptionsPanel.tsx, ModelPicker.tsx, LanguageMenu.tsx
+│   ├── options/           # Trang cài đặt, 4 tab: AI Provider, Writing, Context, Hidden sites
+│   │   ├── App.tsx, OptionsLayout.tsx, OptionsContext.tsx
+│   │   └── pages/
 │   ├── popup/             # Giao diện popup nhanh
-│   │   ├── index.html
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   ├── services/          # Gemini API & Chrome Storage
-│   │   ├── gemini.ts
-│   │   ├── storage.ts
-│   │   └── prompt.ts
+│   ├── services/          # Gọi AI, lưu trữ, prompt
+│   │   ├── gemini.ts, openai.ts, stream.ts, optimize-stream.ts
+│   │   ├── key-cooldown.ts, api-error.ts, text-diff.ts
+│   │   └── storage.ts, prompt.ts
 │   ├── store/             # Zustand store đồng bộ chrome.storage
 │   │   └── useSettingsStore.ts
 │   └── types/             # Định nghĩa Type / Interface
-│       └── index.ts
-├── tests/                 # Unit Tests (Vitest)
-│   ├── gemini.test.ts
-│   ├── prompt.test.ts
-│   └── chat-extractor.test.ts
+├── tests/                 # Unit & integration tests (Vitest), mock tại tests/mocks/
 ├── manifest.json          # Manifest V3 configuration
 ├── tailwind.config.js     # Cấu hình Tailwind CSS
 ├── postcss.config.js      # Cấu hình PostCSS

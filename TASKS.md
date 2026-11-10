@@ -1,6 +1,6 @@
 # Kế Hoạch Triển Khai Kỹ Thuật Chi Tiết (TASKS.md)
 
-Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, thuật toán xử lý DOM, kịch bản kiểm thử và tiêu chuẩn nghiệm thu cho LingoFlow.
+Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, thuật toán xử lý DOM, kịch bản kiểm thử và tiêu chuẩn nghiệm thu cho VinaWrite.
 
 ---
 
@@ -61,14 +61,14 @@ Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, 
 - [x] **Task 5.2**: `src/content/dom-utils.ts`:
   - `getActiveEditableElement()`: Xác định element đang focus.
   - `replaceTextInElement(el, newText)`: Ghi đè an toàn kèm event dispatch.
-- [x] **Task 5.3**: `src/content/ui/TooltipApp.tsx`:
+- [x] **Task 5.3**: `src/content/ui/ContentOverlay.tsx` (gồm `FloatingToolbar.tsx` và `TranslatePopup.tsx`):
   - Render trong Shadow DOM: Hiển thị Galaxy Loader, kết quả xem trước, nút Sao chép, nút Chèn và thẻ giải thích từ vựng/ngữ pháp.
 - [x] **Task 5.4**: `src/content/index.ts`: Lắng nghe message và điều phối luồng.
 - [x] **Task 5.5**: Unit test DOM Utils & Chat Extractor (`tests/chat-extractor.test.ts`, `tests/dom-utils.test.ts`).
 
 ### Giai đoạn 6: Background Service Worker & Context Menu
 - [x] **Task 6.1**: `src/background/index.ts`:
-  - `chrome.runtime.onInstalled`: Tạo menu cha "LingoFlow" và 5 menu con tương ứng 5 tone.
+  - `chrome.runtime.onInstalled`: Tạo menu cha "VinaWrite" và 4 menu con: Improve, Rewrite, Summary, Translate.
   - `chrome.contextMenus.onClicked`: Bắt sự kiện, điều phối gửi message tới active tab.
 - [x] **Task 6.2**: Unit test Background Worker (`tests/background.test.ts`).
 
@@ -85,7 +85,7 @@ Tài liệu này đặc tả chi tiết kiến trúc, giao thức truyền tin, 
 - [x] **Task 8.5**: Bổ sung bộ test unit và E2E cho Multi-Key failover (`tests/e2e-multi-key.test.tsx`).
 
 ### Giai đoạn 9: Kiểm Thử Toàn Diện, Build & E2E Verification
-- [x] **Task 9.1**: Toàn bộ unit tests & E2E tests pass 100% (`pnpm test`) - Đạt 44/44 tests pass (10 test suites).
+- [x] **Task 9.1**: Toàn bộ unit tests & E2E tests pass 100% (`pnpm test`) - Hiện có 526 test đạt (58 file test).
 - [x] **Task 9.2**: Biên dịch production (`pnpm build`) sạch, không lỗi type-check (đóng gói ra thư mục `dist/`).
 - [ ] **Task 9.3**: Hướng dẫn nạp tiện ích vào `chrome://extensions` để người dùng trải nghiệm thực tế.
 

@@ -64,4 +64,12 @@ Short and concrete. Avoid doubled jargon such as "AI Provider (LLM Provider)". B
 
 ## Last updated
 
+2026-11-10: improvement tasks T1 to T15.
+
+- Options save bar shows only with unsaved changes or right after a save, so the "all saved" state is gone.
+- Placeholder token `--c-placeholder` added; inputs use `placeholder-placeholder`.
+- Popup footer shows the active model name in a ghost `Button`; the translate disclaimer line is removed.
+- Result popup opens next to the selection, shows a context-count `Badge`, a word diff (`bg-emerald-500/15` for added, `line-through text-rose-400` for removed) and streams text while Replace and Copy stay disabled.
+- Rewrite options apply through one "Apply" button in a fixed footer.
+
 2026-11-06: UI/UX audit, shared palette theming, standard overlay components, unsaved-changes tracking.

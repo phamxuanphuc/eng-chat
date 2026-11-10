@@ -1,7 +1,7 @@
-# Tài Liệu Yêu Cầu Sản Phẩm (PRD) - LingoFlow
+# Tài Liệu Yêu Cầu Sản Phẩm (PRD) - VinaWrite
 
 ## 1. Tổng Quan Sản Phẩm
-LingoFlow ("Write, Rewrite & Translate Anywhere") là tiện ích Chrome Manifest V3 giúp người dùng **cải thiện, viết lại, tóm tắt và dịch** văn bản ngay trên bất kỳ trang web nào, bằng API key của chính họ: Google Gemini hoặc bất kỳ nhà cung cấp tương thích OpenAI (OpenAI, OpenRouter, Groq, Ollama, LM Studio,...).
+VinaWrite ("Write, Rewrite & Translate Anywhere") là tiện ích Chrome Manifest V3 giúp người dùng **cải thiện, viết lại, tóm tắt và dịch** văn bản ngay trên bất kỳ trang web nào, bằng API key của chính họ: Google Gemini hoặc bất kỳ nhà cung cấp tương thích OpenAI (OpenAI, OpenRouter, Groq, Ollama, LM Studio,...).
 
 ---
 
@@ -27,8 +27,8 @@ LingoFlow ("Write, Rewrite & Translate Anywhere") là tiện ích Chrome Manifes
 - Ngôn ngữ đích được chọn **theo từng chế độ**, đổi được ngay trong popup kết quả (kết quả tự tạo lại) hoặc trong trang cài đặt; lưu tại `chrome.storage.local` (`engchat_target_languages`) và đồng bộ tức thì tới các tab đang mở.
 
 ### 3.2. Điểm Kích Hoạt
-- **Thanh công cụ nổi (Floating Toolbar)**: Hiện khi bôi đen văn bản hoặc focus ô nhập liệu (`input`, `textarea`, `contenteditable`).
-- **Menu chuột phải**: `LingoFlow` → Improve / Rewrite / Translate.
+- **Thanh công cụ nổi (Floating Toolbar)**: Hiện khi bôi đen văn bản hoặc focus ô nhập liệu (`input`, `textarea`, `contenteditable`) đã có chữ; bám theo vùng neo khi cuộn trang. Kết quả Cải thiện, Viết lại, Tóm tắt hiển thị dần theo thời gian thực (streaming).
+- **Menu chuột phải**: `VinaWrite` → Improve / Rewrite / Summary / Translate.
 - **Phím tắt**: `Ctrl+Shift+E` (`Cmd+Shift+E` trên macOS) tối ưu văn bản với văn phong mặc định.
 
 ### 3.3. Popup Kết Quả (Shadow DOM)
@@ -49,9 +49,9 @@ LingoFlow ("Write, Rewrite & Translate Anywhere") là tiện ích Chrome Manifes
 - Tùy chọn đọc 1–10 tin nhắn gần nhất (Slack, Discord, MS Teams,...) để AI chọn xưng hô và giọng điệu phù hợp. Tắt tính năng thì không có dữ liệu hội thoại nào được gửi đi.
 
 ### 3.7. Trang Cài Đặt (Options)
-- 3 tab: **AI Provider**, **Writing settings** (văn phong mặc định, prompt tùy chỉnh, ngôn ngữ đầu ra theo chế độ), **Context**.
+- 4 tab: **AI Provider** (Gemini hoặc nhà cung cấp tùy chỉnh với preset và nút tải danh sách model), **Writing settings** (văn phong mặc định, prompt tùy chỉnh, ngôn ngữ mẹ đẻ và ngôn ngữ đầu ra theo chế độ), **Context**, **Hidden sites** (danh sách trang ẩn thanh công cụ và công tắc hiện thanh công cụ khi focus ô nhập).
 - Header gọn: chọn ngôn ngữ giao diện (EN/VI) và nút giao diện **System / Light / Dark** (lưu trong `localStorage`, áp dụng cho trang cài đặt và popup của tiện ích).
-- Thanh "Lưu cài đặt" luôn hiển thị ở cuối màn hình; báo thành công/lỗi rõ ràng.
+- Thanh "Lưu cài đặt" chỉ hiện khi có thay đổi chưa lưu, hoặc khi vừa lưu xong / lưu lỗi / bị từ chối quyền; báo thành công/lỗi rõ ràng.
 - Đạt độ tương phản chữ WCAG AA ở cả hai theme, không tràn ngang trên màn hình hẹp.
 
 ### 3.8. Lưu Trữ & Bảo Mật

@@ -62,7 +62,7 @@ Trạng thái gốc khi viết tài liệu: 394 test đạt, build sạch, lint 
 ### Bảo trì
 
 - [x] [T16. Sửa 3 cảnh báo lint](T16-sua-3-canh-bao-lint.md)
-- [ ] [T17. Cập nhật tài liệu cho khớp hiện trạng](T17-cap-nhat-tai-lieu-cho-khop-hien.md)
+- [x] [T17. Cập nhật tài liệu cho khớp hiện trạng](T17-cap-nhat-tai-lieu-cho-khop-hien.md)
 
 ## Backlog chưa đặc tả
 
