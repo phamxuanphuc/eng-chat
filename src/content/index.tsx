@@ -1,248 +1,107 @@
 import React from 'react';
-import { AppSettings, ToneType, OptimizeResponse, RewriteOptions } from '../types';
-import { getSelectedText, isSensitiveField } from './dom-utils';
-import { applyEdit, captureEditSnapshot, EditSnapshot, resolveEditTarget } from './edit-target';
-import { extractChatContext } from './chat-extractor';
+import { AppSettings } from '../types';
+import { applyEdit } from './edit-target';
 import { computeToolbarPos, setupDOMEvents } from './content-events';
 import { ContentOverlay } from './ui/ContentOverlay';
 import { detectPageTheme, observePageTheme } from './theme-detector';
-import { getRuntimeErrorMessage, sendRuntimeMessage } from '../services/extension-messaging';
 import { loadSettings } from '../services/storage';
 import { HIDDEN_SITES_STORAGE_KEY } from '../services/hidden-sites';
 import { getSiteLabel, hideToolbar, isToolbarSuppressed, refreshSiteHidden } from './toolbar-visibility';
-import { usePresetSectionStore, PresetSection } from '../store/usePresetSectionStore';
-import { DEFAULT_TARGET_LANGUAGES, loadTargetLanguages, saveTargetLanguages, TargetLanguages } from './target-languages';
+import { usePresetSectionStore } from '../store/usePresetSectionStore';
+import { loadTargetLanguages } from './target-languages';
 import { ensureShadowHost } from './shadow-host';
-import { getTranslator } from '../i18n';
-import { initialToolbarState, initialTooltipState, loadToolbarCollapsed, saveToolbarCollapsed, ToolbarState, TooltipState } from './overlay-state';
+import { saveToolbarCollapsed } from './overlay-state';
+import { isPinned, patchToolbar, patchTooltip, render, setRenderer, state, toneForMode } from './content-state';
+import { changeMode, changeRewriteOptions, changeTargetLanguage, closeTooltip, followUp, regenerate, translateToVietnamese, triggerOptimize } from './optimize-actions';
 
-let currentEditableEl: HTMLElement | null = null;
-let editSnapshot: EditSnapshot | null = null;
-let currentTheme: 'light' | 'dark' = 'dark';
-let currentLanguage: 'en' | 'vi' = 'en';
-let currentDefaultTone: ToneType = 'professional';
-let latestRequestId = 0;
-let currentSettings: AppSettings | null = null;
-let targetLanguages: TargetLanguages = { ...DEFAULT_TARGET_LANGUAGES };
-let toolbarState: ToolbarState = { ...initialToolbarState, collapsed: loadToolbarCollapsed() };
-let tooltipState: TooltipState = { ...initialTooltipState };
 const siteLabel = getSiteLabel();
+
+const hideToolbarNow = () => {
+  patchToolbar({ visible: false });
+  render();
+};
+
+const showToolbarAt = (rect: DOMRect, isEditable: boolean) => {
+  if (state.tooltip.visible || isToolbarSuppressed()) return;
+  patchToolbar({ ...computeToolbarPos(rect), visible: true, isLoading: false, isEditable });
+  render();
+};
 
 const refreshHiddenSites = () => {
   void refreshSiteHidden().then((hidden) => {
-    if (hidden && toolbarState.visible) {
-      toolbarState = { ...toolbarState, visible: false };
-      renderApp();
-    }
+    if (hidden && state.toolbar.visible) hideToolbarNow();
   });
 };
 
-const handleHideToolbar = async (scope: 'session' | 'site') => {
-  await hideToolbar(scope);
-  toolbarState = { ...toolbarState, visible: false };
-  renderApp();
+const refreshTargetLanguages = () => {
+  void loadTargetLanguages().then((languages) => { state.targetLanguages = languages; });
 };
 
-const translator = () => getTranslator(currentLanguage);
-const getPresetSection = (mode: TooltipState['mode']): PresetSection => mode;
-const getPinnedForMode = (mode: TooltipState['mode']): boolean => usePresetSectionStore.getState().pinnedBySection[getPresetSection(mode)];
-
-try {
-  currentTheme = detectPageTheme();
-  observePageTheme((theme) => { currentTheme = theme; renderApp(); });
-} catch (_) {}
-
-const renderApp = () => {
+setRenderer(() => {
   const { reactRoot } = ensureShadowHost();
   if (!reactRoot) return;
+  const { mode } = state.tooltip;
 
   reactRoot.render(
     <ContentOverlay
-      language={currentLanguage}
-      theme={currentTheme}
-      toolbar={toolbarState}
-      tooltip={{ ...tooltipState, isPinned: getPinnedForMode(tooltipState.mode) }}
+      language={state.language}
+      theme={state.theme}
+      toolbar={state.toolbar}
+      tooltip={{ ...state.tooltip, isPinned: isPinned(mode) }}
       onTogglePin={() => {
-        const mode = getPresetSection(tooltipState.mode);
-        const pinned = !getPinnedForMode(tooltipState.mode);
+        const pinned = !isPinned(mode);
         usePresetSectionStore.getState().setPinned(mode, pinned);
-        tooltipState = { ...tooltipState, isPinned: pinned };
-        renderApp();
+        patchTooltip({ isPinned: pinned });
+        render();
       }}
-      onSelectTone={(tone, mode) => {
-        toolbarState = { ...toolbarState, visible: false };
-        renderApp();
-        handleTriggerOptimize(mode === 'translate' ? tone : mode === 'summary' ? 'summarize' : currentDefaultTone, undefined, undefined, mode);
+      onSelectTone={(tone, selectedMode) => {
+        hideToolbarNow();
+        void triggerOptimize(selectedMode === 'translate' ? tone : toneForMode(selectedMode || 'rewrite'), undefined, undefined, selectedMode);
       }}
-      onCloseToolbar={() => { toolbarState = { ...toolbarState, visible: false }; renderApp(); }}
-      onHideToolbar={handleHideToolbar}
+      onCloseToolbar={hideToolbarNow}
+      onHideToolbar={async (scope) => {
+        await hideToolbar(scope);
+        hideToolbarNow();
+      }}
       siteLabel={siteLabel}
       onToggleToolbarCollapse={() => {
-        const collapsed = !toolbarState.collapsed;
-        toolbarState = { ...toolbarState, collapsed };
+        const collapsed = !state.toolbar.collapsed;
+        patchToolbar({ collapsed });
         saveToolbarCollapsed(collapsed);
-        renderApp();
+        render();
       }}
-      onLanguageChange={handleLanguageChange}
-      onModeChange={handleModeChange}
-      onRewriteOptionsChange={handleRewriteOptionsChange}
-      onFollowUp={(query) => { void handleFollowUp(query, true); }}
-      onRegenerate={handleRegenerate}
+      onLanguageChange={changeTargetLanguage}
+      onModeChange={changeMode}
+      onRewriteOptionsChange={changeRewriteOptions}
+      onFollowUp={(query) => { void followUp(query, true); }}
+      onRegenerate={regenerate}
       onInsertText={(text) => {
-        const replaced = !!editSnapshot && applyEdit(editSnapshot, text);
-        tooltipState = replaced ? { ...tooltipState, visible: false } : { ...tooltipState, hasEditableTarget: false };
-        renderApp();
+        const replaced = !!state.editSnapshot && applyEdit(state.editSnapshot, text);
+        patchTooltip(replaced ? { visible: false } : { hasEditableTarget: false });
+        render();
       }}
       onCloseTooltip={closeTooltip}
-      onTranslateVi={handleTranslateVi}
+      onTranslateVi={translateToVietnamese}
     />
   );
-};
+});
 
-const closeTooltip = () => {
-  latestRequestId += 1;
-  tooltipState = { ...tooltipState, visible: false, isLoading: false };
-  renderApp();
-};
-
-const handleTranslateVi = async (text: string): Promise<string> => {
-  const response: OptimizeResponse = await sendRuntimeMessage({
-    action: 'EXECUTE_GEMINI',
-    payload: { text, tone: 'translate_explain', targetLanguage: 'Vietnamese' },
-  });
-  return response.success && response.data ? (typeof response.data === 'string' ? response.data : response.data.translation) : '';
-};
-
-const showNotice = (message: string) => {
-  latestRequestId += 1;
-  editSnapshot = null;
-  toolbarState = { ...toolbarState, visible: false, isLoading: false };
-  tooltipState = { ...tooltipState, visible: true, isLoading: false, error: message, result: null, originalText: '', hasEditableTarget: false };
-  renderApp();
-};
-
-const handleTriggerOptimize = async (
-  tone: ToneType,
-  settings?: AppSettings,
-  customText?: string,
-  forcedMode?: 'translate' | 'rewrite' | 'improve' | 'summary'
-) => {
-  if (!customText) {
-    if (isSensitiveField(document.activeElement)) {
-      showNotice(translator()('content.sensitiveField'));
-      return;
-    }
-    currentEditableEl = resolveEditTarget(currentEditableEl);
-    editSnapshot = currentEditableEl ? captureEditSnapshot(currentEditableEl) : null;
-  }
-  const activeEl = editSnapshot?.element ?? null;
-  const targetText = customText || getSelectedText();
-
-  if (!targetText) {
-    showNotice(translator()('content.selectText'));
-    return;
-  }
-
-  const isModalMode = forcedMode === 'improve' || forcedMode === 'rewrite' || forcedMode === 'translate' || forcedMode === 'summary' || tone === 'translate_explain' || tone === 'summarize';
-  const mode: 'translate' | 'rewrite' | 'improve' | 'summary' = forcedMode || (tone === 'translate_explain' ? 'translate' : tone === 'summarize' ? 'summary' : 'rewrite');
-
-  const targetLanguage = targetLanguages[mode];
-  tooltipState = { ...tooltipState, visible: true, mode, targetLanguage, originalText: targetText, isLoading: true, error: null, hasEditableTarget: !!activeEl };
-  toolbarState = { ...toolbarState, visible: false };
-  renderApp();
-  const requestId = ++latestRequestId;
-
-  const effectiveSettings = settings || currentSettings;
-  const shouldExtract = effectiveSettings ? effectiveSettings.enableChatContext !== false : true;
-  const contextMessages = shouldExtract ? extractChatContext(activeEl, effectiveSettings?.maxContextMessages || 4) : [];
-
-  try {
-    const response: OptimizeResponse = await sendRuntimeMessage({
-      action: 'EXECUTE_GEMINI',
-      payload: {
-        text: targetText,
-        tone,
-        contextMessages,
-        rewriteOptions: mode === 'translate' || mode === 'summary' ? undefined : tooltipState.rewriteOptions,
-        targetLanguage,
-      },
-    });
-    if (requestId !== latestRequestId) return;
-    toolbarState = { ...toolbarState, isLoading: false, visible: false };
-
-    if (response.success && response.data) {
-      const resultText = typeof response.data === 'string' ? response.data : response.data.translation;
-      if (isModalMode || !editSnapshot || !applyEdit(editSnapshot, resultText)) {
-        tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, result: response.data, error: null, hasEditableTarget: !!activeEl };
-      } else {
-        tooltipState = { ...tooltipState, visible: false, isLoading: false };
-      }
-    } else {
-      tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, error: response.error || translator()('content.genericError'), result: null, hasEditableTarget: !!activeEl };
-    }
-    renderApp();
-  } catch (err: any) {
-    if (requestId !== latestRequestId) return;
-    toolbarState = { ...toolbarState, isLoading: false, visible: false };
-    tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, error: getRuntimeErrorMessage(err, translator()('content.connectionError'), currentLanguage), result: null, hasEditableTarget: !!activeEl };
-    renderApp();
-  }
-};
-
-const handleModeChange = (newMode: 'translate' | 'rewrite' | 'improve' | 'summary') => {
-  if (!tooltipState.originalText) {
-    tooltipState = { ...tooltipState, mode: newMode };
-    renderApp();
-    return;
-  }
-  handleTriggerOptimize(newMode === 'translate' ? 'translate_explain' : newMode === 'summary' ? 'summarize' : currentDefaultTone, undefined, tooltipState.originalText, newMode);
-};
-
-const handleFollowUp = async (query: string, refine = false) => {
-  if (!tooltipState.originalText) return;
-  const current = tooltipState.result;
-  const previousResult = refine ? (typeof current === 'string' ? current : current?.translation) || undefined : undefined;
-  tooltipState = { ...tooltipState, isLoading: true, error: null };
-  renderApp();
-  const requestId = ++latestRequestId;
-
-  try {
-    const tone: ToneType = tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : currentDefaultTone;
-    const response: OptimizeResponse = await sendRuntimeMessage({
-      action: 'EXECUTE_GEMINI',
-      payload: {
-        text: tooltipState.originalText,
-        tone,
-        rewriteOptions: tooltipState.mode === 'translate' || tooltipState.mode === 'summary' ? undefined : tooltipState.rewriteOptions,
-        taskInstruction: query,
-        previousResult,
-        targetLanguage: targetLanguages[tooltipState.mode],
-      },
-    });
-    if (requestId !== latestRequestId) return;
-    tooltipState = { ...tooltipState, isLoading: false, result: response.success ? response.data : null, error: response.success ? null : (response.error || translator()('content.genericError')) };
-    renderApp();
-  } catch (err: any) {
-    if (requestId !== latestRequestId) return;
-    tooltipState = { ...tooltipState, isLoading: false, error: getRuntimeErrorMessage(err, translator()('content.connectionError'), currentLanguage) };
-    renderApp();
-  }
-};
-
-const handleRegenerate = () => {
-  if (!tooltipState.originalText) return;
-  handleTriggerOptimize(tooltipState.mode === 'translate' ? 'translate_explain' : tooltipState.mode === 'summary' ? 'summarize' : currentDefaultTone, undefined, tooltipState.originalText, tooltipState.mode);
-};
+try {
+  state.theme = detectPageTheme();
+  observePageTheme((theme) => { state.theme = theme; render(); });
+} catch {
+  state.theme = 'dark';
+}
 
 const applySettings = (settings: AppSettings) => {
-  currentSettings = settings;
-  currentLanguage = settings.language === 'vi' ? 'vi' : 'en';
-  currentDefaultTone = settings.defaultTone || 'professional';
-  renderApp();
+  state.settings = settings;
+  state.language = settings.language === 'vi' ? 'vi' : 'en';
+  state.defaultTone = settings.defaultTone || 'professional';
+  render();
 };
 
-void loadSettings().then(applySettings).catch(() => { renderApp(); });
-void loadTargetLanguages().then((languages) => { targetLanguages = languages; });
+void loadSettings().then(applySettings).catch(() => { render(); });
+refreshTargetLanguages();
 refreshHiddenSites();
 
 if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
@@ -250,54 +109,22 @@ if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
     if (areaName !== 'local') return;
     if (changes.engchat_settings?.newValue) void loadSettings().then(applySettings).catch(() => {});
     if (changes[HIDDEN_SITES_STORAGE_KEY]) refreshHiddenSites();
-    if (changes.engchat_target_languages) void loadTargetLanguages().then((l) => { targetLanguages = l; });
+    if (changes.engchat_target_languages) refreshTargetLanguages();
   });
 }
 
-const handleLanguageChange = (lang: string) => {
-  targetLanguages = { ...targetLanguages, [tooltipState.mode]: lang };
-  void saveTargetLanguages(targetLanguages);
-  tooltipState = { ...tooltipState, targetLanguage: lang };
-  renderApp();
-  handleRegenerate();
-};
-
-const handleRewriteOptionsChange = async (opts: RewriteOptions) => {
-  tooltipState = { ...tooltipState, rewriteOptions: opts };
-  renderApp();
-  if (!tooltipState.originalText) return;
-  const parts = [opts.length !== 'Auto' && `Length: ${opts.length}`, opts.formality !== 'Auto' && `Formality: ${opts.formality}`, opts.format !== 'Auto' && `Format: ${opts.format}`, opts.tone !== 'Auto' && `Tone: ${opts.tone}`].filter(Boolean).join(', ');
-  await handleFollowUp(parts ? `Apply these selected options while rewriting the text: ${parts}.` : 'Rewrite naturally.');
-};
-
 const cleanupDOMEvents = setupDOMEvents({
   onFocus: (rect, element) => {
-    currentEditableEl = element;
-    if (tooltipState.visible || isToolbarSuppressed()) return;
-    const pos = computeToolbarPos(rect);
-    toolbarState = { ...toolbarState, visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: true };
-    renderApp();
+    state.editableEl = element;
+    showToolbarAt(rect, true);
   },
-  onSelect: (rect, isEditable) => {
-    if (tooltipState.visible || isToolbarSuppressed()) return;
-    const pos = computeToolbarPos(rect);
-    toolbarState = { ...toolbarState, visible: true, x: pos.x, y: pos.y, isLoading: false, isEditable: !!isEditable };
-    renderApp();
-  },
+  onSelect: (rect, isEditable) => showToolbarAt(rect, !!isEditable),
   onSensitiveField: () => {
-    if (!toolbarState.visible) return;
-    toolbarState = { ...toolbarState, visible: false };
-    renderApp();
+    if (state.toolbar.visible) hideToolbarNow();
   },
   onClickOutside: () => {
-    if (tooltipState.visible && !getPinnedForMode(tooltipState.mode)) {
-      closeTooltip();
-      return;
-    }
-    if (toolbarState.visible) {
-      toolbarState = { ...toolbarState, visible: false };
-      renderApp();
-    }
+    if (state.tooltip.visible && !isPinned(state.tooltip.mode)) closeTooltip();
+    else if (state.toolbar.visible) hideToolbarNow();
   },
 });
 
@@ -305,13 +132,13 @@ window.addEventListener('pagehide', (event) => {
   if (!event.persisted) cleanupDOMEvents();
 });
 
-renderApp();
+render();
 
 if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message?.action !== 'TRIGGER_OPTIMIZE') return false;
-    toolbarState = { ...toolbarState, visible: false };
-    handleTriggerOptimize(message.tone, message.settings, undefined, message.mode);
+    patchToolbar({ visible: false });
+    void triggerOptimize(message.tone, message.settings, undefined, message.mode);
     sendResponse({ received: true });
     return true;
   });
