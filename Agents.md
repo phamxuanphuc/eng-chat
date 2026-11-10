@@ -40,3 +40,8 @@ Tài liệu này định nghĩa các tiêu chuẩn bắt buộc mà Agent và l�
 - **Bắt buộc sử dụng UI Components chuẩn**: Mọi màn hình giao diện (Popup, Options, Shadow DOM Tooltip/Modal) BẮT BUỘC chỉ được xây dựng từ các component chuẩn hóa theo [uiverse-io/galaxy](https://github.com/uiverse-io/galaxy) nằm trong thư mục `src/components/ui/` (`Button`, `Input`, `Textarea`, `Switch`, `Loader`, `ToneCard`, `Badge`, `Alert`).
 - **Nghiêm cấm tự tạo UI tự phát**: Tuyệt đối KHÔNG tự viết style CSS thô, không tự sáng tạo kiểu dáng mới hoặc dùng các thẻ HTML thuần (`<button>`, `<input>`,...) mà không thông qua UI component chuẩn.
 - **Tính nhất quán thị giác**: Toàn bộ hiệu ứng (glow border, gradient, hover scaling, galaxy loader) phải đồng bộ tuyệt đối theo phong cách Uiverse Galaxy đã định nghĩa.
+
+## 6. Theo Dõi Task (Task Tracking)
+- Danh sách task cải tiến nằm trong thư mục `tasks/`. Đọc `tasks/README.md` trước khi bắt đầu và chọn task đầu tiên còn `- [ ]`.
+- **Đánh dấu hoàn thành**: Khi một task đạt đủ tiêu chí hoàn thành và toàn bộ test, lint, build đều sạch, đổi `- [ ]` thành `- [x]` ở cả file task và mục "Tiến độ" trong `tasks/README.md`, trong cùng commit với mã của task.
+- Không đánh dấu task làm dở. Task bị chặn giữ `- [ ]` và ghi rõ lý do trong file task.
