@@ -36,8 +36,9 @@ export const callGeminiApi = async (params: {
   model: string;
   systemInstruction: string;
   prompt: string;
+  jsonOutput?: boolean;
 }): Promise<string> => {
-  const { apiKey, model: requestedModel, systemInstruction, prompt } = params;
+  const { apiKey, model: requestedModel, systemInstruction, prompt, jsonOutput } = params;
 
   if (!apiKey || apiKey.trim() === '') {
     throw new ApiError('error.geminiNoKey');
@@ -58,6 +59,7 @@ export const callGeminiApi = async (params: {
     ],
     generationConfig: {
       maxOutputTokens: 8192,
+      ...(jsonOutput ? { responseMimeType: 'application/json' } : {}),
     },
   };
 
@@ -119,6 +121,9 @@ export const callGeminiApi = async (params: {
     throw error;
   }
 };
+
+const isBadRequest = (error: unknown): boolean =>
+  error instanceof ApiError && (error.key === 'error.invalidRequest' || error.key === 'error.geminiBadRequest');
 
 export const extractCandidateKeys = (settings: AppSettings): string[] => {
   const keys: string[] = [];
@@ -182,6 +187,7 @@ export const executeOptimize = async (
       }
 
       let lastError: any = null;
+      let jsonOutput = request.tone === 'translate_explain' && !request.translateOnly;
       let targetModel = settings.selectedModel || 'gemini-3.5-flash-lite';
       if (targetModel.includes('2.0-flash')) {
         targetModel = 'gemini-3.5-flash-lite';
@@ -195,6 +201,7 @@ export const executeOptimize = async (
             model: targetModel,
             systemInstruction,
             prompt: userPrompt,
+            jsonOutput,
           });
           lastError = null;
           if (rotate) await clearKeyCooldown(currentKey);
@@ -210,6 +217,11 @@ export const executeOptimize = async (
           }
 
           const failure = classifyKeyFailure(msg);
+          if (jsonOutput && !failure && isBadRequest(err)) {
+            jsonOutput = false;
+            i--;
+            continue;
+          }
           if (rotate && failure) {
             await markKeyCooldown(currentKey, failure);
             if (i < candidateKeys.length - 1) continue;
