@@ -42,6 +42,7 @@ export interface ContentOverlayProps {
   onCloseTooltip: () => void;
   onTogglePin?: () => void;
   onTranslateVi?: (text: string) => Promise<string>;
+  modelName?: string;
 }
 
 export const ContentOverlay: React.FC<ContentOverlayProps> = ({
@@ -63,6 +64,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
   onCloseTooltip,
   onTogglePin,
   onTranslateVi,
+  modelName,
 }) => {
   return (
     <>
@@ -96,6 +98,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
           hasEditableTarget={tooltip.hasEditableTarget}
           isPinned={tooltip.isPinned}
           anchor={tooltip.anchor}
+          modelName={modelName}
           onTogglePin={onTogglePin}
           onLanguageChange={onLanguageChange}
           onModeChange={onModeChange}

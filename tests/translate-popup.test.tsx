@@ -5,6 +5,19 @@ import { TranslatePopup } from '../src/content/ui/TranslatePopup';
 import { mockTranslateExplainResult } from './mocks/gemini.mock';
 
 describe('TranslatePopup Component', () => {
+  it('does not show the translation disclaimer line', () => {
+    render(<TranslatePopup mode="translate" originalText="Hello" result="Xin chào" isLoading={false} onClose={vi.fn()} />);
+    expect(screen.queryByText(/based on web content/i)).toBeNull();
+  });
+
+  it('shows the model name passed in and keeps the picker reachable', async () => {
+    render(<TranslatePopup originalText="Hello" result="Xin chào" isLoading={false} modelName="gpt-4o-mini" onClose={vi.fn()} />);
+    const button = screen.getByRole('button', { name: 'Open model picker' });
+    expect(button.textContent).toContain('gpt-4o-mini');
+    fireEvent.click(button);
+    expect(await screen.findByRole('dialog', { name: 'LLM model picker' })).toBeDefined();
+  });
+
   it('opens the model picker from the sparkle button', async () => {
     render(<TranslatePopup originalText="Hello" result="Xin chào" isLoading={false} onClose={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Open model picker' }));

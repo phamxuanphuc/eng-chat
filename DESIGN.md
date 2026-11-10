@@ -20,6 +20,7 @@ Uiverse Galaxy: dark, calm surfaces with one indigo-purple-pink gradient reserve
 - Set `data-engchat-theme={theme}` on the root of every overlay surface. Inside Shadow DOM there is no `:root` theme to inherit.
 - Surfaces: page `slate-950`, card and overlay `slate-900` (white in light theme), hover `slate-800`, border `slate-800` or `slate-700`.
 - Text: `slate-100` primary, `slate-300` secondary, `slate-400` muted. `slate-500` fails AA for small text, so do not use it for text.
+- Placeholder: `placeholder-placeholder` (token `--c-placeholder`: `148 163 184` in dark, `100 116 139` in light). Measured on the input surfaces it is 7.1:1 in dark and 4.7:1 in light, so it stays distinct from entered text without dropping under AA.
 - Accent: `indigo-400` for icons, `indigo-500/15` for selected fills.
 - Primary and danger buttons carry `data-engchat-theme="dark"` so white text stays above 4.5:1 in light theme.
 

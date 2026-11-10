@@ -1,6 +1,6 @@
 # T9. Dọn giao diện popup và ô nhập
 
-- [ ] Hoàn thành
+- [x] Hoàn thành
 
 > Đọc [README.md](README.md) trước: quy tắc chung và cách đánh dấu hoàn thành.
 

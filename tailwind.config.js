@@ -15,7 +15,7 @@ export default {
   ],
   theme: {
     extend: {
-      colors: themedColors,
+      colors: { ...themedColors, placeholder: 'rgb(var(--c-placeholder) / <alpha-value>)' },
       fontFamily: {
         sans: ['"Plus Jakarta Sans Variable"', '"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
       },

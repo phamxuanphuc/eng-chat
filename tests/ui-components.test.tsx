@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { beforeAll, describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { Button } from '../src/components/ui/Button';
@@ -162,8 +162,8 @@ describe('Uiverse Galaxy UI Components', () => {
 
   it('TC-UI-10: Inputs use an accessible placeholder color', () => {
     render(<><Input placeholder="in" /><Textarea placeholder="ta" /></>);
-    expect(screen.getByPlaceholderText('in').className).toContain('placeholder-slate-400');
-    expect(screen.getByPlaceholderText('ta').className).toContain('placeholder-slate-400');
+    expect(screen.getByPlaceholderText('in').className).toContain('placeholder-placeholder');
+    expect(screen.getByPlaceholderText('ta').className).toContain('placeholder-placeholder');
   });
 
   it('TC-UI-11: Primary button gradient keeps white text readable', () => {
@@ -199,5 +199,45 @@ describe('Uiverse Galaxy UI Components', () => {
     expect(screen.getByTestId('icon').parentElement!.getAttribute('aria-hidden')).toBe('true');
     render(<PageHeader icon={null} title="Bare" />, { container: container.appendChild(document.createElement('div')) });
     expect(screen.getByRole('heading', { name: 'Bare' }).nextSibling).toBeNull();
+  });
+});
+
+describe('Placeholder contrast tokens', () => {
+  let css = '';
+  beforeAll(async () => {
+    const fs: any = await import(/* @vite-ignore */ ['node', 'fs'].join(':'));
+    css = fs.readFileSync('src/styles/index.css', 'utf8');
+  });
+  const channel = (value: number) => {
+    const c = value / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  const luminance = ([r, g, b]: number[]) => 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+  const ratio = (a: number[], b: number[]) => {
+    const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+  const blend = (fg: number[], bg: number[], alpha: number) => fg.map((v, i) => v * alpha + bg[i] * (1 - alpha));
+  const token = (theme: 'dark' | 'light'): number[] => {
+    const block = css.slice(css.indexOf(`[data-engchat-theme='${theme}'] {`));
+    const match = block.match(/--c-placeholder:\s*(\d+) (\d+) (\d+)/);
+    return match!.slice(1).map(Number);
+  };
+
+  it('defines distinct values for dark and light themes', () => {
+    expect(token('dark')).toEqual([148, 163, 184]);
+    expect(token('light')).toEqual([100, 116, 139]);
+  });
+
+  it('meets 4.5:1 on the input surface in both themes', () => {
+    const darkInput = blend([15, 23, 42], [2, 6, 23], 0.9);
+    const lightInput = blend([255, 255, 255], [248, 250, 252], 0.9);
+    expect(ratio(token('dark'), darkInput)).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(token('light'), lightInput)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('is lighter than entered text in the light theme', () => {
+    expect(ratio(token('light'), [15, 23, 42])).toBeGreaterThan(1);
+    expect(luminance(token('light'))).toBeGreaterThan(luminance([71, 85, 105]));
   });
 });

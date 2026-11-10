@@ -85,7 +85,6 @@
   "content.unableLoadConfig": "Unable to load configuration.",
   "content.noModels": "The provider returned no models.",
   "content.unableLoadModels": "Unable to load the model list.",
-  "content.translationDisclaimer": "VinaWrite translations are based on web content and context.",
   "content.improving": "Improving with AI...",
   "content.rewriting": "Rewriting with AI...",
   "content.translating": "Translating with AI...",

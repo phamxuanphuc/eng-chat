@@ -116,6 +116,21 @@ describe('Content script request handling', () => {
     await flush();
   });
 
+  it('labels the popup footer with the configured model', async () => {
+    const textarea = document.createElement('textarea');
+    textarea.value = 'Which model';
+    document.body.appendChild(textarea);
+    textarea.focus();
+
+    pending.length = 0;
+    onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'improve' }, {}, vi.fn());
+    pending[0].resolve({ success: true, data: 'Model result' });
+    await flush();
+
+    const root = document.getElementById('engchat-root-host')!.shadowRoot!;
+    expect(root.querySelector('[aria-label="Open model picker"]')?.textContent).toContain('gemini-3.5-flash-lite');
+  });
+
   it('switches mode after a failed request', async () => {
     const textarea = document.createElement('textarea');
     textarea.value = 'Text that failed';

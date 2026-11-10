@@ -17,6 +17,12 @@ import { changeMode, changeRewriteOptions, changeTargetLanguage, closeTooltip, f
 
 const siteLabel = getSiteLabel();
 
+const activeModelName = (): string | undefined => {
+  const settings = state.settings;
+  if (!settings) return undefined;
+  return settings.llmProvider === 'openai_compatible' ? settings.customModel : settings.selectedModel;
+};
+
 const hideToolbarNow = () => {
   patchToolbar({ visible: false });
   render();
@@ -104,6 +110,7 @@ setRenderer(() => {
       }}
       onCloseTooltip={closeTooltip}
       onTranslateVi={translateToVietnamese}
+      modelName={activeModelName()}
     />
   );
 });

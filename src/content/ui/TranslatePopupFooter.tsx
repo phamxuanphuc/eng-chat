@@ -17,6 +17,7 @@ export interface TranslatePopupFooterProps {
   onFollowUp?: (query: string) => void;
   onRegenerate?: () => void;
   onInsert?: (text: string) => void;
+  modelName?: string;
   onOpenModelPicker?: () => void;
 }
 
@@ -29,6 +30,7 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
   onFollowUp,
   onRegenerate,
   onInsert,
+  modelName,
   onOpenModelPicker,
 }) => {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
@@ -114,9 +116,17 @@ export const TranslatePopupFooter: React.FC<TranslatePopupFooterProps> = ({
         >
           <Settings size={14} />
         </IconButton>
-        <IconButton label={t('common.openModelPicker')} title={t('content.chooseModel')} onClick={onOpenModelPicker}>
-          <Cpu size={14} className="text-indigo-400" />
-        </IconButton>
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label={t('common.openModelPicker')}
+          title={t('content.chooseModel')}
+          icon={<Cpu size={13} className="shrink-0 text-indigo-400" />}
+          className="!px-2"
+          onClick={onOpenModelPicker}
+        >
+          <span className="max-w-[120px] truncate">{modelName || t('content.chooseModel')}</span>
+        </Button>
       </div>
     </div>
   );
