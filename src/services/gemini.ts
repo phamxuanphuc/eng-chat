@@ -1,10 +1,6 @@
 import axios, { AxiosError } from 'axios';
-import {
-  AppSettings,
-  OptimizeRequest,
-  OptimizeResponse,
-  TranslateExplainResult,
-} from '../types';
+import { AppSettings, OptimizeRequest, OptimizeResponse } from '../types';
+import { parseTranslateResult } from './translate-result';
 import { buildSystemInstruction, buildUserPrompt } from './prompt';
 import { callOpenAiApi } from './openai';
 import { classifyKeyFailure, clearKeyCooldown, markKeyCooldown, orderKeysByAvailability } from './key-cooldown';
@@ -217,18 +213,7 @@ export const executeOptimize = async (
     }
 
     if (request.tone === 'translate_explain') {
-      try {
-        const cleanJson = rawResult.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
-        return { success: true, data: JSON.parse(cleanJson) as TranslateExplainResult };
-      } catch {
-        return {
-          success: true,
-          data: {
-            translation: rawResult,
-            explanation: { vocabulary: [], grammar: 'Unable to parse detailed explanation.', nuances: '' },
-          },
-        };
-      }
+      return { success: true, data: parseTranslateResult(rawResult) };
     }
 
     return { success: true, data: rawResult };

@@ -102,7 +102,7 @@ const renderApp = () => {
 const handleTranslateVi = async (text: string): Promise<string> => {
   const response: OptimizeResponse = await sendRuntimeMessage({
     action: 'EXECUTE_GEMINI',
-    payload: { text, tone: 'translate_explain', taskInstruction: 'Translate the target text into natural Vietnamese.' },
+    payload: { text, tone: 'translate_explain', targetLanguage: 'Vietnamese' },
   });
   return response.success && response.data ? (typeof response.data === 'string' ? response.data : response.data.translation) : '';
 };

@@ -54,7 +54,8 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   const isNotice = !originalText && !!error;
 
   const isExplain = result && typeof result === 'object' && 'translation' in result;
-  const translationText = isExplain ? (result as TranslateExplainResult).translation : (result as string) || '';
+  const rawText = isExplain ? (result as TranslateExplainResult).translation : result;
+  const translationText = typeof rawText === 'string' ? rawText : '';
   const explanation = isExplain ? (result as TranslateExplainResult).explanation : null;
 
   useEscape(true, onClose);

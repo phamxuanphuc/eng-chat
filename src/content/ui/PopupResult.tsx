@@ -37,6 +37,10 @@ export interface PopupResultProps {
 export const PopupResult: React.FC<PopupResultProps> = ({ language, mode, text, explanation, isLoading, error, isNotice = false, onRetry }) => {
   const [showExplanation, setShowExplanation] = useState(false);
   const t = getTranslator(language);
+  const vocabulary = Array.isArray(explanation?.vocabulary) ? explanation.vocabulary : [];
+  const grammar = typeof explanation?.grammar === 'string' ? explanation.grammar : '';
+  const nuances = typeof explanation?.nuances === 'string' ? explanation.nuances : '';
+  const hasExplanation = vocabulary.length > 0 || !!grammar || !!nuances;
 
   return (
     <div aria-live="polite" aria-busy={isLoading} className="flex flex-col gap-2 px-0.5">
@@ -71,7 +75,7 @@ export const PopupResult: React.FC<PopupResultProps> = ({ language, mode, text, 
           {text || t(EMPTY_KEYS[mode])}
         </div>
       )}
-      {explanation && mode === 'translate' && !isLoading && (
+      {hasExplanation && mode === 'translate' && !isLoading && !error && (
         <div className="mt-1 border-t border-slate-800/60 pt-1 text-xs">
           <Button
             variant="ghost"
@@ -88,10 +92,14 @@ export const PopupResult: React.FC<PopupResultProps> = ({ language, mode, text, 
           </Button>
           {showExplanation && (
             <div className="mt-1.5 space-y-1.5 rounded-lg border border-slate-800 bg-slate-950/70 p-2.5 text-xs leading-relaxed text-slate-300">
-              {explanation.vocabulary?.map((item, index) => (
-                <div key={index}><span className="font-semibold text-indigo-400">{item.word}</span>: {item.meaning}</div>
+              {vocabulary.map((item, index) => (
+                <div key={index}>
+                  <span className="font-semibold text-indigo-400">{item.word}</span>: {item.meaning}
+                  {item.note && <span className="text-slate-400"> ({item.note})</span>}
+                </div>
               ))}
-              {explanation.grammar && <div><span className="font-semibold">{t('content.grammar')}</span> {explanation.grammar}</div>}
+              {grammar && <div><span className="font-semibold">{t('content.grammar')}</span> {grammar}</div>}
+              {nuances && <div><span className="font-semibold">{t('content.nuances')}</span> {nuances}</div>}
             </div>
           )}
         </div>
