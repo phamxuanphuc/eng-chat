@@ -3,7 +3,8 @@ import { loadSettings, saveSettings } from '../services/storage';
 import { executeOptimize } from '../services/gemini';
 import { fetchOpenAiModels } from '../services/openai';
 import { getTranslator, TranslationKey } from '../i18n';
-import { localizeError } from '../services/api-error';
+import { ApiError, localizeError } from '../services/api-error';
+import { getServerHost, hasHostPermission } from '../services/host-permission';
 
 const CONTEXT_MENU_PREFIX = 'engchat_action_';
 
@@ -133,6 +134,9 @@ export const handleRuntimeMessage = async (
 
     if (message?.action === 'FETCH_CUSTOM_MODELS') {
       const settings = await loadSettings();
+      if (!(await hasHostPermission(settings.customBaseUrl))) {
+        throw new ApiError('error.hostPermission', { server: getServerHost(settings.customBaseUrl) });
+      }
       const models = await fetchOpenAiModels({ baseUrl: settings.customBaseUrl, apiKey: settings.customApiKey });
       sendResponse({ success: true, models });
       return true;

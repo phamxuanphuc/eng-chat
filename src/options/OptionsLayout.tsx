@@ -6,6 +6,7 @@ import { Badge } from '../components/ui/Badge';
 import { Logo } from '../components/ui/Logo';
 import { AlertCircle, Check, CircleDot, Save, MessageSquare, Palette, Cpu, EyeOff } from 'lucide-react';
 import { getTranslator } from '../i18n';
+import { getServerHost } from '../services/host-permission';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageToggle } from './LanguageToggle';
 
@@ -17,11 +18,13 @@ const NAV_ITEMS = [
 ];
 
 export const OptionsLayout: React.FC = () => {
-  const { language, setLanguage, isReady, isDirty, saveSuccess, saveError, handleSave } = useOptions();
+  const { language, setLanguage, isReady, isDirty, saveSuccess, saveError, permissionDenied, customBaseUrl, handleSave } = useOptions();
   const t = getTranslator(language);
   const { pathname } = useLocation();
   const showSaveBar = pathname !== '/sites' || isDirty;
-  const status = saveError
+  const status = permissionDenied
+    ? { Icon: AlertCircle, tone: 'text-rose-400', text: t('options.permissionDenied', { server: getServerHost(customBaseUrl) }) }
+    : saveError
     ? { Icon: AlertCircle, tone: 'text-rose-400', text: t('options.saveFailed') }
     : saveSuccess
     ? { Icon: Check, tone: 'text-emerald-400', text: t('options.savedBrowser', { settings: t('app.settings') }) }

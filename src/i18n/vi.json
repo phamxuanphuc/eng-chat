@@ -301,5 +301,7 @@
   "error.openaiTimeout": "Yêu cầu API quá thời gian chờ. Hãy kiểm tra kết nối mạng hoặc phản hồi của máy chủ.",
   "error.openaiNetwork": "Không thể kết nối tới máy chủ {{server}}. Hãy kiểm tra URL hoặc kết nối mạng.",
   "error.generic": "Đã xảy ra lỗi khi xử lý yêu cầu.",
-  "error.extensionUpdated": "Tiện ích vừa được cập nhật. Hãy tải lại trang để kết nối lại VinaWrite."
+  "error.extensionUpdated": "Tiện ích vừa được cập nhật. Hãy tải lại trang để kết nối lại VinaWrite.",
+  "error.hostPermission": "VinaWrite cần bạn cấp quyền truy cập {{server}}. Mở Cài đặt và bấm Kiểm tra kết nối để cho phép.",
+  "options.permissionDenied": "Chưa lưu. Hãy cho phép truy cập {{server}} khi trình duyệt hỏi."
 }

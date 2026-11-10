@@ -301,5 +301,7 @@
   "error.openaiTimeout": "The API request timed out. Check your network connection or the server response.",
   "error.openaiNetwork": "Unable to connect to the server {{server}}. Check the URL or network connection.",
   "error.generic": "An error occurred while processing the request.",
-  "error.extensionUpdated": "Extension was updated. Please reload this page to reconnect VinaWrite."
+  "error.extensionUpdated": "Extension was updated. Please reload this page to reconnect VinaWrite.",
+  "error.hostPermission": "VinaWrite needs your permission to reach {{server}}. Open Settings and press Test connection to allow it.",
+  "options.permissionDenied": "Not saved. Allow access to {{server}} when the browser asks."
 }

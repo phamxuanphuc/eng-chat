@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { AppSettings, OptimizeRequest, OptimizeResponse } from '../types';
 import { parseTranslateResult } from './translate-result';
 import { ApiError, localizeError } from './api-error';
+import { getServerHost, hasHostPermission } from './host-permission';
 import { buildSystemInstruction, buildUserPrompt } from './prompt';
 import { callOpenAiApi } from './openai';
 import { classifyKeyFailure, clearKeyCooldown, markKeyCooldown, orderKeysByAvailability } from './key-cooldown';
@@ -159,6 +160,10 @@ export const executeOptimize = async (
       const model = settings.customModel?.trim() || 'gpt-4o-mini';
       const baseUrl = settings.customBaseUrl?.trim() || 'https://api.openai.com/v1';
       const apiKey = settings.customApiKey?.trim() || '';
+
+      if (!(await hasHostPermission(baseUrl))) {
+        throw new ApiError('error.hostPermission', { server: getServerHost(baseUrl) });
+      }
 
       rawResult = await callOpenAiApi({
         baseUrl,

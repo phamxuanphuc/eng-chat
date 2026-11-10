@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { requestHostPermission } from '../services/host-permission';
 import { ApiKeyItem, ToneType, LLMProvider, Language } from '../types';
 import { DEFAULT_TARGET_LANGUAGES, loadTargetLanguages, saveTargetLanguages, PopupMode, TargetLanguages } from '../content/target-languages';
 
@@ -35,6 +36,7 @@ export interface OptionsContextValue {
   isDirty: boolean;
   saveSuccess: boolean;
   saveError: boolean;
+  permissionDenied: boolean;
   handleSave: () => Promise<void>;
 }
 
@@ -58,6 +60,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [targetLanguages, setTargetLanguages] = useState<TargetLanguages>({ ...DEFAULT_TARGET_LANGUAGES });
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [targetsLoaded, setTargetsLoaded] = useState(false);
   const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null);
@@ -131,6 +134,9 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [isDirty]);
 
   const handleSave = async () => {
+    const allowed = provider !== 'openai_compatible' || (await requestHostPermission(customBaseUrl));
+    setPermissionDenied(!allowed);
+    if (!allowed) return;
     await saveTargetLanguages(targetLanguages);
     const saved = await updateSettings({ language, ...draft });
     setSaveError(!saved);
@@ -176,7 +182,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
         maxContext, setMaxContext,
         targetLanguages,
         setTargetLanguage: (mode, value) => setTargetLanguages((current) => ({ ...current, [mode]: value })),
-        isReady: savedSnapshot !== null, isDirty, saveSuccess, saveError, handleSave,
+        isReady: savedSnapshot !== null, isDirty, saveSuccess, saveError, permissionDenied, handleSave,
       }}
     >
       {children}

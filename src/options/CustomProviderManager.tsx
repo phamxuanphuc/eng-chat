@@ -1,7 +1,8 @@
 import React from 'react';
 import { Language } from '../types';
 import { getTranslator } from '../i18n';
-import { localizeError } from '../services/api-error';
+import { ApiError, localizeError } from '../services/api-error';
+import { getServerHost, requestHostPermission } from '../services/host-permission';
 import { useMutation } from '@tanstack/react-query';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -35,6 +36,9 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
   const testMutation = useMutation({
     mutationFn: async () => {
       if (!model.trim()) throw new Error(t('custom.missingModel'));
+      if (!(await requestHostPermission(baseUrl))) {
+        throw new ApiError('error.hostPermission', { server: getServerHost(baseUrl) });
+      }
       const res = await callOpenAiApi({
         baseUrl: baseUrl.trim() || 'https://api.openai.com/v1',
         apiKey: apiKey.trim(),
