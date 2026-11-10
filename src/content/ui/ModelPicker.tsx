@@ -115,9 +115,9 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', onClo
         ref={panelRef}
         role="dialog"
         aria-label={t('content.modelPickerDialog')}
-        className="pointer-events-auto mt-12 w-[min(350px,calc(100vw-24px))] animate-popIn rounded-2xl border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl"
+        className="pointer-events-auto flex max-h-full w-[min(350px,100%)] animate-popIn flex-col rounded-2xl border border-slate-700 bg-slate-900 p-3 text-slate-100 shadow-2xl"
       >
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex shrink-0 items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-semibold">
             <Star size={15} className="fill-amber-400 text-amber-400" /> {t('content.chooseModelTitle')}
           </div>
@@ -130,7 +130,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', onClo
           <Loader size="sm" text={t('content.loading')} className="py-3" />
         ) : (
           <>
-            <div className="mb-3 grid grid-cols-2 gap-1">
+            <div className="mb-3 grid shrink-0 grid-cols-2 gap-1">
               {(['gemini', 'openai_compatible'] as const).map((item) => (
                 <Chip
                   key={item}
@@ -148,7 +148,7 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', onClo
             </div>
 
             {provider === 'gemini' ? (
-              <div className="flex max-h-48 flex-col gap-1 overflow-y-auto">
+              <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
                 {GEMINI_MODELS.map((model) => renderModel('gemini', model.id, model.name))}
               </div>
             ) : (
@@ -156,14 +156,14 @@ export const ModelPicker: React.FC<ModelPickerProps> = ({ language = 'en', onClo
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="mb-2"
+                  className="mb-2 shrink-0"
                   disabled={isFetchingModels}
                   icon={<RefreshCw size={13} className={isFetchingModels ? 'animate-spin' : ''} />}
                   onClick={fetchCustomModels}
                 >
                   {isFetchingModels ? t('content.loadingModels') : t('content.loadModels')}
                 </Button>
-                <div className="flex max-h-40 flex-col gap-1 overflow-y-auto">
+                <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
                   {customModels.map((model) => renderModel('openai_compatible', model, model))}
                 </div>
                 {!customModels.length && !error && <p className="text-xs text-slate-400">{t('content.loadBaseUrl')}</p>}

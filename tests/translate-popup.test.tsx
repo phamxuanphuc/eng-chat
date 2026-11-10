@@ -88,6 +88,20 @@ describe('TranslatePopup Component', () => {
     expect(await screen.findByRole('dialog', { name: 'LLM model picker' })).toBeDefined();
   });
 
+  it('keeps the model picker inside the popup and gives it room in a short popup', async () => {
+    render(<TranslatePopup originalText="Hello" result="Hi" isLoading={false} onClose={vi.fn()} />);
+    const popup = screen.getByRole('dialog', { name: /translat/i });
+    expect(popup.className).not.toContain('min-h-[380px]');
+    fireEvent.click(screen.getByRole('button', { name: 'Open model picker' }));
+    const picker = await screen.findByRole('dialog', { name: 'LLM model picker' });
+    expect(popup.className).toContain('min-h-[380px]');
+    expect(popup.contains(picker)).toBe(true);
+    expect(picker.className).toContain('max-h-full');
+    expect(picker.className).not.toContain('mt-12');
+    const list = await screen.findByText('Gemini 3.5 Flash');
+    expect(list.closest('.overflow-y-auto')?.className).toContain('min-h-0 flex-1');
+  });
+
   it('opens the model picker from the sparkle button', async () => {
     render(<TranslatePopup originalText="Hello" result="Xin chào" isLoading={false} onClose={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Open model picker' }));
