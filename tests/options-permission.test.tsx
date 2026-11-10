@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App as OptionsApp } from '../src/options/App';
 import { DEFAULT_SETTINGS } from '../src/services/storage';
@@ -67,7 +67,9 @@ describe('Saving a custom provider asks for access to its server', () => {
   it('never asks while Gemini is the provider', async () => {
     setup('gemini');
     await screen.findByText('Google AI API keys');
-    fireEvent.click(screen.getByRole('button', { name: 'Save Settings' }));
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
+    fireEvent.change(screen.getByPlaceholderText('AIzaSy...'), { target: { value: 'AIzaSy-new' } });
+    fireEvent.click(await screen.findByRole('button', { name: 'Save Settings' }));
 
     await waitFor(() => expect((globalThis as any).chrome.storage.local.set).toHaveBeenCalled());
     expect(request).not.toHaveBeenCalled();

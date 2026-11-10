@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { useOptions } from './OptionsContext';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
@@ -18,10 +18,9 @@ const NAV_ITEMS = [
 ];
 
 export const OptionsLayout: React.FC = () => {
-  const { language, setLanguage, isReady, isDirty, saveSuccess, saveError, permissionDenied, customBaseUrl, handleSave } = useOptions();
+  const { language, setLanguage, isDirty, saveSuccess, saveError, permissionDenied, customBaseUrl, handleSave } = useOptions();
   const t = getTranslator(language);
-  const { pathname } = useLocation();
-  const showSaveBar = pathname !== '/sites' || isDirty;
+  const showSaveBar = isDirty || saveSuccess || saveError || permissionDenied;
   const status = permissionDenied
     ? { Icon: AlertCircle, tone: 'text-rose-400', text: t('options.permissionDenied', { server: getServerHost(customBaseUrl) }) }
     : saveError
@@ -30,8 +29,6 @@ export const OptionsLayout: React.FC = () => {
     ? { Icon: Check, tone: 'text-emerald-400', text: t('options.savedBrowser', { settings: t('app.settings') }) }
     : isDirty
     ? { Icon: CircleDot, tone: 'text-amber-400', text: t('options.unsaved') }
-    : isReady
-    ? { Icon: Check, tone: 'text-slate-400', text: t('options.allSaved') }
     : null;
 
   return (
@@ -92,7 +89,7 @@ export const OptionsLayout: React.FC = () => {
               )}
             </div>
             <Button
-              variant={isDirty ? 'primary' : 'secondary'}
+              variant="primary"
               size="md"
               className="shrink-0 whitespace-nowrap"
               icon={saveSuccess ? <Check size={16} /> : <Save size={16} />}

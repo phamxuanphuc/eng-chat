@@ -1,6 +1,6 @@
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App as OptionsApp } from '../src/options/App';
 import { App as PopupApp } from '../src/popup/App';
@@ -11,6 +11,9 @@ import en from '../src/i18n/en.json';
 import vi_ from '../src/i18n/vi.json';
 
 let data: Record<string, any> = {};
+
+const settle = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
+const saveButton = () => screen.queryByRole('button', { name: /Save Settings/i });
 
 const renderOptions = (initialEntries = ['/']) =>
   render(
@@ -42,7 +45,9 @@ describe('Settings UX', () => {
 
   it('tracks unsaved edits and clears the warning after saving', async () => {
     renderOptions();
-    expect(await screen.findByText('All changes saved')).toBeDefined();
+    await settle();
+    expect(saveButton()).toBeNull();
+    expect(screen.queryByText('You have unsaved changes')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Custom LLM' }));
     expect(await screen.findByText('You have unsaved changes')).toBeDefined();
@@ -53,9 +58,20 @@ describe('Settings UX', () => {
     expect(screen.getAllByRole('status').length).toBeGreaterThan(0);
   });
 
+  it('hides the save bar again a few seconds after a successful save', async () => {
+    renderOptions();
+    await settle();
+    fireEvent.click(screen.getByRole('button', { name: 'Custom LLM' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Save Settings/i }));
+    expect(await screen.findByText('Settings saved successfully in your browser!')).toBeDefined();
+    await waitFor(() => expect(screen.queryByText('Settings saved successfully in your browser!')).toBeNull(), { timeout: 4500 });
+    expect(screen.queryByRole('status')?.textContent ?? '').toBe('');
+    expect(screen.queryByRole('button', { name: /^(Saved|Save Settings)$/ })).toBeNull();
+  }, 8000);
+
   it('warns before leaving with unsaved edits only', async () => {
     renderOptions();
-    await screen.findByText('All changes saved');
+    await settle();
     const quiet = new Event('beforeunload', { cancelable: true });
     window.dispatchEvent(quiet);
     expect(quiet.defaultPrevented).toBe(false);
@@ -69,19 +85,24 @@ describe('Settings UX', () => {
 
   it('saves the interface language immediately without flagging unsaved edits', async () => {
     renderOptions();
-    await screen.findByText('All changes saved');
+    await settle();
 
     fireEvent.click(screen.getByRole('button', { name: /Language: English/i }));
 
-    expect(await screen.findByText('Mọi thay đổi đã được lưu')).toBeDefined();
     await waitFor(() => expect(data.engchat_settings?.language).toBe('vi'));
+    expect(screen.queryByText('You have unsaved changes')).toBeNull();
+    expect(screen.queryByText('Bạn có thay đổi chưa lưu')).toBeNull();
     expect(document.documentElement.lang).toBe('vi');
   });
 
-  it('hides the save bar on the hidden sites page, which applies changes at once', async () => {
-    renderOptions(['/sites']);
-    await screen.findByRole('heading', { level: 2, name: 'Hidden sites' });
-    expect(screen.queryByRole('button', { name: /Save Settings/i })).toBeNull();
+  it('shows no save bar on any page until something is edited', async () => {
+    for (const [path, heading] of [['/sites', 'Hidden sites'], ['/context', 'Conversation context']] as const) {
+      const view = renderOptions([path]);
+      await screen.findByRole('heading', { level: 2, name: heading });
+      await settle();
+      expect(saveButton()).toBeNull();
+      view.unmount();
+    }
   });
 
   it('lets the context limit be cleared while typing and restores it on blur', async () => {

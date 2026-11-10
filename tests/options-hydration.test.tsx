@@ -1,10 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App as OptionsApp } from '../src/options/App';
 import { DEFAULT_SETTINGS, loadSettings } from '../src/services/storage';
 import { useSettingsStore } from '../src/store/useSettingsStore';
+
+const settle = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
 
 const renderOptions = () =>
   render(
@@ -56,7 +58,8 @@ describe('Options hydration from storage', () => {
     const input = screen.getByPlaceholderText('AIzaSy...') as HTMLInputElement;
     await waitFor(() => expect(input.value).toBe('AIzaSy-saved-key'));
 
-    fireEvent.click(screen.getByRole('button', { name: /Save Settings/i }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Custom LLM' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Save Settings/i }));
     await waitFor(() => expect(screen.getByText('Settings saved successfully in your browser!')).toBeDefined());
 
     expect((await loadSettings()).geminiApiKey).toBe('AIzaSy-saved-key');
@@ -64,6 +67,7 @@ describe('Options hydration from storage', () => {
 
   it('persists a newly typed key and shows it after a fresh reload', async () => {
     const first = renderOptions();
+    await settle();
     fireEvent.change(screen.getByPlaceholderText('AIzaSy...'), { target: { value: 'AIzaSy-new-key' } });
     fireEvent.click(screen.getByRole('button', { name: /Save Settings/i }));
     await waitFor(() => expect(data.engchat_settings?.geminiApiKey).toBe('AIzaSy-new-key'));

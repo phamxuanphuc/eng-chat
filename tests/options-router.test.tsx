@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App as OptionsApp } from '../src/options/App';
 import { DEFAULT_SETTINGS, loadSettings } from '../src/services/storage';
@@ -117,7 +117,9 @@ describe('Options Multi-Page React Router', () => {
       </QueryClientProvider>
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /Save Settings/i }));
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
+    fireEvent.change(screen.getByPlaceholderText('AIzaSy...'), { target: { value: 'AIzaSy-fail' } });
+    fireEvent.click(await screen.findByRole('button', { name: /Save Settings/i }));
 
     expect(await screen.findByText('Unable to save settings. Please try again.')).toBeDefined();
     expect(screen.queryByText('Settings saved successfully in your browser!')).toBeNull();

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import axios from 'axios';
 import { App as OptionsApp } from '../src/options/App';
@@ -10,6 +10,8 @@ import { useSettingsStore } from '../src/store/useSettingsStore';
 import { mockGeminiSuccessRawResponse } from './mocks/gemini.mock';
 
 vi.mock('axios');
+
+const settle = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
 
 const createTestQueryClient = () =>
   new QueryClient({
@@ -54,6 +56,7 @@ describe('E2E Multi-Key Management & Failover', () => {
       </QueryClientProvider>
     );
 
+    await settle();
     const primaryInput = screen.getByPlaceholderText('AIzaSy...');
     fireEvent.change(primaryInput, { target: { value: 'primary-ai-key' } });
 
@@ -128,6 +131,7 @@ describe('E2E Multi-Key Management & Failover', () => {
       </QueryClientProvider>
     );
 
+    await settle();
     const makePrimaryBtn = screen.getByRole('button', { name: /Make primary/i });
     fireEvent.click(makePrimaryBtn);
 

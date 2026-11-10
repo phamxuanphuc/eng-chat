@@ -218,7 +218,6 @@
   "app.noKeyDescription": "VinaWrite needs a key from your AI provider before it can write or translate.",
   "app.ready": "Ready · {{model}}",
   "options.unsaved": "You have unsaved changes",
-  "options.allSaved": "All changes saved",
   "sites.showOnFocus": "Show the toolbar when a text field has text",
   "sites.showOnFocusDescription": "Shows the floating toolbar below a text field that already has text. Selecting text still shows it.",
   "sites.countOne": "1 site",

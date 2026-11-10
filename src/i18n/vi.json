@@ -218,7 +218,6 @@
   "app.noKeyDescription": "VinaWrite cần khóa từ nhà cung cấp AI trước khi có thể viết hoặc dịch.",
   "app.ready": "Sẵn sàng · {{model}}",
   "options.unsaved": "Bạn có thay đổi chưa lưu",
-  "options.allSaved": "Mọi thay đổi đã được lưu",
   "sites.showOnFocus": "Hiện thanh công cụ khi ô nhập có chữ",
   "sites.showOnFocusDescription": "Hiện thanh công cụ nổi bên dưới ô nhập đã có chữ. Bôi đen văn bản vẫn luôn hiện thanh công cụ.",
   "sites.countOne": "1 trang",

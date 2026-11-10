@@ -1,6 +1,6 @@
 # T6. Chỉ hiện thanh Lưu khi cần
 
-- [ ] Hoàn thành
+- [x] Hoàn thành
 
 > Đọc [README.md](README.md) trước: quy tắc chung và cách đánh dấu hoàn thành.
 
