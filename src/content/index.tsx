@@ -116,6 +116,7 @@ if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
 const cleanupDOMEvents = setupDOMEvents({
   onFocus: (rect, element) => {
     state.editableEl = element;
+    if (state.settings?.showToolbarOnFocus === false) return;
     showToolbarAt(rect, true);
   },
   onSelect: (rect, isEditable) => showToolbarAt(rect, !!isEditable),

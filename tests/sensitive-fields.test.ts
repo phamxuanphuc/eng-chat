@@ -93,8 +93,12 @@ describe('floating bar events on sensitive fields', () => {
 
   it('still shows the toolbar for a normal text input and textarea', () => {
     const { cb, cleanup } = setup();
-    makeInput({ type: 'text', name: 'message' }).dispatchEvent(new Event('focusin', { bubbles: true }));
-    makeInput({}, 'textarea').dispatchEvent(new Event('focusin', { bubbles: true }));
+    const message = makeInput({ type: 'text', name: 'message' });
+    message.value = 'Hello';
+    message.dispatchEvent(new Event('focusin', { bubbles: true }));
+    const area = makeInput({}, 'textarea');
+    area.value = 'Hello';
+    area.dispatchEvent(new Event('focusin', { bubbles: true }));
     expect(cb.onFocus).toHaveBeenCalledTimes(2);
     expect(cb.onSensitiveField).not.toHaveBeenCalled();
     cleanup();

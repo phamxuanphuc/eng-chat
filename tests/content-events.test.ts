@@ -36,11 +36,73 @@ describe('content-events', () => {
     setupDOMEvents({ onFocus, onSelect, onClickOutside });
 
     const input = document.createElement('input');
+    input.value = 'Hello';
     input.getBoundingClientRect = () => ({ left: 50, top: 50, width: 100, height: 30, right: 150, bottom: 80 } as DOMRect);
     document.body.appendChild(input);
 
     input.dispatchEvent(new Event('focusin', { bubbles: true }));
     expect(onFocus).toHaveBeenCalled();
+  });
+
+  describe('focus toolbar only for fields with text', () => {
+    const box = () => ({ left: 50, top: 50, width: 100, height: 30, right: 150, bottom: 80 } as DOMRect);
+    const makeField = (tag: 'input' | 'textarea', value = '') => {
+      const field = document.createElement(tag);
+      field.value = value;
+      field.getBoundingClientRect = box;
+      document.body.appendChild(field);
+      return field;
+    };
+
+    it('ignores focus on an empty or whitespace-only field', () => {
+      const onFocus = vi.fn();
+      setupDOMEvents({ onFocus, onSelect: vi.fn(), onClickOutside: vi.fn() });
+      makeField('input').dispatchEvent(new Event('focusin', { bubbles: true }));
+      makeField('textarea', '   ').dispatchEvent(new Event('focusin', { bubbles: true }));
+      expect(onFocus).not.toHaveBeenCalled();
+    });
+
+    it('ignores focus on an empty contenteditable but accepts one with text', () => {
+      const onFocus = vi.fn();
+      setupDOMEvents({ onFocus, onSelect: vi.fn(), onClickOutside: vi.fn() });
+      const empty = document.createElement('div');
+      empty.setAttribute('contenteditable', 'true');
+      empty.getBoundingClientRect = box;
+      const filled = empty.cloneNode() as HTMLElement;
+      filled.textContent = 'Some text';
+      filled.getBoundingClientRect = box;
+      document.body.append(empty, filled);
+      empty.dispatchEvent(new Event('focusin', { bubbles: true }));
+      expect(onFocus).not.toHaveBeenCalled();
+      filled.dispatchEvent(new Event('focusin', { bubbles: true }));
+      expect(onFocus).toHaveBeenCalledWith(expect.anything(), filled);
+    });
+
+    it('shows the toolbar after the first typed character in a focused empty field', () => {
+      const onFocus = vi.fn();
+      setupDOMEvents({ onFocus, onSelect: vi.fn(), onClickOutside: vi.fn() });
+      const field = makeField('textarea');
+      field.focus();
+      field.dispatchEvent(new Event('focusin', { bubbles: true }));
+      expect(onFocus).not.toHaveBeenCalled();
+      field.value = 'H';
+      field.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
+      expect(onFocus).toHaveBeenCalledTimes(1);
+      field.value = 'Hi';
+      field.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
+      expect(onFocus).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not announce a typed sensitive field', () => {
+      const onFocus = vi.fn();
+      setupDOMEvents({ onFocus, onSelect: vi.fn(), onClickOutside: vi.fn() });
+      const field = makeField('input');
+      field.setAttribute('type', 'password');
+      field.value = 'secret';
+      field.focus();
+      field.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
+      expect(onFocus).not.toHaveBeenCalled();
+    });
   });
 
   it('TC-CE-04: setupDOMEvents triggers onSelect when text is selected in input', () => {

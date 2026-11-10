@@ -69,4 +69,13 @@ describe('Hidden sites options page', () => {
     expect(await screen.findByText(/No hidden sites yet/)).toBeDefined();
     expect(data.engchat_hidden_sites).toEqual([]);
   });
+
+  it('turns the toolbar-on-focus setting off and saves immediately', async () => {
+    renderSites();
+    const toggle = await screen.findByRole('switch');
+    expect(toggle.getAttribute('aria-checked')).toBe('true');
+    fireEvent.click(toggle);
+    await waitFor(() => expect(data.engchat_settings?.showToolbarOnFocus).toBe(false));
+    expect(screen.getByRole('switch').getAttribute('aria-checked')).toBe('false');
+  });
 });

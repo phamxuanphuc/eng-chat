@@ -19,6 +19,10 @@ describe('Storage & Settings Store', () => {
     };
   });
 
+  it('defaults showToolbarOnFocus to true', () => {
+    expect(DEFAULT_SETTINGS.showToolbarOnFocus).toBe(true);
+  });
+
   it('TC-ST-01: loads default settings when storage is empty', async () => {
     const settings = await loadSettings();
     expect(settings).toEqual(DEFAULT_SETTINGS);

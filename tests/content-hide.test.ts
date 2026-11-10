@@ -10,6 +10,7 @@ const clickByName = (name: string) => {
 };
 const focusNewTextarea = () => {
   const textarea = document.createElement('textarea');
+  textarea.value = 'Draft text';
   textarea.getBoundingClientRect = () => ({ left: 50, top: 50, width: 200, height: 40, right: 250, bottom: 90 } as DOMRect);
   document.body.appendChild(textarea);
   textarea.dispatchEvent(new Event('focusin', { bubbles: true }));
@@ -47,6 +48,33 @@ describe('Content script hide toolbar', () => {
   it('shows the toolbar by default on focus', async () => {
     await load();
     focusNewTextarea();
+    await flush();
+    expect(hasToolbar()).toBe(true);
+  });
+
+  it('stays hidden on focus when the setting is off but still shows for a selection', async () => {
+    data.engchat_settings = { showToolbarOnFocus: false };
+    await load();
+    const field = focusNewTextarea();
+    await flush();
+    expect(hasToolbar()).toBe(false);
+    field.setSelectionRange(0, 5);
+    field.dispatchEvent(new Event('select'));
+    await flush();
+    expect(hasToolbar()).toBe(true);
+  });
+
+  it('does not show on an empty field and shows after the first typed character', async () => {
+    await load();
+    const field = document.createElement('textarea');
+    field.getBoundingClientRect = () => ({ left: 50, top: 50, width: 200, height: 40, right: 250, bottom: 90 } as DOMRect);
+    document.body.appendChild(field);
+    field.focus();
+    field.dispatchEvent(new Event('focusin', { bubbles: true }));
+    await flush();
+    expect(hasToolbar()).toBe(false);
+    field.value = 'H';
+    field.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
     await flush();
     expect(hasToolbar()).toBe(true);
   });

@@ -36,6 +36,7 @@ export interface AppSettings {
   customBaseUrl?: string;
   customApiKey?: string;
   customModel?: string;
+  showToolbarOnFocus?: boolean;
 }
 
 export interface ChatMessage {

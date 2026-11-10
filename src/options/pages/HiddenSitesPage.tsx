@@ -4,6 +4,8 @@ import { useOptions } from '../OptionsContext';
 import { useHiddenSites } from '../useHiddenSites';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { Switch } from '../../components/ui/Switch';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { Alert } from '../../components/ui/Alert';
 import { getTranslator } from '../../i18n';
 import { PageHeader } from '../PageHeader';
@@ -11,6 +13,7 @@ import { PageHeader } from '../PageHeader';
 export const HiddenSitesPage: React.FC = () => {
   const { language } = useOptions();
   const { sites, remove, removeAll } = useHiddenSites();
+  const { settings, updateSettings } = useSettingsStore();
   const t = getTranslator(language);
 
   return (
@@ -24,6 +27,13 @@ export const HiddenSitesPage: React.FC = () => {
             {sites.length === 1 ? t('sites.countOne') : t('sites.count', { count: sites.length })}
           </Badge>
         }
+      />
+
+      <Switch
+        checked={settings.showToolbarOnFocus ?? true}
+        onChange={(showToolbarOnFocus) => void updateSettings({ showToolbarOnFocus })}
+        label={t('sites.showOnFocus')}
+        description={t('sites.showOnFocusDescription')}
       />
 
       {sites.length === 0 ? (

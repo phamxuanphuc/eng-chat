@@ -14,6 +14,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   customBaseUrl: 'https://api.openai.com/v1',
   customApiKey: '',
   customModel: 'gpt-4o-mini',
+  showToolbarOnFocus: true,
 };
 
 

@@ -105,23 +105,43 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) =
     return false;
   };
 
+  let announced: HTMLElement | null = null;
+
+  const hasText = (el: HTMLElement): boolean => {
+    const text =
+      el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement
+        ? el.value
+        : el.innerText || el.textContent || '';
+    return text.trim().length > 0;
+  };
+
+  const announceField = (target: HTMLElement) => {
+    if (!hasText(target)) return;
+    const rect = target.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    announced = target;
+    callbacks.onFocus(rect, target);
+  };
+
   const handleFocusIn = (e: Event) => {
     const target = e.target as HTMLElement;
     if (isSensitiveField(target)) {
       callbacks.onSensitiveField?.();
       return;
     }
-    if (target && isEditable(target)) {
-      const rect = target.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        callbacks.onFocus(rect, target);
-      }
-    }
+    if (target && isEditable(target)) announceField(target);
+  };
+
+  const announceTypedField = () => {
+    const active = getActiveEditableElement();
+    if (!active || active === announced || isSensitiveField(active) || hasUsableSelection(active)) return;
+    announceField(active);
   };
 
   const handleSelect = (e: Event) => checkSelection(e.target as HTMLElement);
   const handleMouseDown = (e: Event) => {
     if (isInsideHost(e)) return;
+    announced = null;
     callbacks.onClickOutside();
   };
 
@@ -148,6 +168,7 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) =
 
   const handleKeyUp = (e: Event) => {
     if (isInsideHost(e)) return;
+    announceTypedField();
     scheduleSelectionChecks(e.target as HTMLElement);
   };
   const handleSelectionChange = () => {
