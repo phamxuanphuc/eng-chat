@@ -40,7 +40,7 @@ export const ViTranslationSection: React.FC<ViTranslationSectionProps> = ({ lang
           : t('common.unableTranslate'));
       }
     } catch (err: unknown) {
-      setTranslation(t('content.translationError', { error: getRuntimeErrorMessage(err, t('common.unableConnect')) }));
+      setTranslation(t('content.translationError', { error: getRuntimeErrorMessage(err, t('common.unableConnect'), language) }));
     } finally {
       setIsTranslating(false);
     }

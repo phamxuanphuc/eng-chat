@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { ApiKeyItem, Language } from '../types';
 import { getTranslator } from '../i18n';
+import { localizeError } from '../services/api-error';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Switch } from '../components/ui/Switch';
@@ -237,7 +238,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
       )}
 
       {testMutation.isError && (
-        <Alert variant="error" message={t('api.connectionFailed')} description={testMutation.error?.message} />
+        <Alert variant="error" message={t('api.connectionFailed')} description={localizeError(testMutation.error, language)} />
       )}
     </section>
   );

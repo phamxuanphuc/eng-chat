@@ -1,6 +1,7 @@
 import React from 'react';
 import { Language } from '../types';
 import { getTranslator } from '../i18n';
+import { localizeError } from '../services/api-error';
 import { useMutation } from '@tanstack/react-query';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -102,7 +103,7 @@ export const CustomProviderManager: React.FC<CustomProviderManagerProps> = ({
       )}
 
       {testMutation.isError && (
-        <Alert variant="error" message={t('api.connectionFailed')} description={testMutation.error?.message} />
+        <Alert variant="error" message={t('api.connectionFailed')} description={localizeError(testMutation.error, language || 'en')} />
       )}
     </section>
   );

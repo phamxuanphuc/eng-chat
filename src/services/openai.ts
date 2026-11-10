@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { ApiError } from './api-error';
 
 export interface OpenAiApiParams {
   baseUrl?: string;
@@ -54,9 +55,9 @@ export const fetchOpenAiModels = async (params: { baseUrl?: string; apiKey?: str
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const status = (error as AxiosError).response?.status;
-      if (status === 401 || status === 403) throw new Error(`The API key is invalid or access is unauthorized (${status}).`);
-      if (status === 404) throw new Error('The model list endpoint was not found (404).');
-      if (!(error as AxiosError).response) throw new Error('Unable to connect to the model server.');
+      if (status === 401 || status === 403) throw new ApiError('error.modelsInvalidKey', { status });
+      if (status === 404) throw new ApiError('error.modelsNotFound');
+      if (!(error as AxiosError).response) throw new ApiError('error.modelsNetwork');
     }
     throw error;
   }
@@ -66,7 +67,7 @@ export const callOpenAiApi = async (params: OpenAiApiParams): Promise<string> =>
   const { baseUrl, apiKey, model, systemInstruction, prompt } = params;
 
   if (!model || model.trim() === '') {
-    throw new Error('Model is not configured. Enter a model name.');
+    throw new ApiError('error.noModel');
   }
 
   const endpoint = formatOpenAiEndpoint(baseUrl);
@@ -95,12 +96,12 @@ export const callOpenAiApi = async (params: OpenAiApiParams): Promise<string> =>
 
     const choices = response.data?.choices;
     if (!choices || choices.length === 0) {
-      throw new Error('The model returned no data.');
+      throw new ApiError('error.openaiNoData');
     }
 
     const content = choices[0]?.message?.content;
     if (content === undefined || content === null) {
-      throw new Error('The model returned empty data.');
+      throw new ApiError('error.openaiEmpty');
     }
 
     return content.trim();
@@ -111,22 +112,25 @@ export const callOpenAiApi = async (params: OpenAiApiParams): Promise<string> =>
       const serverMessage = axiosErr.response?.data?.error?.message;
 
       if (status === 400) {
-        throw new Error(`Invalid request: ${serverMessage || 'Please check the parameters.'}`);
+        throw serverMessage ? new ApiError('error.invalidRequest', { detail: serverMessage }) : new ApiError('error.openaiBadRequest');
       }
       if (status === 401 || status === 403) {
-        throw new Error(`The API key is invalid or access is unauthorized (${status}). ${serverMessage || ''}`.trim());
+        throw new ApiError('error.openaiInvalidKey', { status, detail: serverMessage || '' });
       }
       if (status === 404) {
-        throw new Error(`Endpoint or model "${model}" (404). Check the Base URL and model name.`);
+        throw new ApiError('error.openaiNotFound', { model });
       }
       if (status === 429) {
-        throw new Error(`API rate limit or quota exceeded. ${serverMessage || ''}`.trim());
+        throw new ApiError('error.openaiQuota', { detail: serverMessage || '' });
       }
       if (axiosErr.code === 'ECONNABORTED') {
-        throw new Error('The API request timed out. Check your network connection or the server response.');
+        throw new ApiError('error.openaiTimeout');
       }
       if (!axiosErr.response) {
-        throw new Error(`Unable to connect to the server ${baseUrl || 'OpenAI'}. Check the URL or network connection.`);
+        throw new ApiError('error.openaiNetwork', { server: baseUrl || 'OpenAI' });
+      }
+      if (status && status >= 500) {
+        throw new ApiError('error.serverUnavailable', { status });
       }
     }
     throw error;

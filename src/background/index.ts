@@ -3,6 +3,7 @@ import { loadSettings, saveSettings } from '../services/storage';
 import { executeOptimize } from '../services/gemini';
 import { fetchOpenAiModels } from '../services/openai';
 import { getTranslator, TranslationKey } from '../i18n';
+import { localizeError } from '../services/api-error';
 
 const CONTEXT_MENU_PREFIX = 'engchat_action_';
 
@@ -145,8 +146,9 @@ export const handleRuntimeMessage = async (
 
     sendResponse({ success: false, error: 'Unknown action' });
     return false;
-  } catch (err: any) {
-    sendResponse({ success: false, error: err?.message || 'Internal processing error' });
+  } catch (err) {
+    const language = await loadSettings().then((settings) => settings.language).catch(() => undefined);
+    sendResponse({ success: false, error: localizeError(err, language) });
     return false;
   }
 };

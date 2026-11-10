@@ -1,3 +1,6 @@
+import { translate } from '../i18n';
+import { Language } from '../types';
+
 export const EXTENSION_CONTEXT_ERROR = 'Extension was updated. Please reload this page to reconnect VinaWrite.';
 
 export const isExtensionContextError = (error: unknown): boolean => {
@@ -5,8 +8,10 @@ export const isExtensionContextError = (error: unknown): boolean => {
   return /extension context invalidated|receiving end does not exist|message port closed/i.test(message);
 };
 
-export const getRuntimeErrorMessage = (error: unknown, fallback: string): string => {
-  if (isExtensionContextError(error)) return EXTENSION_CONTEXT_ERROR;
+export const getRuntimeErrorMessage = (error: unknown, fallback: string, language?: Language): string => {
+  if (isExtensionContextError(error) || (error instanceof Error && error.message === EXTENSION_CONTEXT_ERROR)) {
+    return translate(language, 'error.extensionUpdated');
+  }
   return error instanceof Error && error.message ? error.message : fallback;
 };
 

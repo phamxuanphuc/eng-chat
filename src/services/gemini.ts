@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { AppSettings, OptimizeRequest, OptimizeResponse } from '../types';
 import { parseTranslateResult } from './translate-result';
+import { ApiError, localizeError } from './api-error';
 import { buildSystemInstruction, buildUserPrompt } from './prompt';
 import { callOpenAiApi } from './openai';
 import { classifyKeyFailure, clearKeyCooldown, markKeyCooldown, orderKeysByAvailability } from './key-cooldown';
@@ -8,7 +9,7 @@ import { classifyKeyFailure, clearKeyCooldown, markKeyCooldown, orderKeysByAvail
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 export const fetchGeminiModels = async (apiKey: string): Promise<string[]> => {
-  if (!apiKey?.trim()) throw new Error('API key is not configured.');
+  if (!apiKey?.trim()) throw new ApiError('error.noKey');
   try {
     const response = await axios.get(GEMINI_API_BASE, {
       timeout: 15000,
@@ -22,8 +23,8 @@ export const fetchGeminiModels = async (apiKey: string): Promise<string[]> => {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const status = (error as AxiosError).response?.status;
-      if (status === 401 || status === 403) throw new Error(`Gemini API key is invalid (${status}).`);
-      if (!(error as AxiosError).response) throw new Error('Unable to connect to Gemini.');
+      if (status === 401 || status === 403) throw new ApiError('error.geminiModelsInvalidKey', { status });
+      if (!(error as AxiosError).response) throw new ApiError('error.geminiModelsNetwork');
     }
     throw error;
   }
@@ -38,7 +39,7 @@ export const callGeminiApi = async (params: {
   const { apiKey, model: requestedModel, systemInstruction, prompt } = params;
 
   if (!apiKey || apiKey.trim() === '') {
-    throw new Error('API key is not configured. Open Settings to add a Gemini API key.');
+    throw new ApiError('error.geminiNoKey');
   }
 
   const cleanKey = apiKey.trim();
@@ -69,9 +70,9 @@ export const callGeminiApi = async (params: {
     });
 
     const blockReason = response.data?.promptFeedback?.blockReason;
-    if (blockReason) throw new Error(`Gemini blocked this request (${blockReason}).`);
+    if (blockReason) throw new ApiError('error.geminiBlocked', { reason: String(blockReason) });
     const candidates = response.data?.candidates;
-    if (!candidates || candidates.length === 0) throw new Error('Gemini returned no data.');
+    if (!candidates || candidates.length === 0) throw new ApiError('error.geminiNoData');
 
     const parts: Array<{ text?: string; thought?: boolean }> = candidates[0]?.content?.parts || [];
     const textResult = parts
@@ -80,9 +81,9 @@ export const callGeminiApi = async (params: {
       .join('');
     if (!textResult.trim()) {
       const finishReason = candidates[0]?.finishReason;
-      throw new Error(finishReason && finishReason !== 'STOP'
-        ? `Gemini returned empty data (${finishReason}).`
-        : 'Gemini returned empty data.');
+      throw finishReason && finishReason !== 'STOP'
+        ? new ApiError('error.geminiEmptyReason', { reason: String(finishReason) })
+        : new ApiError('error.geminiEmpty');
     }
 
     return textResult.trim();
@@ -93,22 +94,25 @@ export const callGeminiApi = async (params: {
       const serverMessage = axiosErr.response?.data?.error?.message;
 
       if (status === 400) {
-        throw new Error(`Invalid request: ${serverMessage || 'Please check the data.'}`);
+        throw serverMessage ? new ApiError('error.invalidRequest', { detail: serverMessage }) : new ApiError('error.geminiBadRequest');
       }
       if (status === 401 || status === 403) {
-        throw new Error('Gemini API key is invalid or access is unauthorized.');
+        throw new ApiError('error.geminiInvalidKey');
       }
       if (status === 404) {
-        throw new Error(`Model "${model}" was not found (404). Recommended: gemini-3.5-flash-lite.`);
+        throw new ApiError('error.geminiModelNotFound', { model });
       }
       if (status === 429) {
-        throw new Error('API quota or rate limit exceeded. Please try again later.');
+        throw new ApiError('error.geminiQuota');
       }
       if (axiosErr.code === 'ECONNABORTED') {
-        throw new Error('The API request timed out. Check your network connection.');
+        throw new ApiError('error.geminiTimeout');
       }
       if (!axiosErr.response) {
-        throw new Error('Unable to connect to Google Gemini. Check your network connection.');
+        throw new ApiError('error.geminiNetwork');
+      }
+      if (status && status >= 500) {
+        throw new ApiError('error.serverUnavailable', { status });
       }
     }
     throw error;
@@ -168,7 +172,7 @@ export const executeOptimize = async (
       const configuredKeys = extractCandidateKeys(settings);
       const candidateKeys = rotate ? await orderKeysByAvailability(configuredKeys) : configuredKeys;
       if (candidateKeys.length === 0) {
-        throw new Error('API key is not configured. Open Settings to add a Gemini API key.');
+        throw new ApiError('error.geminiNoKey');
       }
 
       let lastError: any = null;
@@ -218,10 +222,7 @@ export const executeOptimize = async (
     }
 
     return { success: true, data: rawResult };
-  } catch (err: any) {
-    return {
-      success: false,
-      error: err?.message || 'An error occurred while processing the request.',
-    };
+  } catch (err) {
+    return { success: false, error: localizeError(err, settings.language) };
   }
 };

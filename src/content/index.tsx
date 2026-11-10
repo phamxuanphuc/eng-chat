@@ -184,7 +184,7 @@ const handleTriggerOptimize = async (
   } catch (err: any) {
     if (requestId !== latestRequestId) return;
     toolbarState = { ...toolbarState, isLoading: false, visible: false };
-    tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, error: getRuntimeErrorMessage(err, translator()('content.connectionError')), result: null, hasEditableTarget: !!activeEl };
+    tooltipState = { ...tooltipState, visible: true, mode, originalText: targetText, isLoading: false, error: getRuntimeErrorMessage(err, translator()('content.connectionError'), currentLanguage), result: null, hasEditableTarget: !!activeEl };
     renderApp();
   }
 };
@@ -224,7 +224,7 @@ const handleFollowUp = async (query: string, refine = false) => {
     renderApp();
   } catch (err: any) {
     if (requestId !== latestRequestId) return;
-    tooltipState = { ...tooltipState, isLoading: false, error: getRuntimeErrorMessage(err, translator()('content.connectionError')) };
+    tooltipState = { ...tooltipState, isLoading: false, error: getRuntimeErrorMessage(err, translator()('content.connectionError'), currentLanguage) };
     renderApp();
   }
 };
