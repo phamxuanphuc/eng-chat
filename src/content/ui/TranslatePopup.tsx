@@ -13,6 +13,7 @@ import { useDraggable } from './useDraggable';
 import { getOverlayPrefs, saveOverlayPrefs } from '../overlay-prefs';
 import { placeNearAnchor, PopupAnchor, Position } from './popup-position';
 import { ModelPicker } from './ModelPicker';
+import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { IconButton } from '../../components/ui/IconButton';
 import { useEscape } from '../../components/ui/useDismiss';
@@ -30,7 +31,7 @@ export interface TranslatePopupProps {
   language?: Language; mode?: PopupMode; originalText: string;
   result?: string | TranslateExplainResult | null;
   isLoading: boolean; error?: string | null; targetLanguage?: string;
-  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark'; hasEditableTarget?: boolean; anchor?: PopupAnchor | null; modelName?: string;
+  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark'; hasEditableTarget?: boolean; anchor?: PopupAnchor | null; modelName?: string; contextCount?: number;
   onLanguageChange?: (lang: string) => void; onModeChange?: (mode: PopupMode) => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void; onFollowUp?: (query: string) => void;
   onRegenerate?: () => void; onInsert?: (text: string) => void; onClose: () => void; isPinned?: boolean; onTogglePin?: () => void; onTranslateVi?: (text: string) => Promise<string>;
@@ -39,7 +40,7 @@ export interface TranslatePopupProps {
 export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   language = 'en', mode = 'translate', originalText, result, isLoading, error,
   targetLanguage, rewriteOptions, theme = 'dark',
-  hasEditableTarget = false, anchor = null, modelName,
+  hasEditableTarget = false, anchor = null, modelName, contextCount = 0,
   onLanguageChange, onModeChange, onRewriteOptionsChange,
   onFollowUp, onRegenerate, onInsert, onClose, isPinned = false, onTogglePin, onTranslateVi,
 }) => {
@@ -142,6 +143,13 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
             </Button>
           )}
           <LanguageMenu language={language} value={currentLang} onChange={onLanguageChange} />
+          {contextCount > 0 && (
+            <span title={t('content.contextUsedHint')}>
+              <Badge variant="secondary" size="sm">
+                {t(contextCount === 1 ? 'content.contextUsedOne' : 'content.contextUsed', { count: contextCount })}
+              </Badge>
+            </span>
+          )}
         </div>
 
         <TranslatePopupFooter

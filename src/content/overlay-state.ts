@@ -22,6 +22,7 @@ export interface TooltipState {
   isPinned: boolean;
   hasEditableTarget: boolean;
   anchor?: PopupAnchor | null;
+  contextCount: number;
 }
 
 export const initialToolbarState: ToolbarState = {
@@ -63,4 +64,5 @@ export const initialTooltipState: TooltipState = {
   isPinned: false,
   hasEditableTarget: false,
   anchor: null,
+  contextCount: 0,
 };

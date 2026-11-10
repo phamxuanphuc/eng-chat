@@ -54,7 +54,7 @@ Trạng thái gốc khi viết tài liệu: 394 test đạt, build sạch, lint 
 ### Ưu tiên P2: tính năng mới
 
 - [x] [T11. Mở trang cài đặt khi vừa cài tiện ích](T11-mo-trang-cai-dat-khi-vua-cai.md)
-- [ ] [T12. Cho người dùng thấy ngữ cảnh hội thoại đã gửi](T12-cho-nguoi-dung-thay-ngu-canh-hoi.md)
+- [x] [T12. Cho người dùng thấy ngữ cảnh hội thoại đã gửi](T12-cho-nguoi-dung-thay-ngu-canh-hoi.md)
 - [ ] [T13. Hiển thị khác biệt giữa bản gốc và bản Cải thiện/Viết lại](T13-hien-thi-khac-biet-giua-ban-goc.md)
 - [ ] [T14. Cài đặt "ngôn ngữ mẹ đẻ" thay cho tiếng Việt gán cứng](T14-cai-dat-ngon-ngu-me-de-thay.md)
 - [ ] [T15. Streaming kết quả cho Cải thiện, Viết lại, Tóm tắt](T15-streaming-ket-qua-cho-cai-thien-viet.md)

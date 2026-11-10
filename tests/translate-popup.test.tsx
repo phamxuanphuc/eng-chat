@@ -5,6 +5,18 @@ import { TranslatePopup } from '../src/content/ui/TranslatePopup';
 import { mockTranslateExplainResult } from './mocks/gemini.mock';
 
 describe('TranslatePopup Component', () => {
+  it('shows a context badge only when messages were sent', () => {
+    const { rerender } = render(<TranslatePopup originalText="Hello" result="Hi" isLoading={false} contextCount={4} onClose={vi.fn()} />);
+    expect(screen.getByText('Context: 4 messages')).toBeDefined();
+    rerender(<TranslatePopup originalText="Hello" result="Hi" isLoading={false} contextCount={0} onClose={vi.fn()} />);
+    expect(screen.queryByText(/^Context:/)).toBeNull();
+  });
+
+  it('shows the context badge in Vietnamese', () => {
+    render(<TranslatePopup language="vi" originalText="Hello" result="Hi" isLoading={false} contextCount={2} onClose={vi.fn()} />);
+    expect(screen.getByText('Ngữ cảnh: 2 tin nhắn')).toBeDefined();
+  });
+
   it('does not show the translation disclaimer line', () => {
     render(<TranslatePopup mode="translate" originalText="Hello" result="Xin chào" isLoading={false} onClose={vi.fn()} />);
     expect(screen.queryByText(/based on web content/i)).toBeNull();

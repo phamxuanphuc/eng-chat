@@ -27,6 +27,7 @@ export interface ContentOverlayProps {
     hasEditableTarget: boolean;
     isPinned?: boolean;
     anchor?: PopupAnchor | null;
+    contextCount?: number;
   };
   onSelectTone: (tone: ToneType, mode?: 'translate' | 'rewrite' | 'improve' | 'summary') => void;
   onCloseToolbar: () => void;
@@ -98,6 +99,7 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
           hasEditableTarget={tooltip.hasEditableTarget}
           isPinned={tooltip.isPinned}
           anchor={tooltip.anchor}
+          contextCount={tooltip.contextCount}
           modelName={modelName}
           onTogglePin={onTogglePin}
           onLanguageChange={onLanguageChange}

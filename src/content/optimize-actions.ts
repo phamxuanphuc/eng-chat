@@ -38,7 +38,7 @@ const showNotice = (message: string): void => {
   state.requestId += 1;
   state.editSnapshot = null;
   patchToolbar({ visible: false, isLoading: false });
-  patchTooltip({ visible: true, isLoading: false, error: message, result: null, originalText: '', hasEditableTarget: false, anchor: null });
+  patchTooltip({ visible: true, isLoading: false, error: message, result: null, originalText: '', hasEditableTarget: false, anchor: null, contextCount: 0 });
   render();
 };
 
@@ -70,15 +70,16 @@ export const triggerOptimize = async (
   const shown = { visible: true, mode, originalText: targetText, isLoading: false, hasEditableTarget: !!activeEl };
   const anchor = customText ? state.tooltip.anchor ?? null : computeAnchor();
 
-  patchTooltip({ ...shown, targetLanguage, anchor, isLoading: true, error: null });
-  patchToolbar({ visible: false });
-  render();
-  const requestId = ++state.requestId;
-
   const effectiveSettings = settings || state.settings;
   const contextMessages = effectiveSettings?.enableChatContext === false
     ? []
     : extractChatContext(activeEl, effectiveSettings?.maxContextMessages || 4);
+
+  patchTooltip({ ...shown, targetLanguage, anchor, contextCount: contextMessages.length, isLoading: true, error: null });
+  patchToolbar({ visible: false });
+  render();
+  const requestId = ++state.requestId;
+
 
   try {
     const response = await execute({ text: targetText, tone, mode, contextMessages, rewriteOptions: rewriteOptionsFor(mode), targetLanguage });

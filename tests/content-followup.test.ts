@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { fireEvent } from '@testing-library/react';
 
 type Deferred = { resolve: (value: unknown) => void };
@@ -108,5 +108,53 @@ describe('Content script follow-ups', () => {
     await flush();
 
     expect(lastPayload()).toMatchObject({ text: 'I agree with this approach.', targetLanguage: 'Vietnamese', translateOnly: true });
+  });
+
+  describe('context badge', () => {
+    afterEach(() => {
+      document.querySelectorAll('[role="log"]').forEach((el) => el.remove());
+    });
+
+    const badge = () => Array.from(root().querySelectorAll('span')).find((el) => /^Context: /.test(el.textContent || ''));
+
+    const openWithChat = async (messages: string[]) => {
+      const log = document.createElement('div');
+      log.setAttribute('role', 'log');
+      log.innerHTML = messages.map((text) => `<div data-qa="message_content">${text}</div>`).join('');
+      const textarea = document.createElement('textarea');
+      textarea.value = 'Toi dong y';
+      log.appendChild(textarea);
+      document.body.appendChild(log);
+      textarea.focus();
+      onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'improve' }, {}, vi.fn());
+      pending[0].resolve({ success: true, data: 'I agree.' });
+      await flush();
+    };
+
+    it('shows how many messages were sent and explains how to turn it off', async () => {
+      await openWithChat(['First message', 'Second message', 'Third message']);
+      expect(lastPayload().contextMessages).toHaveLength(3);
+      expect(badge()?.textContent).toBe('Context: 3 messages');
+      expect(badge()?.closest('[title]')?.getAttribute('title')).toContain('Settings');
+    });
+
+    it('uses the singular for one message', async () => {
+      await openWithChat(['Only message']);
+      expect(badge()?.textContent).toBe('Context: 1 message');
+    });
+
+    it('shows no badge when no context was found', async () => {
+      await open('improve', 'I agree.');
+      expect(lastPayload().contextMessages).toEqual([]);
+      expect(badge()).toBeUndefined();
+    });
+
+    it('keeps the count across a follow-up', async () => {
+      await openWithChat(['First message', 'Second message']);
+      await ask('Shorter');
+      pending[1]?.resolve({ success: true, data: 'Shorter result' });
+      await flush();
+      expect(badge()?.textContent).toBe('Context: 2 messages');
+    });
   });
 });

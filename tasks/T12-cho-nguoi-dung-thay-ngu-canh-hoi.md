@@ -1,6 +1,6 @@
 # T12. Cho người dùng thấy ngữ cảnh hội thoại đã gửi
 
-- [ ] Hoàn thành
+- [x] Hoàn thành
 
 > Đọc [README.md](README.md) trước: quy tắc chung và cách đánh dấu hoàn thành.
 
