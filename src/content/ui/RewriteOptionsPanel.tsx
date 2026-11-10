@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { RewriteOptions, Language } from '../../types';
+import React, { useEffect, useState } from 'react';
+import { RewriteOptions, Language, DEFAULT_REWRITE_OPTIONS } from '../../types';
 import { FileText, Sparkles, Smile, X, Plus, Check, LucideIcon } from 'lucide-react';
-import { saveSelectedStyle } from './style-preference';
+import { loadCustomRewriteOptions, saveCustomRewriteOptions } from '../custom-rewrite-options';
 import { getTranslator, TranslationKey } from '../../i18n';
+import { Button } from '../../components/ui/Button';
 import { Chip } from '../../components/ui/Chip';
 import { IconButton } from '../../components/ui/IconButton';
 import { Input } from '../../components/ui/Input';
 import { useEscape } from '../../components/ui/useDismiss';
+import { CustomRewriteOptions, EMPTY_CUSTOM_OPTIONS } from '../custom-rewrite-options';
 import enDictionary from '../../i18n/en.json';
 
 export interface RewriteOptionsPanelProps {
@@ -33,11 +35,22 @@ export const RewriteOptionsPanel: React.FC<RewriteOptionsPanelProps> = ({
   onChange,
   onClose,
 }) => {
-  const [formatList, setFormatList] = useState<string[]>(BASE_FORMAT_OPTIONS);
-  const [toneList, setToneList] = useState<string[]>(BASE_TONE_OPTIONS);
+  const [custom, setCustom] = useState<CustomRewriteOptions>(EMPTY_CUSTOM_OPTIONS);
   const [adding, setAdding] = useState<'format' | 'tone' | null>(null);
-  const [draft, setDraft] = useState('');
+  const [customName, setCustomName] = useState('');
+  const [draft, setDraft] = useState<RewriteOptions>(options);
   const t = getTranslator(language);
+  const unchanged = (Object.keys(draft) as Array<keyof RewriteOptions>).every((key) => draft[key] === options[key]);
+  const formatList = [...BASE_FORMAT_OPTIONS, ...custom.format.filter((item) => !BASE_FORMAT_OPTIONS.includes(item))];
+  const toneList = [...BASE_TONE_OPTIONS, ...custom.tone.filter((item) => !BASE_TONE_OPTIONS.includes(item))];
+
+  useEffect(() => {
+    let active = true;
+    void loadCustomRewriteOptions().then((loaded) => {
+      if (active) setCustom(loaded);
+    });
+    return () => { active = false; };
+  }, []);
 
   useEscape(true, () => {
     if (adding) setAdding(null);
@@ -50,17 +63,20 @@ export const RewriteOptionsPanel: React.FC<RewriteOptionsPanelProps> = ({
   };
 
   const handleSelect = (key: keyof RewriteOptions, value: string) => {
-    onChange({ ...options, [key]: value });
-    if (key === 'tone') saveSelectedStyle(value);
+    setDraft((current) => ({ ...current, [key]: value }));
   };
 
   const handleAddCustom = (key: 'format' | 'tone') => {
-    const trimmed = draft.trim();
+    const trimmed = customName.trim();
     if (!trimmed) return;
-    const setList = key === 'format' ? setFormatList : setToneList;
-    setList((list) => (list.includes(trimmed) ? list : [...list, trimmed]));
+    const base = key === 'format' ? BASE_FORMAT_OPTIONS : BASE_TONE_OPTIONS;
+    if (!base.includes(trimmed) && !custom[key].includes(trimmed)) {
+      const next = { ...custom, [key]: [...custom[key], trimmed] };
+      setCustom(next);
+      void saveCustomRewriteOptions(next);
+    }
     handleSelect(key, trimmed);
-    setDraft('');
+    setCustomName('');
     setAdding(null);
   };
 
@@ -78,7 +94,7 @@ export const RewriteOptionsPanel: React.FC<RewriteOptionsPanelProps> = ({
       </div>
       <div className="flex flex-wrap gap-1.5">
         {items.map((item) => (
-          <Chip key={item} selected={(options[key] || 'Auto') === item} onClick={() => handleSelect(key, item)}>
+          <Chip key={item} selected={(draft[key] || 'Auto') === item} onClick={() => handleSelect(key, item)}>
             {getOptionLabel(item)}
           </Chip>
         ))}
@@ -97,8 +113,8 @@ export const RewriteOptionsPanel: React.FC<RewriteOptionsPanelProps> = ({
           <Input
             autoFocus
             aria-label={addLabel}
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
+            value={customName}
+            onChange={(event) => setCustomName(event.target.value)}
             placeholder={placeholder}
             className="!rounded-xl !px-2 !py-1 !text-xs"
           />
@@ -108,7 +124,7 @@ export const RewriteOptionsPanel: React.FC<RewriteOptionsPanelProps> = ({
         </IconButton>
       </form>
     ) : (
-      <Chip dashed icon={<Plus size={12} />} onClick={() => { setDraft(''); setAdding(key); }}>
+      <Chip dashed icon={<Plus size={12} />} onClick={() => { setCustomName(''); setAdding(key); }}>
         {addLabel}
       </Chip>
     );
@@ -132,6 +148,20 @@ export const RewriteOptionsPanel: React.FC<RewriteOptionsPanelProps> = ({
         {renderGroup('formality', Sparkles, t('content.formality'), FORMALITY_OPTIONS)}
         {renderGroup('format', FileText, t('content.format'), formatList, renderAddControl('format', t('content.formatPlaceholder'), t('content.addFormat')))}
         {renderGroup('tone', Smile, t('content.tone'), toneList, renderAddControl('tone', t('content.tonePlaceholder'), t('content.addTone')))}
+      </div>
+
+      <div className="flex items-center justify-end gap-2 border-t border-slate-800 bg-slate-900 px-4 py-3">
+        <Button variant="ghost" size="sm" onClick={() => setDraft({ ...DEFAULT_REWRITE_OPTIONS })}>
+          {t('content.resetOptions')}
+        </Button>
+        <Button
+          variant="primary"
+          size="sm"
+          disabled={unchanged}
+          onClick={() => { onChange(draft); onClose(); }}
+        >
+          {t('content.applyOptions')}
+        </Button>
       </div>
     </div>
   );

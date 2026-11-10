@@ -66,6 +66,8 @@
   "content.askFollowUp": "Hỏi tiếp ↵",
   "content.replaceInput": "Thay thế văn bản trong ô nhập",
   "content.styleOptions": "Tùy chọn phong cách & định dạng",
+  "content.applyOptions": "Áp dụng",
+  "content.resetOptions": "Đặt lại",
   "content.closeOptions": "Đóng tùy chọn",
   "content.length": "Độ dài",
   "content.formality": "Mức độ trang trọng",

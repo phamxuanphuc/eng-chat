@@ -66,6 +66,8 @@
   "content.askFollowUp": "Ask follow-up ↵",
   "content.replaceInput": "Replace text in input",
   "content.styleOptions": "Style & Format Options",
+  "content.applyOptions": "Apply",
+  "content.resetOptions": "Reset",
   "content.closeOptions": "Close options",
   "content.length": "Length",
   "content.formality": "Formality",

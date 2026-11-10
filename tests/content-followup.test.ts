@@ -81,10 +81,16 @@ describe('Content script follow-ups', () => {
     const click = (label: string) => fireEvent.click(Array.from(root().querySelectorAll('button')).find((b) => b.textContent?.trim() === label)!);
     click('Style & Format Options');
     await flush();
+    const callsBefore = sendMessage.mock.calls.length;
     click('Short');
+    click('Formal');
+    await flush();
+    expect(sendMessage.mock.calls.length).toBe(callsBefore);
+    click('Apply');
     await flush();
 
-    expect(lastPayload().rewriteOptions).toMatchObject({ length: 'Short' });
+    expect(sendMessage.mock.calls.length).toBe(callsBefore + 1);
+    expect(lastPayload().rewriteOptions).toMatchObject({ length: 'Short', formality: 'Formal' });
     expect(lastPayload().previousResult).toBeUndefined();
   });
 

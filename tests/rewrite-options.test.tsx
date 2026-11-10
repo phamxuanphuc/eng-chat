@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { RewriteOptionsPanel } from '../src/content/ui/RewriteOptionsPanel';
 import { TranslatePopup } from '../src/content/ui/TranslatePopup';
@@ -33,83 +33,106 @@ describe('RewriteOptionsPanel Component', () => {
     expect(handleClose).toHaveBeenCalled();
   });
 
-  it('TC-RO-02: Clicking a chip triggers onChange with updated options', () => {
+  it('TC-RO-02: Chips only change the draft; Apply sends one onChange', () => {
     const handleChange = vi.fn();
+    const handleClose = vi.fn();
+    render(<RewriteOptionsPanel options={DEFAULT_REWRITE_OPTIONS} onChange={handleChange} onClose={handleClose} />);
 
-    render(
-      <RewriteOptionsPanel
-        options={DEFAULT_REWRITE_OPTIONS}
-        onChange={handleChange}
-        onClose={() => {}}
-      />
-    );
+    fireEvent.click(screen.getByRole('button', { name: /^Formal$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^Email$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^Short$/i }));
+    expect(handleChange).not.toHaveBeenCalled();
 
-    const formalBtn = screen.getByRole('button', { name: /^Formal$/i });
-    fireEvent.click(formalBtn);
+    fireEvent.click(screen.getByRole('button', { name: /^Apply$/i }));
+    expect(handleChange).toHaveBeenCalledTimes(1);
     expect(handleChange).toHaveBeenCalledWith({
       ...DEFAULT_REWRITE_OPTIONS,
+      length: 'Short',
       formality: 'Formal',
-    });
-
-    const emailBtn = screen.getByRole('button', { name: /^Email$/i });
-    fireEvent.click(emailBtn);
-    expect(handleChange).toHaveBeenCalledWith({
-      ...DEFAULT_REWRITE_OPTIONS,
       format: 'Email',
     });
+    expect(handleClose).toHaveBeenCalledTimes(1);
   });
 
-  it('TC-RO-03: Adding custom format via inline form updates options', () => {
+  it('TC-RO-02b: Apply stays disabled until the draft differs; Reset restores defaults', () => {
     const handleChange = vi.fn();
+    render(<RewriteOptionsPanel options={{ ...DEFAULT_REWRITE_OPTIONS, length: 'Short' }} onChange={handleChange} onClose={() => {}} />);
+    const apply = screen.getByRole('button', { name: /^Apply$/i }) as HTMLButtonElement;
+    expect(apply.disabled).toBe(true);
 
-    render(
-      <RewriteOptionsPanel
-        options={DEFAULT_REWRITE_OPTIONS}
-        onChange={handleChange}
-        onClose={() => {}}
-      />
-    );
-
-    const addFormatBtn = screen.getByRole('button', { name: /add format/i });
-    fireEvent.click(addFormatBtn);
-
-    const input = screen.getByPlaceholderText(/format\.\.\./i);
-    fireEvent.change(input, { target: { value: 'Slack Message' } });
-    fireEvent.submit(input.closest('form')!);
-
-    expect(handleChange).toHaveBeenCalledWith({
-      ...DEFAULT_REWRITE_OPTIONS,
-      format: 'Slack Message',
-    });
+    fireEvent.click(screen.getByRole('button', { name: /^Reset$/i }));
+    expect(apply.disabled).toBe(false);
+    fireEvent.click(apply);
+    expect(handleChange).toHaveBeenCalledWith(DEFAULT_REWRITE_OPTIONS);
   });
 
-  it('TC-RO-04: Adding custom tone via inline form updates options', () => {
+  it('TC-RO-02c: Closing with X or Escape never applies the draft', () => {
     const handleChange = vi.fn();
-
-    render(
-      <RewriteOptionsPanel
-        options={DEFAULT_REWRITE_OPTIONS}
-        onChange={handleChange}
-        onClose={() => {}}
-      />
-    );
-
-    const addToneBtn = screen.getByRole('button', { name: /add tone/i });
-    fireEvent.click(addToneBtn);
-
-    const input = screen.getByPlaceholderText(/tone\.\.\./i);
-    fireEvent.change(input, { target: { value: 'Persuasive' } });
-    fireEvent.submit(input.closest('form')!);
-
-    expect(handleChange).toHaveBeenCalledWith({
-      ...DEFAULT_REWRITE_OPTIONS,
-      tone: 'Persuasive',
-    });
+    const handleClose = vi.fn();
+    render(<RewriteOptionsPanel options={DEFAULT_REWRITE_OPTIONS} onChange={handleChange} onClose={handleClose} />);
+    fireEvent.click(screen.getByRole('button', { name: /^Formal$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /close options/i }));
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(handleChange).not.toHaveBeenCalled();
+    expect(handleClose).toHaveBeenCalled();
   });
 
-  it('TC-RO-05: TranslatePopup integrates Length & format button and opens panel', () => {
+  const addCustom = (button: RegExp, placeholder: RegExp, value: string) => {
+    fireEvent.click(screen.getByRole('button', { name: button }));
+    const input = screen.getByPlaceholderText(placeholder);
+    fireEvent.change(input, { target: { value } });
+    fireEvent.submit(input.closest('form')!);
+  };
+
+  it('TC-RO-03: Adding a custom format selects it in the draft and applies it', () => {
+    const handleChange = vi.fn();
+    render(<RewriteOptionsPanel options={DEFAULT_REWRITE_OPTIONS} onChange={handleChange} onClose={() => {}} />);
+    addCustom(/add format/i, /format\.\.\./i, 'Slack Message');
+    expect(handleChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Slack Message' }).getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: /^Apply$/i }));
+    expect(handleChange).toHaveBeenCalledWith({ ...DEFAULT_REWRITE_OPTIONS, format: 'Slack Message' });
+  });
+
+  it('TC-RO-04: Adding a custom tone selects it in the draft and applies it', () => {
+    const handleChange = vi.fn();
+    render(<RewriteOptionsPanel options={DEFAULT_REWRITE_OPTIONS} onChange={handleChange} onClose={() => {}} />);
+    addCustom(/add tone/i, /tone\.\.\./i, 'Persuasive');
+    fireEvent.click(screen.getByRole('button', { name: /^Apply$/i }));
+    expect(handleChange).toHaveBeenCalledWith({ ...DEFAULT_REWRITE_OPTIONS, tone: 'Persuasive' });
+  });
+
+  it('TC-RO-04b: Custom options survive closing and reopening the panel', async () => {
+    const store: Record<string, unknown> = {};
+    (globalThis as any).chrome = {
+      storage: {
+        local: {
+          get: vi.fn(async (key: string) => ({ [key]: store[key] })),
+          set: vi.fn(async (obj: Record<string, unknown>) => { Object.assign(store, obj); }),
+        },
+      },
+    };
+    const first = render(<RewriteOptionsPanel options={DEFAULT_REWRITE_OPTIONS} onChange={() => {}} onClose={() => {}} />);
+    addCustom(/add format/i, /format\.\.\./i, 'Slack Message');
+    addCustom(/add tone/i, /tone\.\.\./i, 'Persuasive');
+    await waitFor(() => expect(store.engchat_custom_rewrite_options).toEqual({ format: ['Slack Message'], tone: ['Persuasive'] }));
+    first.unmount();
+
+    render(<RewriteOptionsPanel options={DEFAULT_REWRITE_OPTIONS} onChange={() => {}} onClose={() => {}} />);
+    expect(await screen.findByRole('button', { name: 'Slack Message' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Persuasive' })).toBeDefined();
+    delete (globalThis as any).chrome;
+  });
+
+  it('TC-RO-04c: Panel renders when storage is missing or throws', async () => {
+    (globalThis as any).chrome = { storage: { local: { get: vi.fn(async () => { throw new Error('boom'); }), set: vi.fn() } } };
+    render(<RewriteOptionsPanel options={DEFAULT_REWRITE_OPTIONS} onChange={() => {}} onClose={() => {}} />);
+    expect(await screen.findByRole('button', { name: /^Email$/i })).toBeDefined();
+    delete (globalThis as any).chrome;
+  });
+
+  it('TC-RO-05: TranslatePopup opens the panel, reserves height, and applies once', () => {
     const handleRewriteOptionsChange = vi.fn();
-
     render(
       <TranslatePopup
         mode="rewrite"
@@ -122,23 +145,30 @@ describe('RewriteOptionsPanel Component', () => {
       />
     );
 
-    const lengthFormatBtn = screen.getByRole('button', { name: /length & format/i });
-    expect(lengthFormatBtn).toBeDefined();
-
-    fireEvent.click(lengthFormatBtn);
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.className).not.toContain('min-h-[420px]');
+    fireEvent.click(screen.getByRole('button', { name: /length & format/i }));
+    expect(dialog.className).toContain('min-h-[420px]');
     expect(screen.getByRole('region', { name: /rewrite style options/i })).toBeDefined();
 
-    const shortBtn = screen.getByRole('button', { name: /^Short$/i });
-    fireEvent.click(shortBtn);
+    fireEvent.click(screen.getByRole('button', { name: /^Short$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^Formal$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^Email$/i }));
+    expect(handleRewriteOptionsChange).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: /^Apply$/i }));
 
+    expect(handleRewriteOptionsChange).toHaveBeenCalledTimes(1);
     expect(handleRewriteOptionsChange).toHaveBeenCalledWith({
       ...DEFAULT_REWRITE_OPTIONS,
       length: 'Short',
+      formality: 'Formal',
+      format: 'Email',
     });
+    expect(screen.queryByRole('region', { name: /rewrite style options/i })).toBeNull();
+    expect(dialog.className).not.toContain('min-h-[420px]');
   });
 
-  it('TC-RO-06: Displays all current rewrite values in the popup header and opens the editor', () => {
-    const handleRewriteOptionsChange = vi.fn();
+  it('TC-RO-06: Shows current rewrite values as selected when the editor opens', () => {
     render(
       <TranslatePopup
         mode="rewrite"
@@ -146,33 +176,15 @@ describe('RewriteOptionsPanel Component', () => {
         result="Rewritten content"
         isLoading={false}
         rewriteOptions={{ length: 'Short', formality: 'Formal', format: 'Email', tone: 'Enthusiastic' }}
-        onRewriteOptionsChange={handleRewriteOptionsChange}
+        onRewriteOptionsChange={() => {}}
         onClose={() => {}}
       />
     );
-
-    const dialog = screen.getByRole('dialog', { name: /Rewrite Popup/i });
-    const styleButton = screen.getByRole('button', { name: /Length & format/i });
-    fireEvent.click(styleButton);
-    expect(dialog).toBeDefined();
-    const panelHeading = 'Style & Format Options';
-    expect(screen.getAllByText(panelHeading).length).toBeGreaterThan(0);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Short' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Formal' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Email' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Enthusiastic' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Close options' }));
-
-    fireEvent.click(styleButton);
-    expect(screen.getAllByText(panelHeading).length).toBeGreaterThan(0);
-    fireEvent.click(screen.getByRole('button', { name: 'Humorous' }));
-    expect(handleRewriteOptionsChange).toHaveBeenCalledWith({
-      length: 'Short',
-      formality: 'Formal',
-      format: 'Email',
-      tone: 'Humorous',
-    });
+    fireEvent.click(screen.getByRole('button', { name: /Length & format/i }));
+    expect(screen.getAllByText('Style & Format Options').length).toBeGreaterThan(0);
+    for (const name of ['Short', 'Formal', 'Email', 'Enthusiastic']) {
+      expect(screen.getByRole('button', { name }).getAttribute('aria-pressed')).toBe('true');
+    }
   });
 
   it('TC-RO-07: Light theme uses readable chip colors in the popup header', () => {

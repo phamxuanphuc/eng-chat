@@ -1,6 +1,6 @@
 # T5. Bảng tùy chọn viết lại: nút Áp dụng, đủ chiều cao, lưu mục tự thêm
 
-- [ ] Hoàn thành
+- [x] Hoàn thành
 
 > Đọc [README.md](README.md) trước: quy tắc chung và cách đánh dấu hoàn thành.
 

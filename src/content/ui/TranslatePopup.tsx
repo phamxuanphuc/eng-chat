@@ -81,7 +81,7 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
       aria-label={t(DIALOG_LABELS[mode])}
       data-engchat-theme={theme}
       style={placed ? { left: `${placed.x}px`, top: `${placed.y}px`, bottom: 'auto', right: 'auto' } : undefined}
-      className={`fixed pointer-events-auto ${!placed && !anchor ? 'bottom-6 right-6' : ''} z-[2147483647] flex w-[560px] max-w-[calc(100vw-16px)] min-h-0 max-h-[88vh] animate-popIn flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-900 font-sans text-slate-100 shadow-[0_20px_60px_rgb(2_6_23/0.4)] ring-1 ring-white/10 ${isDragging ? 'select-none' : ''}`}
+      className={`fixed pointer-events-auto ${!placed && !anchor ? 'bottom-6 right-6' : ''} z-[2147483647] flex w-[560px] max-w-[calc(100vw-16px)] ${showRewriteOptions && isRewriteMode ? 'min-h-[420px]' : 'min-h-0'} max-h-[88vh] animate-popIn flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-900 font-sans text-slate-100 shadow-[0_20px_60px_rgb(2_6_23/0.4)] ring-1 ring-white/10 ${isDragging ? 'select-none' : ''}`}
       onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
     >
