@@ -54,6 +54,22 @@ export const getSelectedText = (): string => {
   return '';
 };
 
+const insertWithUndo = (
+  element: HTMLInputElement | HTMLTextAreaElement,
+  from: number,
+  to: number,
+  text: string,
+  expected: string
+): boolean => {
+  if (!text || typeof document.execCommand !== 'function') return false;
+  try {
+    element.setSelectionRange(from, to);
+    return document.execCommand('insertText', false, text) && element.value === expected;
+  } catch {
+    return false;
+  }
+};
+
 export const replaceTextInElement = (
   element: HTMLElement,
   newText: string
@@ -69,11 +85,17 @@ export const replaceTextInElement = (
 
       const start = element.selectionStart ?? 0;
       const end = element.selectionEnd ?? element.value.length;
+      const hasSelection = start !== end;
 
-      const updatedVal =
-        start !== end
-          ? element.value.substring(0, start) + newText + element.value.substring(end)
-          : newText;
+      const updatedVal = hasSelection
+        ? element.value.substring(0, start) + newText + element.value.substring(end)
+        : newText;
+
+      element.focus();
+      if (insertWithUndo(element, hasSelection ? start : 0, hasSelection ? end : element.value.length, newText, updatedVal)) {
+        element.dispatchEvent(new Event('change', { bubbles: true }));
+        return true;
+      }
 
       if (descriptor && descriptor.set) {
         descriptor.set.call(element, updatedVal);

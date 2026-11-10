@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   getActiveEditableElement,
   getSelectedText,
@@ -59,5 +59,83 @@ describe('DOM Utilities', () => {
     expect(success).toBe(true);
     expect(div.textContent).toBe('Đoạn văn mới');
     expect(inputListener).toHaveBeenCalled();
+  });
+
+  describe('undoable replace', () => {
+    const original = document.execCommand;
+    afterEach(() => {
+      (document as any).execCommand = original;
+    });
+
+    const makeTextarea = (value: string, start: number, end: number) => {
+      const textarea = document.createElement('textarea');
+      textarea.value = value;
+      document.body.appendChild(textarea);
+      textarea.setSelectionRange(start, end);
+      return textarea;
+    };
+
+    it('inserts through the editing command so the browser keeps an undo step', () => {
+      const textarea = makeTextarea('Hello old world', 6, 9);
+      const seen: Array<[number | null, number | null]> = [];
+      (document as any).execCommand = vi.fn((command: string, _ui: boolean, text: string) => {
+        const active = document.activeElement as HTMLTextAreaElement;
+        seen.push([active.selectionStart, active.selectionEnd]);
+        active.value = active.value.slice(0, active.selectionStart!) + text + active.value.slice(active.selectionEnd!);
+        return command === 'insertText';
+      });
+      const changeListener = vi.fn();
+      textarea.addEventListener('change', changeListener);
+
+      expect(replaceTextInElement(textarea, 'new')).toBe(true);
+      expect(document.execCommand).toHaveBeenCalledWith('insertText', false, 'new');
+      expect(seen).toEqual([[6, 9]]);
+      expect(textarea.value).toBe('Hello new world');
+      expect(document.activeElement).toBe(textarea);
+      expect(changeListener).toHaveBeenCalledTimes(1);
+    });
+
+    it('replaces the whole value when nothing is selected', () => {
+      const textarea = makeTextarea('Old draft', 3, 3);
+      const seen: Array<[number | null, number | null]> = [];
+      (document as any).execCommand = vi.fn((_c: string, _ui: boolean, text: string) => {
+        seen.push([textarea.selectionStart, textarea.selectionEnd]);
+        textarea.value = text;
+        return true;
+      });
+
+      expect(replaceTextInElement(textarea, 'New draft')).toBe(true);
+      expect(seen).toEqual([[0, 9]]);
+      expect(textarea.value).toBe('New draft');
+    });
+
+    it('falls back to setting the value when the command is refused', () => {
+      const textarea = makeTextarea('Hello old world', 6, 9);
+      (document as any).execCommand = vi.fn(() => false);
+      const inputListener = vi.fn();
+      textarea.addEventListener('input', inputListener);
+
+      expect(replaceTextInElement(textarea, 'new')).toBe(true);
+      expect(textarea.value).toBe('Hello new world');
+      expect(inputListener).toHaveBeenCalled();
+    });
+
+    it('falls back when the page rewrites the inserted text', () => {
+      const textarea = makeTextarea('Hello old world', 6, 9);
+      (document as any).execCommand = vi.fn(() => {
+        textarea.value = 'Hello NE world';
+        return true;
+      });
+
+      expect(replaceTextInElement(textarea, 'new')).toBe(true);
+      expect(textarea.value).toBe('Hello new world');
+    });
+
+    it('returns focus to the field after replacing', () => {
+      const textarea = makeTextarea('Old', 0, 3);
+      (document.activeElement as HTMLElement | null)?.blur?.();
+      expect(replaceTextInElement(textarea, 'New')).toBe(true);
+      expect(document.activeElement).toBe(textarea);
+    });
   });
 });
