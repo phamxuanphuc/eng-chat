@@ -2,12 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import React from 'react';
 import { TranslatePopup } from '../src/content/ui/TranslatePopup';
+import { applyOverlayPrefs, getOverlayPrefs } from '../src/content/overlay-prefs';
 
-describe('Draggable TranslatePopup with LocalStorage', () => {
+describe('Draggable TranslatePopup with stored overlay preferences', () => {
   let mockStorage: Record<string, string> = {};
 
   beforeEach(() => {
     mockStorage = {};
+    applyOverlayPrefs(null);
     const storageMock = {
       getItem: vi.fn((key: string) => mockStorage[key] ?? null),
       setItem: vi.fn((key: string, value: string) => {
@@ -51,8 +53,8 @@ describe('Draggable TranslatePopup with LocalStorage', () => {
     expect(dialog.classList.contains('right-6')).toBe(true);
   });
 
-  it('TC-DRAG-02: Restores position from localStorage on initial render', () => {
-    localStorage.setItem('engchat_popup_position', JSON.stringify({ x: 120, y: 240 }));
+  it('TC-DRAG-02: Restores position from the stored preferences on initial render', () => {
+    applyOverlayPrefs({ popupPosition: { x: 120, y: 240 } });
 
     const { container } = render(
       <TranslatePopup
@@ -68,7 +70,7 @@ describe('Draggable TranslatePopup with LocalStorage', () => {
     expect(dialog.style.top).toBe('240px');
   });
 
-  it('TC-DRAG-03: Drags popup to new position and persists to localStorage', () => {
+  it('TC-DRAG-03: Drags popup to new position and persists it in the preferences', () => {
     const { container } = render(
       <TranslatePopup
         originalText="Original query"
@@ -105,9 +107,7 @@ describe('Draggable TranslatePopup with LocalStorage', () => {
       window.dispatchEvent(new MouseEvent('mouseup'));
     });
 
-    const saved = JSON.parse(localStorage.getItem('engchat_popup_position') || '{}');
-    expect(saved.x).toBe(150);
-    expect(saved.y).toBe(170);
+    expect(getOverlayPrefs().popupPosition).toEqual({ x: 150, y: 170 });
   });
 
   it('TC-DRAG-04: Clamps position to keep popup within window boundaries', () => {
@@ -231,7 +231,7 @@ describe('Draggable TranslatePopup with LocalStorage', () => {
     });
 
     it('keeps the position the user dragged to over the anchor', () => {
-      localStorage.setItem('engchat_popup_position', JSON.stringify({ x: 120, y: 240 }));
+      applyOverlayPrefs({ popupPosition: { x: 120, y: 240 } });
       const dialog = dialogFor({ x: 100, y: 200, top: 180 });
       expect(dialog.style.left).toBe('120px');
       expect(dialog.style.top).toBe('240px');

@@ -1,6 +1,6 @@
 # T7. Chuyển tùy chọn của overlay khỏi `localStorage` của trang web
 
-- [ ] Hoàn thành
+- [x] Hoàn thành
 
 > Đọc [README.md](README.md) trước: quy tắc chung và cách đánh dấu hoàn thành.
 

@@ -10,6 +10,7 @@ import { ViTranslationSection } from './ViTranslationSection';
 import { DEFAULT_TARGET_LANGUAGES } from '../target-languages';
 import { getTranslator, TranslationKey } from '../../i18n';
 import { useDraggable } from './useDraggable';
+import { getOverlayPrefs, saveOverlayPrefs } from '../overlay-prefs';
 import { placeNearAnchor, PopupAnchor, Position } from './popup-position';
 import { ModelPicker } from './ModelPicker';
 import { Button } from '../../components/ui/Button';
@@ -47,7 +48,10 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   const [showModelPicker, setShowModelPicker] = useState(false);
 
   const popupRef = useRef<HTMLDivElement>(null);
-  const { position, isDragging, handleMouseDown } = useDraggable(popupRef, 'engchat_popup_position');
+  const { position, isDragging, handleMouseDown } = useDraggable(popupRef, {
+    initialPosition: getOverlayPrefs().popupPosition,
+    onPersist: (popupPosition) => { void saveOverlayPrefs({ popupPosition }); },
+  });
 
   const [anchoredPosition, setAnchoredPosition] = useState<Position | null>(null);
 

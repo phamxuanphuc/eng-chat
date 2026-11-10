@@ -46,7 +46,7 @@ Trạng thái gốc khi viết tài liệu: 394 test đạt, build sạch, lint 
 - [x] [T4. Popup kết quả mở gần vùng chọn thay vì góc dưới phải](T04-popup-ket-qua-mo-gan-vung-chon.md)
 - [x] [T5. Bảng tùy chọn viết lại: nút Áp dụng, đủ chiều cao, lưu mục tự thêm](T05-bang-tuy-chon-viet-lai-nut-ap.md)
 - [x] [T6. Chỉ hiện thanh Lưu khi cần](T06-chi-hien-thanh-luu-khi-can.md)
-- [ ] [T7. Chuyển tùy chọn của overlay khỏi `localStorage` của trang web](T07-chuyen-tuy-chon-cua-overlay-khoi-localstorage.md)
+- [x] [T7. Chuyển tùy chọn của overlay khỏi `localStorage` của trang web](T07-chuyen-tuy-chon-cua-overlay-khoi-localstorage.md)
 - [ ] [T8. Phân loại lỗi khóa API theo `error.key`, không theo chuỗi tiếng Anh](T08-phan-loai-loi-khoa-api-theo-error.md)
 - [ ] [T9. Dọn giao diện popup và ô nhập](T09-don-giao-dien-popup-va-o-nhap.md)
 - [ ] [T10. Dùng preset nhà cung cấp và danh sách model trong trang cài đặt](T10-dung-preset-nha-cung-cap-va-danh.md)

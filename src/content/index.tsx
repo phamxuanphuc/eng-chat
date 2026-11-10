@@ -8,7 +8,7 @@ import { detectPageTheme, observePageTheme } from './theme-detector';
 import { loadSettings } from '../services/storage';
 import { HIDDEN_SITES_STORAGE_KEY } from '../services/hidden-sites';
 import { getSiteLabel, hideToolbar, isToolbarSuppressed, refreshSiteHidden } from './toolbar-visibility';
-import { usePresetSectionStore } from '../store/usePresetSectionStore';
+import { applyOverlayPrefs, getOverlayPrefs, loadOverlayPrefs, OVERLAY_PREFS_KEY, saveOverlayPrefs } from './overlay-prefs';
 import { loadTargetLanguages } from './target-languages';
 import { ensureShadowHost } from './shadow-host';
 import { saveToolbarCollapsed } from './overlay-state';
@@ -72,7 +72,7 @@ setRenderer(() => {
       tooltip={{ ...state.tooltip, isPinned: isPinned(mode) }}
       onTogglePin={() => {
         const pinned = !isPinned(mode);
-        usePresetSectionStore.getState().setPinned(mode, pinned);
+        void saveOverlayPrefs({ pinnedBySection: { ...getOverlayPrefs().pinnedBySection, [mode]: pinned } });
         patchTooltip({ isPinned: pinned });
         render();
       }}
@@ -125,6 +125,7 @@ const applySettings = (settings: AppSettings) => {
 void loadSettings().then(applySettings).catch(() => { render(); });
 refreshTargetLanguages();
 refreshHiddenSites();
+void loadOverlayPrefs().then(() => { render(); });
 
 if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
   chrome.storage.onChanged.addListener((changes, areaName) => {
@@ -132,6 +133,10 @@ if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
     if (changes.engchat_settings?.newValue) void loadSettings().then(applySettings).catch(() => {});
     if (changes[HIDDEN_SITES_STORAGE_KEY]) refreshHiddenSites();
     if (changes.engchat_target_languages) refreshTargetLanguages();
+    if (changes[OVERLAY_PREFS_KEY]) {
+      applyOverlayPrefs(changes[OVERLAY_PREFS_KEY].newValue);
+      render();
+    }
   });
 }
 

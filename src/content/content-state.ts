@@ -1,6 +1,6 @@
 import { AppSettings, Language, ToneType } from '../types';
 import { getTranslator } from '../i18n';
-import { usePresetSectionStore } from '../store/usePresetSectionStore';
+import { getOverlayPrefs } from './overlay-prefs';
 import { EditSnapshot } from './edit-target';
 import { DEFAULT_TARGET_LANGUAGES, PopupMode, TargetLanguages } from './target-languages';
 import { initialToolbarState, initialTooltipState, loadToolbarCollapsed, ToolbarState, TooltipState } from './overlay-state';
@@ -37,7 +37,7 @@ export const patchTooltip = (patch: Partial<TooltipState>): void => {
 
 export const translator = () => getTranslator(state.language);
 
-export const isPinned = (mode: PopupMode): boolean => usePresetSectionStore.getState().pinnedBySection[mode];
+export const isPinned = (mode: PopupMode): boolean => getOverlayPrefs().pinnedBySection[mode];
 
 export const toneForMode = (mode: PopupMode): ToneType =>
   mode === 'translate' ? 'translate_explain' : mode === 'summary' ? 'summarize' : state.defaultTone;

@@ -4,22 +4,18 @@ import { clampPosition, Position } from './popup-position';
 
 export type { Position };
 
+export interface DraggableOptions {
+  initialPosition?: Position | null;
+  onPersist?: (position: Position) => void;
+}
+
 export const useDraggable = (
   elementRef: React.RefObject<HTMLElement>,
-  storageKey: string = 'engchat_popup_position'
+  { initialPosition = null, onPersist }: DraggableOptions = {}
 ) => {
-  const [position, setPosition] = useState<Position | null>(() => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (typeof parsed?.x === 'number' && typeof parsed?.y === 'number') {
-          return parsed;
-        }
-      }
-    } catch (_) {}
-    return null;
-  });
+  const [position, setPosition] = useState<Position | null>(initialPosition);
+  const persistRef = useRef(onPersist);
+  persistRef.current = onPersist;
 
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef<{
@@ -93,9 +89,7 @@ export const useDraggable = (
 
     const onMouseUp = () => {
       if (dragRef.current) {
-        try {
-          localStorage.setItem(storageKey, JSON.stringify(dragRef.current.currentPos));
-        } catch (_) {}
+        persistRef.current?.(dragRef.current.currentPos);
       }
       dragRef.current = null;
       setIsDragging(false);
@@ -105,7 +99,7 @@ export const useDraggable = (
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
-  }, [elementRef, storageKey]);
+  }, [elementRef]);
 
   return {
     position,

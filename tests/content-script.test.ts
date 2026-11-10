@@ -89,6 +89,33 @@ describe('Content script request handling', () => {
     expect(dialog().style.top).toBe('148px');
   });
 
+  it('stores the pinned state in chrome.storage instead of the page', async () => {
+    const textarea = document.createElement('textarea');
+    textarea.value = 'Pin me';
+    document.body.appendChild(textarea);
+    textarea.focus();
+
+    pending.length = 0;
+    onMessage({ action: 'TRIGGER_OPTIMIZE', tone: 'professional', mode: 'improve' }, {}, vi.fn());
+    pending[0].resolve({ success: true, data: 'Pinned result' });
+    await flush();
+
+    const root = document.getElementById('engchat-root-host')!.shadowRoot!;
+    root.querySelector<HTMLButtonElement>('[aria-label="Pin dialog"]')!.click();
+    await flush();
+
+    expect((globalThis as any).chrome.storage.local.set).toHaveBeenCalledWith({
+      engchat_overlay_prefs: expect.objectContaining({
+        pinnedBySection: expect.objectContaining({ improve: true }),
+      }),
+    });
+    expect(root.querySelector('[aria-label="Unpin dialog"]')).not.toBeNull();
+    const pageKeys = (() => { try { return Object.keys(window.localStorage || {}); } catch { return []; } })();
+    expect(pageKeys.filter((key) => key.startsWith('engchat'))).toEqual([]);
+    root.querySelector<HTMLButtonElement>('[aria-label="Unpin dialog"]')!.click();
+    await flush();
+  });
+
   it('switches mode after a failed request', async () => {
     const textarea = document.createElement('textarea');
     textarea.value = 'Text that failed';
