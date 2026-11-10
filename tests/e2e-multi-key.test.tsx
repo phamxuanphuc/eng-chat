@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import axios from 'axios';
 import { App as OptionsApp } from '../src/options/App';
 import { App as PopupApp } from '../src/popup/App';
-import { loadSettings, saveSettings, DEFAULT_SETTINGS } from '../src/services/storage';
+import { loadSettings, DEFAULT_SETTINGS } from '../src/services/storage';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { mockGeminiSuccessRawResponse } from './mocks/gemini.mock';
 

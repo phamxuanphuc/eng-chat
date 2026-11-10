@@ -8,6 +8,7 @@
     "dev:standalone": "vite --open standalone.html",
     "build": "tsc && vite build",
     "package": "tsc && vite build && cd dist && zip -r ../vinawrite.zip . -x '*.DS_Store'",
+    "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -30,10 +31,14 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.19",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
     "happy-dom": "^14.12.0",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.4.5",
+    "typescript-eslint": "^8.72.1",
     "vite": "^5.2.11",
     "vitest": "^1.6.0"
   }

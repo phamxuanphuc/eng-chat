@@ -21,7 +21,6 @@ export const computeToolbarPos = (rect: DOMRect) => {
 };
 
 export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) => {
-  let isMouseDown = false;
   const timers = new Set<ReturnType<typeof setTimeout>>();
   const animationFrames = new Set<number>();
 
@@ -123,7 +122,6 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) =
   const handleSelect = (e: Event) => checkSelection(e.target as HTMLElement);
   const handleMouseDown = (e: Event) => {
     if (isInsideHost(e)) return;
-    isMouseDown = true;
     callbacks.onClickOutside();
   };
 
@@ -145,7 +143,6 @@ export const setupDOMEvents = (callbacks: ContentEventCallbacks): (() => void) =
 
   const checkAfterPointerSelection = (e: Event) => {
     if (isInsideHost(e)) return;
-    isMouseDown = false;
     scheduleSelectionChecks(e.target as HTMLElement);
   };
 
