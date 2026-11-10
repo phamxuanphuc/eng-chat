@@ -6,7 +6,7 @@ import { TranslatePopupFooter } from './TranslatePopupFooter';
 import { RewriteOptionsPanel } from './RewriteOptionsPanel';
 import { LanguageMenu } from './LanguageMenu';
 import { PopupResult } from './PopupResult';
-import { ViTranslationSection } from './ViTranslationSection';
+import { NativeTranslationSection } from './NativeTranslationSection';
 import { DEFAULT_TARGET_LANGUAGES } from '../target-languages';
 import { getTranslator, TranslationKey } from '../../i18n';
 import { useDraggable } from './useDraggable';
@@ -31,18 +31,18 @@ export interface TranslatePopupProps {
   language?: Language; mode?: PopupMode; originalText: string;
   result?: string | TranslateExplainResult | null;
   isLoading: boolean; error?: string | null; targetLanguage?: string;
-  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark'; hasEditableTarget?: boolean; anchor?: PopupAnchor | null; modelName?: string; contextCount?: number;
+  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark'; hasEditableTarget?: boolean; anchor?: PopupAnchor | null; modelName?: string; contextCount?: number; nativeLanguage?: string;
   onLanguageChange?: (lang: string) => void; onModeChange?: (mode: PopupMode) => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void; onFollowUp?: (query: string) => void;
-  onRegenerate?: () => void; onInsert?: (text: string) => void; onClose: () => void; isPinned?: boolean; onTogglePin?: () => void; onTranslateVi?: (text: string) => Promise<string>;
+  onRegenerate?: () => void; onInsert?: (text: string) => void; onClose: () => void; isPinned?: boolean; onTogglePin?: () => void; onTranslateNative?: (text: string) => Promise<string>;
 }
 
 export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   language = 'en', mode = 'translate', originalText, result, isLoading, error,
   targetLanguage, rewriteOptions, theme = 'dark',
-  hasEditableTarget = false, anchor = null, modelName, contextCount = 0,
+  hasEditableTarget = false, anchor = null, modelName, contextCount = 0, nativeLanguage = 'Vietnamese',
   onLanguageChange, onModeChange, onRewriteOptionsChange,
-  onFollowUp, onRegenerate, onInsert, onClose, isPinned = false, onTogglePin, onTranslateVi,
+  onFollowUp, onRegenerate, onInsert, onClose, isPinned = false, onTogglePin, onTranslateNative,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showRewriteOptions, setShowRewriteOptions] = useState(false);
@@ -124,8 +124,8 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           onRetry={onRegenerate}
         />
 
-        {isRewriteMode && !isLoading && !error && translationText && (
-          <ViTranslationSection language={language} mode={mode} text={translationText} onTranslate={onTranslateVi} />
+        {isRewriteMode && !isLoading && !error && translationText && currentLang !== nativeLanguage && (
+          <NativeTranslationSection language={language} mode={mode} text={translationText} nativeLanguage={nativeLanguage} onTranslate={onTranslateNative} />
         )}
       </div>
 

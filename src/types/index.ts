@@ -37,6 +37,7 @@ export interface AppSettings {
   customApiKey?: string;
   customModel?: string;
   showToolbarOnFocus?: boolean;
+  nativeLanguage?: string;
 }
 
 export interface ChatMessage {

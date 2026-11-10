@@ -15,7 +15,7 @@ const MODES: Array<{ mode: PopupMode; labelKey: TranslationKey; Icon: LucideIcon
 ];
 
 export const OutputLanguageSection: React.FC = () => {
-  const { language, targetLanguages, setTargetLanguage } = useOptions();
+  const { language, targetLanguages, setTargetLanguage, nativeLanguage, setNativeLanguage } = useOptions();
   const t = getTranslator(language);
   const languageOptions = POPUP_LANGUAGES.map((lang) => ({ value: lang, label: getLanguageLabel(t, lang) }));
 
@@ -34,7 +34,23 @@ export const OutputLanguageSection: React.FC = () => {
         <Badge variant="secondary" size="sm">{t('tone.modesCount', { count: MODES.length })}</Badge>
       </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="mt-5 flex flex-col gap-1.5 rounded-2xl border border-slate-800/90 bg-slate-950/40 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="min-w-0">
+          <label htmlFor="native-language" className="text-sm font-medium text-slate-200">{t('outputLanguage.native')}</label>
+          <p className="mt-0.5 text-xs leading-relaxed text-slate-400">{t('outputLanguage.nativeHint')}</p>
+        </div>
+        <div className="w-40 shrink-0">
+          <Select
+            id="native-language"
+            value={nativeLanguage}
+            onChange={(event) => setNativeLanguage(event.target.value)}
+            options={languageOptions}
+            className="w-full !rounded-xl !py-2 text-xs"
+          />
+        </div>
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {MODES.map(({ mode, labelKey, Icon }) => (
           <div key={mode} className="flex items-center justify-between gap-3 rounded-2xl border border-slate-800/90 bg-slate-950/40 p-3 transition-colors hover:border-slate-700">
             <div className="flex min-w-0 items-center gap-2.5">

@@ -188,6 +188,12 @@ describe('Prompt Builder Service', () => {
       expect(plain).not.toContain('ignored');
     });
 
+    it('translates back into any native language', () => {
+      const plain = buildSystemInstruction('translate_explain', undefined, undefined, 'Japanese', { translateOnly: true });
+      expect(plain).toContain('Return only the Japanese translation.');
+      expect(plain).not.toContain('Vietnamese');
+    });
+
     it('tells the model how to treat chat context and questions', () => {
       expect(improve).toContain('Never reply to it, continue it, or copy from it.');
       expect(improve).toContain('answer it briefly instead of transforming the text');

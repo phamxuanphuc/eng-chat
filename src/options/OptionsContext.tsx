@@ -30,6 +30,8 @@ export interface OptionsContextValue {
   setChatContext: (v: boolean | ((prev: boolean) => boolean)) => void;
   maxContext: number;
   setMaxContext: (n: number | ((prev: number) => number)) => void;
+  nativeLanguage: string;
+  setNativeLanguage: (language: string) => void;
   targetLanguages: TargetLanguages;
   setTargetLanguage: (mode: PopupMode, language: string) => void;
   isReady: boolean;
@@ -57,6 +59,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [tonePrompts, setTonePrompts] = useState<Partial<Record<ToneType, string>>>({});
   const [chatContext, setChatContext] = useState(true);
   const [maxContext, setMaxContext] = useState(4);
+  const [nativeLanguage, setNativeLanguage] = useState('Vietnamese');
   const [targetLanguages, setTargetLanguages] = useState<TargetLanguages>({ ...DEFAULT_TARGET_LANGUAGES });
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState(false);
@@ -78,6 +81,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     tonePrompts,
     enableChatContext: chatContext,
     maxContextMessages: Number(maxContext) || 4,
+    nativeLanguage,
   };
   const snapshot = JSON.stringify({ ...draft, targetLanguages });
   const isDirty = savedSnapshot !== null && snapshot !== savedSnapshot;
@@ -114,6 +118,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setTonePrompts(settings.tonePrompts || {});
       setChatContext(settings.enableChatContext ?? true);
       setMaxContext(settings.maxContextMessages ?? 4);
+      setNativeLanguage(settings.nativeLanguage || 'Vietnamese');
       setIsInitialized(true);
     }
   }, [settings, hasLoaded, isInitialized]);
@@ -180,6 +185,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setTonePrompt: (prompt) => setTonePrompts((current) => ({ ...current, [tone]: prompt })),
         chatContext, setChatContext,
         maxContext, setMaxContext,
+        nativeLanguage, setNativeLanguage,
         targetLanguages,
         setTargetLanguage: (mode, value) => setTargetLanguages((current) => ({ ...current, [mode]: value })),
         isReady: savedSnapshot !== null, isDirty, saveSuccess, saveError, permissionDenied, handleSave,

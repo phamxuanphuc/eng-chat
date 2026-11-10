@@ -125,6 +125,23 @@ describe('Options Multi-Page React Router', () => {
     expect(screen.queryByText('Settings saved successfully in your browser!')).toBeNull();
   });
 
+  it('TC-OR-04b: Saves the native language chosen on the writing page', async () => {
+    render(
+      <QueryClientProvider client={createTestQueryClient()}>
+        <OptionsApp />
+      </QueryClientProvider>
+    );
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 30)); });
+    fireEvent.click(screen.getByRole('link', { name: /writing settings/i }));
+    const select = (await screen.findByLabelText('Your native language')) as HTMLSelectElement;
+    expect(select.value).toBe('Vietnamese');
+
+    fireEvent.change(select, { target: { value: 'Japanese' } });
+    expect(await screen.findByText('You have unsaved changes')).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: /Save Settings/i }));
+    await waitFor(async () => expect((await loadSettings()).nativeLanguage).toBe('Japanese'));
+  });
+
   it('TC-OR-04: Edits and saves the output language for each mode', async () => {
     const localData: Record<string, any> = { engchat_target_languages: { rewrite: 'Japanese' } };
     (chrome.storage as any).local = {

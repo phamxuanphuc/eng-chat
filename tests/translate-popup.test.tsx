@@ -4,6 +4,35 @@ import React from 'react';
 import { TranslatePopup } from '../src/content/ui/TranslatePopup';
 import { mockTranslateExplainResult } from './mocks/gemini.mock';
 
+describe('TranslatePopup native language section', () => {
+  const toggle = (name: RegExp) => screen.queryByRole('button', { name });
+
+  it('names the configured native language and translates into it', async () => {
+    const onTranslateNative = vi.fn().mockResolvedValue('Japanese text');
+    render(<TranslatePopup mode="improve" originalText="a" result="Better" isLoading={false} nativeLanguage="Japanese" onTranslateNative={onTranslateNative} onClose={() => {}} />);
+    expect(toggle(/translate improved sentence to japanese/i)).not.toBeNull();
+    expect(toggle(/vietnamese/i)).toBeNull();
+    await React.act(async () => { fireEvent.click(toggle(/japanese/i)!); });
+    expect(onTranslateNative).toHaveBeenCalledWith('Better');
+    expect(screen.getByText('Japanese text')).toBeDefined();
+  });
+
+  it('keeps the Vietnamese behavior when no native language is set', () => {
+    render(<TranslatePopup mode="rewrite" originalText="a" result="Better" isLoading={false} onClose={() => {}} />);
+    expect(toggle(/translate rewritten sentence to vietnamese/i)).not.toBeNull();
+  });
+
+  it('is hidden when the result is already in the native language', () => {
+    render(<TranslatePopup mode="improve" originalText="a" result="Tốt hơn" isLoading={false} targetLanguage="Vietnamese" onClose={() => {}} />);
+    expect(toggle(/translate improved sentence/i)).toBeNull();
+  });
+
+  it('localizes the label with a lowercase language name in Vietnamese', () => {
+    render(<TranslatePopup language="vi" mode="improve" originalText="a" result="Better" isLoading={false} nativeLanguage="French" onClose={() => {}} />);
+    expect(toggle(/^Dịch câu đã cải thiện sang tiếng pháp$/i)).not.toBeNull();
+  });
+});
+
 describe('TranslatePopup Component', () => {
   it('shows a context badge only when messages were sent', () => {
     const { rerender } = render(<TranslatePopup originalText="Hello" result="Hi" isLoading={false} contextCount={4} onClose={vi.fn()} />);
@@ -297,7 +326,7 @@ describe('TranslatePopup Component', () => {
         originalText="Tôi đã kiểm tra kỹ rồi."
         result="All payment APIs have been thoroughly tested."
         isLoading={false}
-        onTranslateVi={handleTranslateVi}
+        onTranslateNative={handleTranslateVi}
         onClose={() => {}}
       />
     );

@@ -13,7 +13,7 @@ import { loadTargetLanguages } from './target-languages';
 import { ensureShadowHost } from './shadow-host';
 import { saveToolbarCollapsed } from './overlay-state';
 import { isPinned, patchToolbar, patchTooltip, render, setRenderer, state, toneForMode } from './content-state';
-import { changeMode, changeRewriteOptions, changeTargetLanguage, closeTooltip, followUp, regenerate, translateToVietnamese, triggerOptimize } from './optimize-actions';
+import { changeMode, changeRewriteOptions, changeTargetLanguage, closeTooltip, followUp, regenerate, translateToNative, triggerOptimize } from './optimize-actions';
 
 const siteLabel = getSiteLabel();
 
@@ -109,7 +109,8 @@ setRenderer(() => {
         render();
       }}
       onCloseTooltip={closeTooltip}
-      onTranslateVi={translateToVietnamese}
+      onTranslateNative={translateToNative}
+      nativeLanguage={state.settings?.nativeLanguage || 'Vietnamese'}
       modelName={activeModelName()}
     />
   );

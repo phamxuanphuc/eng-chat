@@ -42,7 +42,8 @@ export interface ContentOverlayProps {
   onInsertText: (text: string) => void;
   onCloseTooltip: () => void;
   onTogglePin?: () => void;
-  onTranslateVi?: (text: string) => Promise<string>;
+  onTranslateNative?: (text: string) => Promise<string>;
+  nativeLanguage?: string;
   modelName?: string;
 }
 
@@ -64,7 +65,8 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
   onInsertText,
   onCloseTooltip,
   onTogglePin,
-  onTranslateVi,
+  onTranslateNative,
+  nativeLanguage,
   modelName,
 }) => {
   return (
@@ -109,7 +111,8 @@ export const ContentOverlay: React.FC<ContentOverlayProps> = ({
           onRegenerate={onRegenerate}
           onInsert={onInsertText}
           onClose={onCloseTooltip}
-          onTranslateVi={onTranslateVi}
+          onTranslateNative={onTranslateNative}
+          nativeLanguage={nativeLanguage}
         />
       )}
     </>

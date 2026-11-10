@@ -15,6 +15,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   customApiKey: '',
   customModel: 'gpt-4o-mini',
   showToolbarOnFocus: true,
+  nativeLanguage: 'Vietnamese',
 };
 
 

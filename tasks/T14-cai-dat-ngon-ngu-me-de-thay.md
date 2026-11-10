@@ -1,6 +1,6 @@
 # T14. Cài đặt "ngôn ngữ mẹ đẻ" thay cho tiếng Việt gán cứng
 
-- [ ] Hoàn thành
+- [x] Hoàn thành
 
 > Đọc [README.md](README.md) trước: quy tắc chung và cách đánh dấu hoàn thành.
 

@@ -234,7 +234,7 @@ export const StandaloneApp: React.FC = () => {
             setTooltipState({ isOpen: false, isLoading: false });
           }}
           onClose={() => setTooltipState({ isOpen: false, isLoading: false })}
-          onTranslateVi={async (text) => {
+          onTranslateNative={async (text) => {
             const res = await executeOptimize({ text: `Translate into natural Vietnamese:\n"${text}"`, tone: 'concise' }, await loadSettings());
             return res.success && res.data ? (typeof res.data === 'string' ? res.data : res.data.translation) : '';
           }}

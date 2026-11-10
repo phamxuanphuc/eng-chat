@@ -19,6 +19,17 @@ describe('Storage & Settings Store', () => {
     };
   });
 
+  it('gives users who never chose a native language Vietnamese', async () => {
+    mockStorageData['engchat_settings'] = { geminiApiKey: 'k', selectedModel: 'gemini-3.5-flash-lite' };
+    expect((await loadSettings()).nativeLanguage).toBe('Vietnamese');
+    expect(DEFAULT_SETTINGS.nativeLanguage).toBe('Vietnamese');
+  });
+
+  it('keeps a chosen native language', async () => {
+    await saveSettings({ nativeLanguage: 'Japanese' });
+    expect((await loadSettings()).nativeLanguage).toBe('Japanese');
+  });
+
   it('defaults showToolbarOnFocus to true', () => {
     expect(DEFAULT_SETTINGS.showToolbarOnFocus).toBe(true);
   });

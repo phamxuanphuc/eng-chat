@@ -5,22 +5,27 @@ import { Button } from '../../components/ui/Button';
 import { getTranslator } from '../../i18n';
 import { getRuntimeErrorMessage, sendRuntimeMessage } from '../../services/extension-messaging';
 import { Language } from '../../types';
+import { getLanguageLabel } from './popup-theme';
 
-export interface ViTranslationSectionProps {
+export interface NativeTranslationSectionProps {
   language: Language;
   mode: 'rewrite' | 'improve';
   text: string;
+  nativeLanguage: string;
   onTranslate?: (text: string) => Promise<string>;
 }
 
-export const ViTranslationSection: React.FC<ViTranslationSectionProps> = ({ language, mode, text, onTranslate }) => {
+export const NativeTranslationSection: React.FC<NativeTranslationSectionProps> = ({ language, mode, text, nativeLanguage, onTranslate }) => {
   const [open, setOpen] = useState(false);
   const [translation, setTranslation] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const t = getTranslator(language);
-  const label = mode === 'improve' ? t('content.translateImprovedToVietnamese') : t('content.translateRewrittenToVietnamese');
+  const languageName = language === 'vi'
+    ? getLanguageLabel(t, nativeLanguage).toLocaleLowerCase('vi')
+    : getLanguageLabel(t, nativeLanguage);
+  const label = t(mode === 'improve' ? 'content.translateImprovedToNative' : 'content.translateRewrittenToNative', { language: languageName });
 
-  useEffect(() => { setTranslation(null); setOpen(false); }, [text]);
+  useEffect(() => { setTranslation(null); setOpen(false); }, [text, nativeLanguage]);
 
   const handleToggle = async () => {
     const next = !open;
@@ -33,7 +38,7 @@ export const ViTranslationSection: React.FC<ViTranslationSectionProps> = ({ lang
       } else {
         const response = await sendRuntimeMessage({
           action: 'EXECUTE_GEMINI',
-          payload: { text, tone: 'translate_explain', targetLanguage: 'Vietnamese', translateOnly: true },
+          payload: { text, tone: 'translate_explain', targetLanguage: nativeLanguage, translateOnly: true },
         });
         setTranslation(response?.success && response.data
           ? (typeof response.data === 'string' ? response.data : response.data.translation)
@@ -65,9 +70,9 @@ export const ViTranslationSection: React.FC<ViTranslationSectionProps> = ({ lang
       {open && (
         <div className="border-t border-slate-800 px-1.5 pb-1 pt-2 leading-relaxed text-slate-300">
           {isTranslating ? (
-            <Loader size="sm" text={t('content.translateVietnamese')} className="py-1" />
+            <Loader size="sm" text={t('content.translatingToNative', { language: languageName })} className="py-1" />
           ) : (
-            <div className="whitespace-pre-wrap selection:bg-indigo-500/30">{translation || t('content.noVietnameseTranslation')}</div>
+            <div className="whitespace-pre-wrap selection:bg-indigo-500/30">{translation || t('content.noNativeTranslation', { language: languageName })}</div>
           )}
         </div>
       )}

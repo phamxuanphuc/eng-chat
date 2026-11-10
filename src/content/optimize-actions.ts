@@ -22,8 +22,9 @@ export const closeTooltip = (): void => {
   render();
 };
 
-export const translateToVietnamese = async (text: string): Promise<string> => {
-  const response = await execute({ text, tone: 'translate_explain', targetLanguage: 'Vietnamese', translateOnly: true });
+export const translateToNative = async (text: string): Promise<string> => {
+  const targetLanguage = state.settings?.nativeLanguage || 'Vietnamese';
+  const response = await execute({ text, tone: 'translate_explain', targetLanguage, translateOnly: true });
   return response.success ? resultText(response.data) : '';
 };
 
