@@ -1,6 +1,8 @@
 import { Language, ToneType, OptimizeRequest } from '../types';
 import { loadSettings, saveSettings } from '../services/storage';
 import { executeOptimize } from '../services/gemini';
+import { handleStreamPort, STREAM_PORT_NAME } from './stream-port';
+export { handleStreamPort, STREAM_PORT_NAME };
 import { fetchOpenAiModels } from '../services/openai';
 import { getTranslator, TranslationKey } from '../i18n';
 import { ApiError, localizeError } from '../services/api-error';
@@ -220,6 +222,10 @@ if (typeof chrome !== 'undefined') {
 
   chrome.commands?.onCommand?.addListener((command) => {
     handleCommand(command).catch(() => {});
+  });
+
+  chrome.runtime?.onConnect?.addListener((port) => {
+    if (port.name === STREAM_PORT_NAME) handleStreamPort(port);
   });
 
   chrome.runtime?.onMessage?.addListener((message, sender, sendResponse) => {

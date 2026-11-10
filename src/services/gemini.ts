@@ -107,24 +107,35 @@ export const extractCandidateKeys = (settings: AppSettings): string[] => {
   return keys;
 };
 
+export const buildPrompts = (request: OptimizeRequest, settings: AppSettings) => ({
+  systemInstruction: buildSystemInstruction(
+    request.tone,
+    settings.tonePrompts?.[request.tone],
+    request.rewriteOptions,
+    request.targetLanguage,
+    { mode: request.mode, translateOnly: request.translateOnly }
+  ),
+  userPrompt: buildUserPrompt(
+    request.text,
+    settings.enableChatContext ? request.contextMessages : undefined,
+    request.taskInstruction,
+    request.previousResult
+  ),
+});
+
+export const resolveGeminiModel = (settings: AppSettings): string => {
+  const model = settings.selectedModel || 'gemini-3.5-flash-lite';
+  return model.includes('2.0-flash') ? 'gemini-3.5-flash-lite' : model;
+};
+
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash-lite';
+
 export const executeOptimize = async (
   request: OptimizeRequest,
   settings: AppSettings
 ): Promise<OptimizeResponse> => {
   try {
-    const systemInstruction = buildSystemInstruction(
-      request.tone,
-      settings.tonePrompts?.[request.tone],
-      request.rewriteOptions,
-      request.targetLanguage,
-      { mode: request.mode, translateOnly: request.translateOnly }
-    );
-    const userPrompt = buildUserPrompt(
-      request.text,
-      settings.enableChatContext ? request.contextMessages : undefined,
-      request.taskInstruction,
-      request.previousResult
-    );
+    const { systemInstruction, userPrompt } = buildPrompts(request, settings);
 
     let rawResult = '';
 
@@ -154,10 +165,7 @@ export const executeOptimize = async (
 
       let lastError: any = null;
       let jsonOutput = request.tone === 'translate_explain' && !request.translateOnly;
-      let targetModel = settings.selectedModel || 'gemini-3.5-flash-lite';
-      if (targetModel.includes('2.0-flash')) {
-        targetModel = 'gemini-3.5-flash-lite';
-      }
+      let targetModel = resolveGeminiModel(settings);
 
       for (let i = 0; i < candidateKeys.length; i++) {
         const currentKey = candidateKeys[i];
