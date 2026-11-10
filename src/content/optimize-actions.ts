@@ -59,7 +59,7 @@ const showNotice = (message: string): void => {
   state.requestId += 1;
   state.editSnapshot = null;
   patchToolbar({ visible: false, isLoading: false });
-  patchTooltip({ visible: true, isLoading: false, error: message, result: null, originalText: '', hasEditableTarget: false, anchor: null, contextCount: 0, isStreaming: false });
+  patchTooltip({ visible: true, isLoading: false, error: message, result: null, originalText: '', hasEditableTarget: false, anchor: null, contextCount: 0, contextRaw: false, isStreaming: false });
   render();
 };
 
@@ -94,9 +94,11 @@ export const triggerOptimize = async (
   const effectiveSettings = settings || state.settings;
   const contextMessages = effectiveSettings?.enableChatContext === false
     ? []
-    : extractChatContext(activeEl, effectiveSettings?.maxContextMessages || 4);
+    : extractChatContext(activeEl, effectiveSettings?.maxContextMessages || 4, {
+        textFallback: effectiveSettings?.enableContextFallback !== false,
+      });
 
-  patchTooltip({ ...shown, targetLanguage, anchor, contextCount: contextMessages.length, isLoading: true, error: null });
+  patchTooltip({ ...shown, targetLanguage, anchor, contextCount: contextMessages.length, contextRaw: contextMessages.some((message) => message.raw), isLoading: true, error: null });
   patchToolbar({ visible: false });
   render();
   cancelStream();

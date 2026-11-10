@@ -31,7 +31,7 @@ export interface TranslatePopupProps {
   language?: Language; mode?: PopupMode; originalText: string;
   result?: string | TranslateExplainResult | null;
   isLoading: boolean; error?: string | null; targetLanguage?: string;
-  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark'; hasEditableTarget?: boolean; anchor?: PopupAnchor | null; modelName?: string; contextCount?: number; nativeLanguage?: string; isStreaming?: boolean;
+  rewriteOptions?: RewriteOptions; theme?: 'light' | 'dark'; hasEditableTarget?: boolean; anchor?: PopupAnchor | null; modelName?: string; contextCount?: number; contextRaw?: boolean; nativeLanguage?: string; isStreaming?: boolean;
   onLanguageChange?: (lang: string) => void; onModeChange?: (mode: PopupMode) => void;
   onRewriteOptionsChange?: (options: RewriteOptions) => void; onFollowUp?: (query: string) => void;
   onRegenerate?: () => void; onInsert?: (text: string) => void; onClose: () => void; isPinned?: boolean; onTogglePin?: () => void; onTranslateNative?: (text: string) => Promise<string>;
@@ -40,7 +40,7 @@ export interface TranslatePopupProps {
 export const TranslatePopup: React.FC<TranslatePopupProps> = ({
   language = 'en', mode = 'translate', originalText, result, isLoading, error,
   targetLanguage, rewriteOptions, theme = 'dark',
-  hasEditableTarget = false, anchor = null, modelName, contextCount = 0, nativeLanguage = 'Vietnamese', isStreaming = false,
+  hasEditableTarget = false, anchor = null, modelName, contextCount = 0, contextRaw = false, nativeLanguage = 'Vietnamese', isStreaming = false,
   onLanguageChange, onModeChange, onRewriteOptionsChange,
   onFollowUp, onRegenerate, onInsert, onClose, isPinned = false, onTogglePin, onTranslateNative,
 }) => {
@@ -146,9 +146,11 @@ export const TranslatePopup: React.FC<TranslatePopupProps> = ({
           )}
           <LanguageMenu language={language} value={currentLang} onChange={onLanguageChange} />
           {contextCount > 0 && (
-            <span title={t('content.contextUsedHint')}>
+            <span title={t(contextRaw ? 'content.contextTextHint' : 'content.contextUsedHint')}>
               <Badge variant="secondary" size="sm">
-                {t(contextCount === 1 ? 'content.contextUsedOne' : 'content.contextUsed', { count: contextCount })}
+                {contextRaw
+                  ? t('content.contextText')
+                  : t(contextCount === 1 ? 'content.contextUsedOne' : 'content.contextUsed', { count: contextCount })}
               </Badge>
             </span>
           )}

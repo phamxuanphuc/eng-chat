@@ -33,6 +33,7 @@ export interface AppSettings {
   tonePrompts?: Partial<Record<ToneType, string>>;
   enableChatContext: boolean;
   maxContextMessages: number;
+  enableContextFallback?: boolean;
   customBaseUrl?: string;
   customApiKey?: string;
   customModel?: string;
@@ -43,6 +44,7 @@ export interface AppSettings {
 export interface ChatMessage {
   sender?: string;
   own?: boolean;
+  raw?: boolean;
   text: string;
 }
 

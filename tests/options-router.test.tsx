@@ -94,6 +94,7 @@ describe('Options Multi-Page React Router', () => {
     fireEvent.click(screen.getByRole('link', { name: /context/i }));
     const maxContextInput = await screen.findByLabelText(/Maximum context messages/i);
     fireEvent.change(maxContextInput, { target: { value: '8' } });
+    fireEvent.click(screen.getByText('Read the chat window on other sites'));
 
     const saveBtn = screen.getByRole('button', { name: /Save Settings/i });
     fireEvent.click(saveBtn);
@@ -106,6 +107,7 @@ describe('Options Multi-Page React Router', () => {
     expect(stored.geminiApiKey).toBe('AIzaSy-router-test-key');
     expect(stored.defaultTone).toBe('friendly');
     expect(stored.maxContextMessages).toBe(8);
+    expect(stored.enableContextFallback).toBe(false);
   });
 
   it('TC-OR-03: Shows an error instead of success when saving fails', async () => {

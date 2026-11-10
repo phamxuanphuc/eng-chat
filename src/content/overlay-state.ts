@@ -23,6 +23,7 @@ export interface TooltipState {
   hasEditableTarget: boolean;
   anchor?: PopupAnchor | null;
   contextCount: number;
+  contextRaw: boolean;
   isStreaming: boolean;
 }
 
@@ -66,5 +67,6 @@ export const initialTooltipState: TooltipState = {
   hasEditableTarget: false,
   anchor: null,
   contextCount: 0,
+  contextRaw: false,
   isStreaming: false,
 };

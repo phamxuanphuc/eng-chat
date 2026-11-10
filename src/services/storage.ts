@@ -11,6 +11,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   tonePrompts: {},
   enableChatContext: true,
   maxContextMessages: 4,
+  enableContextFallback: true,
   customBaseUrl: 'https://api.openai.com/v1',
   customApiKey: '',
   customModel: 'gpt-4o-mini',

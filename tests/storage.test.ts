@@ -39,6 +39,7 @@ describe('Storage & Settings Store', () => {
     expect(settings).toEqual(DEFAULT_SETTINGS);
     expect(settings.defaultTone).toBe('professional');
     expect(settings.enableChatContext).toBe(true);
+    expect(settings.enableContextFallback).toBe(true);
   });
 
   it('persists the selected language and falls back to English for invalid values', async () => {

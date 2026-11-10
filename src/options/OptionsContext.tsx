@@ -28,6 +28,8 @@ export interface OptionsContextValue {
   setTonePrompt: (prompt: string) => void;
   chatContext: boolean;
   setChatContext: (v: boolean | ((prev: boolean) => boolean)) => void;
+  contextFallback: boolean;
+  setContextFallback: (v: boolean) => void;
   maxContext: number;
   setMaxContext: (n: number | ((prev: number) => number)) => void;
   nativeLanguage: string;
@@ -58,6 +60,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [tone, setTone] = useState<ToneType>('professional');
   const [tonePrompts, setTonePrompts] = useState<Partial<Record<ToneType, string>>>({});
   const [chatContext, setChatContext] = useState(true);
+  const [contextFallback, setContextFallback] = useState(true);
   const [maxContext, setMaxContext] = useState(4);
   const [nativeLanguage, setNativeLanguage] = useState('Vietnamese');
   const [targetLanguages, setTargetLanguages] = useState<TargetLanguages>({ ...DEFAULT_TARGET_LANGUAGES });
@@ -80,6 +83,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
     defaultTone: tone,
     tonePrompts,
     enableChatContext: chatContext,
+    enableContextFallback: contextFallback,
     maxContextMessages: Number(maxContext) || 4,
     nativeLanguage,
   };
@@ -117,6 +121,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setTone(settings.defaultTone || 'professional');
       setTonePrompts(settings.tonePrompts || {});
       setChatContext(settings.enableChatContext ?? true);
+      setContextFallback(settings.enableContextFallback ?? true);
       setMaxContext(settings.maxContextMessages ?? 4);
       setNativeLanguage(settings.nativeLanguage || 'Vietnamese');
       setIsInitialized(true);
@@ -184,6 +189,7 @@ export const OptionsProvider: React.FC<{ children: React.ReactNode }> = ({ child
         tonePrompts,
         setTonePrompt: (prompt) => setTonePrompts((current) => ({ ...current, [tone]: prompt })),
         chatContext, setChatContext,
+        contextFallback, setContextFallback,
         maxContext, setMaxContext,
         nativeLanguage, setNativeLanguage,
         targetLanguages,

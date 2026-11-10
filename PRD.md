@@ -46,7 +46,8 @@ VinaWrite ("Write, Rewrite & Translate Anywhere") là tiện ích Chrome Manifes
 - **OpenAI-compatible**: Base URL, API key, tải danh sách model qua service worker.
 
 ### 3.6. Ngữ Cảnh Hội Thoại (Chat Context)
-- Tùy chọn đọc 1–10 tin nhắn gần nhất (Slack, Discord, MS Teams,...) để AI chọn xưng hô và giọng điệu phù hợp. Tắt tính năng thì không có dữ liệu hội thoại nào được gửi đi.
+- Tùy chọn đọc 1–10 tin nhắn gần nhất (Slack, Discord, MS Teams, WhatsApp, Telegram, Messenger, Zalo, LinkedIn, X), kèm tên người gửi khi có, để AI chọn xưng hô và giọng điệu phù hợp. Tắt tính năng thì không có dữ liệu hội thoại nào được gửi đi.
+- Trên trang chưa có bộ chọn riêng, có thể đọc tối đa 1.500 ký tự cuối của khung tin nhắn ngay phía trên ô nhập. Chỉ áp dụng khi khung đó là khung cuộn riêng, không chứa ô nhập và đang ở tin nhắn mới nhất. Có công tắc tắt riêng trong trang Context.
 
 ### 3.7. Trang Cài Đặt (Options)
 - 4 tab: **AI Provider** (Gemini hoặc nhà cung cấp tùy chỉnh với preset và nút tải danh sách model), **Writing settings** (văn phong mặc định, prompt tùy chỉnh, ngôn ngữ mẹ đẻ và ngôn ngữ đầu ra theo chế độ), **Context**, **Hidden sites** (danh sách trang ẩn thanh công cụ và công tắc hiện thanh công cụ khi focus ô nhập).

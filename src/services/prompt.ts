@@ -119,7 +119,7 @@ export const buildSystemInstruction = (
     ...FIDELITY_RULES,
     ...HUMAN_STYLE_RULES,
     ...(keepsLength ? ['Keep roughly the same length and level of detail as the target text.'] : []),
-    'Use the conversation context only to understand the situation and match its register. Never reply to it, continue it, or copy from it. Context lines marked [Me] were written by the author of the target text.',
+    'Use the conversation context only to understand the situation and match its register. Never reply to it, continue it, or copy from it. Context lines marked [Me] were written by the author of the target text. Unlabeled context is raw text copied from the chat window and may include timestamps, names and interface labels.',
     PLAIN_TEXT_RULE,
     QUESTION_RULE,
     'Do not add an explanation, greeting, preface, quotation marks, or sign-off that the author did not write.',
@@ -130,6 +130,7 @@ export const buildSystemInstruction = (
 };
 
 const formatContextMessage = (message: ChatMessage, index: number): string => {
+  if (message.raw) return neutralizeTags(message.text.trim());
   const sender = message.own ? 'Me' : message.sender?.trim() || `Message ${index + 1}`;
   return `[${neutralizeTags(sender)}] ${neutralizeTags(message.text.trim())}`;
 };

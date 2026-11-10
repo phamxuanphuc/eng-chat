@@ -11,7 +11,7 @@ import { PageHeader } from '../PageHeader';
 const QUICK_COUNTS = [2, 4, 6, 8];
 
 export const ContextPage: React.FC = () => {
-  const { language, chatContext, setChatContext, maxContext, setMaxContext } = useOptions();
+  const { language, chatContext, setChatContext, contextFallback, setContextFallback, maxContext, setMaxContext } = useOptions();
   const t = getTranslator(language);
   const [maxDraft, setMaxDraft] = useState(String(maxContext));
 
@@ -69,6 +69,13 @@ export const ContextPage: React.FC = () => {
               </Chip>
             ))}
           </div>
+
+          <Switch
+            label={t('context.fallback')}
+            description={t('context.fallbackDescription')}
+            checked={contextFallback}
+            onChange={setContextFallback}
+          />
         </div>
       )}
     </div>

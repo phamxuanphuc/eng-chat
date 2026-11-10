@@ -1,5 +1,6 @@
 import { ChatMessage } from '../types';
 import { CHAT_PLATFORMS, ChatPlatform } from './chat-platforms';
+import { extractTextFallback } from './chat-text-fallback';
 
 const LOG_ROW_SELECTOR = '[role="row"] [role="gridcell"]';
 const PARAGRAPH_SELECTOR = 'p, div[dir="auto"], span[dir="auto"]';
@@ -97,12 +98,19 @@ const findLogMessages = (field: HTMLElement): ChatMessage[] => {
     .map((text) => ({ text: truncate(text) }));
 };
 
+export interface ChatContextOptions {
+  hostname?: string;
+  textFallback?: boolean;
+}
+
 export const extractChatContext = (
   targetElement: HTMLElement | null,
   maxMessages = 4,
-  hostname: string = window.location.hostname
+  options: ChatContextOptions = {}
 ): ChatMessage[] => {
   if (!targetElement) return [];
+  const hostname = options.hostname ?? window.location.hostname;
   const messages = findPlatformMessages(targetElement, hostname) ?? findLogMessages(targetElement);
-  return messages.slice(-maxMessages);
+  if (messages.length > 0 || !options.textFallback) return messages.slice(-maxMessages);
+  return extractTextFallback(targetElement);
 };

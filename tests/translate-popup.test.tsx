@@ -64,6 +64,12 @@ describe('TranslatePopup Component', () => {
     expect(screen.queryByText(/^Context:/)).toBeNull();
   });
 
+  it('shows a text badge instead of a count when raw chat text was sent', () => {
+    render(<TranslatePopup originalText="Hello" result="Hi" isLoading={false} contextCount={1} contextRaw onClose={vi.fn()} />);
+    expect(screen.getByText('Context: recent chat text')).toBeDefined();
+    expect(screen.queryByText('Context: 1 message')).toBeNull();
+  });
+
   it('shows the context badge in Vietnamese', () => {
     render(<TranslatePopup language="vi" originalText="Hello" result="Hi" isLoading={false} contextCount={2} onClose={vi.fn()} />);
     expect(screen.getByText('Ngữ cảnh: 2 tin nhắn')).toBeDefined();
