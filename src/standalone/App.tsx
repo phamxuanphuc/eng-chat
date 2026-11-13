@@ -10,8 +10,9 @@ import { loadSettings } from '../services/storage';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { getTranslator } from '../i18n';
 import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
 import { Logo } from '../components/ui/Logo';
-import { Settings, Monitor, MessageSquare, Sun, Moon, Sparkles } from 'lucide-react';
+import { Settings, Monitor, MessageSquare, Sun, Moon, GraduationCap, BriefcaseBusiness, Zap, BookOpen } from 'lucide-react';
 import { ToneType, RewriteOptions, DEFAULT_REWRITE_OPTIONS } from '../types';
 
 export const StandaloneApp: React.FC = () => {
@@ -115,7 +116,7 @@ export const StandaloneApp: React.FC = () => {
         <div className="flex items-center gap-3">
           <Logo size={36} />
           <div>
-            <h1 className="font-bold text-base bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">{t('standalone.title')}</h1>
+            <h1 className="font-bold text-base text-slate-100">{t('standalone.title')}</h1>
             <p className="text-xs text-slate-400">{t('standalone.subtitle')}</p>
           </div>
         </div>
@@ -155,9 +156,8 @@ export const StandaloneApp: React.FC = () => {
 
               <div className="flex flex-col gap-2 pt-2">
                 <label className="text-xs font-medium text-slate-300" htmlFor="standalone-chat-input">{t('standalone.compose')}</label>
-                <input
+                <Input
                   id="standalone-chat-input"
-                  type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onSelect={checkSelection}
@@ -166,16 +166,16 @@ export const StandaloneApp: React.FC = () => {
                     const rect = e.currentTarget.getBoundingClientRect();
                     setToolbar({ visible: true, x: Math.round(rect.left + rect.width / 2 - 90), y: Math.round(rect.bottom + 8), isLoading: false });
                   }}
-                  className="w-full rounded-xl bg-slate-950 text-slate-100 px-4 py-3 text-sm border border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 outline-none"
+                  aria-label={t('standalone.compose')}
                 />
               </div>
 
               <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800">
                 <span className="text-xs text-slate-400 mr-2">{t('standalone.quickActions')}</span>
-                <Button variant="secondary" size="sm" onClick={() => runOptimize('polite')}>🎩 {t('standalone.polite')}</Button>
-                <Button variant="secondary" size="sm" onClick={() => runOptimize('professional')}>💼 {t('standalone.professional')}</Button>
-                <Button variant="secondary" size="sm" onClick={() => runOptimize('concise')}>⚡ {t('standalone.concise')}</Button>
-                <Button variant="primary" size="sm" icon={<Sparkles size={14} />} onClick={() => runOptimize('translate_explain')}>📖 {t('standalone.translateExplain')}</Button>
+                <Button variant="secondary" size="sm" icon={<GraduationCap size={14} />} onClick={() => runOptimize('polite')}>{t('standalone.polite')}</Button>
+                <Button variant="secondary" size="sm" icon={<BriefcaseBusiness size={14} />} onClick={() => runOptimize('professional')}>{t('standalone.professional')}</Button>
+                <Button variant="secondary" size="sm" icon={<Zap size={14} />} onClick={() => runOptimize('concise')}>{t('standalone.concise')}</Button>
+                <Button variant="primary" size="sm" icon={<BookOpen size={14} />} onClick={() => runOptimize('translate_explain')}>{t('standalone.translateExplain')}</Button>
               </div>
             </div>
           </div>

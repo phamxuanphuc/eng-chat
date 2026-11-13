@@ -64,6 +64,8 @@ Short and concrete. Avoid doubled jargon such as "AI Provider (LLM Provider)". B
 
 ## Last updated
 
+2026-11-13: Impeccable audit removed decorative gradient text, replaced the switch gradient with a solid token, and aligned standalone quick actions with shared UI components and icon conventions.
+
 2026-11-10: improvement tasks T1 to T15.
 
 - Options save bar shows only with unsaved changes or right after a save, so the "all saved" state is gone.
